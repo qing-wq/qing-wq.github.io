@@ -57,7 +57,7 @@
 </ul>
 <p>除了有用“位”（bit）大小表示的整型外，还有 int 和 uint 这两个没有具体 bit 大小的整型，它们的大小可能是 32bit，也可能是 64bit，和硬件设备 CPU 有关。</p>
 <h3 id="浮点数"><a href="#浮点数" class="headerlink" title="浮点数"></a>浮点数</h3><ul>
-<li><code>float32</code> </li>
+<li><code>float32</code>&#x20;</li>
 <li><code>float64</code></li>
 </ul>
 <h3 id="复数"><a href="#复数" class="headerlink" title="复数"></a>复数</h3><ul>
@@ -71,7 +71,7 @@
 <li>Go 语言中不允许将整型强制转换为布尔型.</li>
 <li>布尔型无法参与数值运算，也无法与其他类型进行转换</li>
 </ul>
-<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><p>*** Go 语言里的字符串的内部实现使用UTF-8编码，每个字符串的底层都是byte数组***</p>
+<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><p>*** Go 语言里的字符串的内部实现使用UTF-8编码，每个字符串的底层都是byte数组***​</p>
 <ul>
 <li><em><strong>byte：相当于uint8</strong></em></li>
 <li><em><strong>rune：相当于int32</strong></em><ul>
@@ -82,11 +82,13 @@
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">//utf-8遍历</span></span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(str); i++ &#123;</span><br><span class="line">    ch := str[i]</span><br><span class="line">    fmt.Printf(<span class="string">&quot;%c \n&quot;</span>, ch)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Unicode遍历</span></span><br><span class="line"><span class="keyword">for</span> _, ch1 := <span class="keyword">range</span> str &#123;</span><br><span class="line">    fmt.Printf(<span class="string">&quot;%c \n&quot;</span>, ch1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <hr>
-<h2 id="Array、Slice、Map"><a href="#Array、Slice、Map" class="headerlink" title="Array、Slice、Map"></a>Array、Slice、Map</h2><p><img src="https://secure2.wostatic.cn/static/k8fQqzzFVSh26rzvwN448L/image.png?auth_key=1724515796-k5iv3hkWWR3bioPhsstwKU-0-40d82f5dcc7d441bca0263405c03c9a5"></p>
+<h2 id="Array、Slice、Map"><a href="#Array、Slice、Map" class="headerlink" title="Array、Slice、Map"></a>Array、Slice、Map</h2><p><img src="/../images/image_hekea8NFLl.png"></p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">array1:=[<span class="number">5</span>]<span class="type">string</span>&#123;<span class="number">1</span>:<span class="string">&quot;b&quot;</span>,<span class="number">3</span>:<span class="string">&quot;d&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">slice:=array[start:end]</span><br><span class="line"></span><br><span class="line">slice1:=<span class="built_in">make</span>([]<span class="type">string</span>,<span class="number">4</span>,<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">slice2:=<span class="built_in">append</span>(slice1,<span class="string">&quot;f&quot;</span>)</span><br><span class="line"></span><br><span class="line">nameAgeMap:=<span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>)</span><br><span class="line"></span><br><span class="line">nameAgeMap:=<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>&#123;<span class="string">&quot;飞雪无情&quot;</span>:<span class="number">20</span>&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>提示</p>
-<p>  在创建新切片的时候，最好要让新切片的长度和容量一样，这样在追加操作的时候就会生成新的底层数组，从而和原有数组分离，就不会因为共用底层数组导致修改内容的时候影响多个切片。</p>
+<blockquote>
+<p>📌提示</p>
+<p>在创建新切片的时候，最好要让新切片的长度和容量一样，这样在追加操作的时候就会生成新的底层数组，从而和原有数组分离，就不会因为共用底层数组导致修改内容的时候影响多个切片。</p>
+</blockquote>
 <h2 id="函数和方法"><a href="#函数和方法" class="headerlink" title="函数和方法"></a>函数和方法</h2><p>在 Go 语言中，方法和函数是两个概念，但又非常相似，不同点在于方法必须要有一个接收者，这个接收者是一个类型，这样方法就和这个类型绑定在一起，称为这个类型的方法。</p>
 <ul>
 <li>函数：正常的代码逻辑</li>
@@ -99,14 +101,16 @@
 <blockquote>
 <p>提示：在调用方法的时候，传递的接收者本质上都是副本，只不过一个是这个值的副本，一是指向这个值指针的副本。指针具有指向原有值的特性，所以修改了指针指向的值，也就修改了原有的值。<em><strong>我们可以简单地理解为值接收者使用的是值的副本来调用方法，而指针接收者使用实际的值来调用方法。</strong></em></p>
 </blockquote>
-<p>值接受者方法不会改变原始结构体实例</p>
+<blockquote>
+<p>📌值接受者方法不会改变原始结构体实例</p>
+</blockquote>
 <ul>
 <li>如果使用一个值类型变量调用指针类型接收者的方法，Go 语言编译器会自动帮我们取指针调用，以满足指针接收者的要求。</li>
 <li>同样的原理，如果使用一个指针类型变量调用值类型接收者的方法，Go 语言编译器会自动帮我们解引用调用，以满足值类型接收者的要求。</li>
 </ul>
 <h3 id="值类型调用者和指针类型调用者"><a href="#值类型调用者和指针类型调用者" class="headerlink" title="值类型调用者和指针类型调用者"></a>值类型调用者和指针类型调用者</h3><p>在官方effective go文档中，对两者区别描述如下：</p>
 <ul>
-<li><em><strong>值方法（value methods）可以通过指针和值调用，但是指针方法（pointer methods）只能通过指针来调用</strong></em><em><strong>。</strong></em></li>
+<li><em><strong>值方法（value methods）可以通过指针和值调用，但是指针方法（pointer methods）只能通过指针来调用</strong></em>** <em>。</em>** ​</li>
 <li>但有一个例外，如果某个值是可寻址的（addressable，或者说<em>左值</em>），那么编译器会在值调用指针方法时自动插入取地址符，使得在此情形下看起来像指针方法也可以通过值来调用。</li>
 </ul>
 <hr>
@@ -118,10 +122,10 @@
 <h3 id="通过变量调用方法"><a href="#通过变量调用方法" class="headerlink" title="通过变量调用方法"></a>通过变量调用方法</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">student := Student(<span class="string">&quot;my name is xiaoming, I am &quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法赋值给变量</span></span><br><span class="line">sm := Student.stu</span><br><span class="line">sm2 := (*Student).stu2</span><br><span class="line">sm(student, <span class="number">2</span>)</span><br><span class="line">sm2(&amp;student)</span><br><span class="line">student.stu(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
 
 <h2 id="结构体和接口"><a href="#结构体和接口" class="headerlink" title="结构体和接口"></a>结构体和接口</h2><p>结构体定义：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">type Stu <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">  name <span class="built_in">string</span></span><br><span class="line">  age <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名结构体***变量***</span></span><br><span class="line">var stu <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">  name <span class="built_in">string</span></span><br><span class="line">  age <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名结构体变量另一种写法</span></span><br><span class="line">newCar := <span class="keyword">struct</span> &#123;</span><br><span class="line">  Make    <span class="built_in">string</span> `json:<span class="string">&quot;make&quot;</span>`</span><br><span class="line">  Model   <span class="built_in">string</span> `json:<span class="string">&quot;model&quot;</span>`</span><br><span class="line">  Mileage <span class="type">int</span>    `json:<span class="string">&quot;mileage&quot;</span>`</span><br><span class="line">&#125;&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MyStringer interface</span></span><br><span class="line">type MyStringer interface&#123;</span><br><span class="line">  myString() <span class="built_in">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">type Stu <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">  name <span class="built_in">string</span></span><br><span class="line">  age <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名结构体 变量 </span></span><br><span class="line">var stu <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">  name <span class="built_in">string</span></span><br><span class="line">  age <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名结构体变量另一种写法</span></span><br><span class="line">newCar := <span class="keyword">struct</span> &#123;</span><br><span class="line">  Make    <span class="built_in">string</span> `json:<span class="string">&quot;make&quot;</span>`</span><br><span class="line">  Model   <span class="built_in">string</span> `json:<span class="string">&quot;model&quot;</span>`</span><br><span class="line">  Mileage <span class="type">int</span>    `json:<span class="string">&quot;mileage&quot;</span>`</span><br><span class="line">&#125;&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MyStringer interface</span></span><br><span class="line">type MyStringer interface&#123;</span><br><span class="line">  myString() <span class="built_in">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p><em><strong>以指针类型接收者实现接口的时候，只有对应的指针类型实例才被认为实现了该接口。</strong></em></p>
-<p><img src="https://secure2.wostatic.cn/static/kvvHdQUqD5LDsUdeW85h5M/Ciqc1F-yPMSAZ4k7AABU_GW4VxE080.png?auth_key=1724515796-n2t5hh2gwdRmet7e8AkuT4-0-f289ee1495e08d63808b00ecd1807fb4"></p>
+<p><img src="/../images/Ciqc1F-yPMSAZ4k7AABU_GW4VxE080_J3w0-tF9PU.png"></p>
 <h3 id="工厂函数（构造函数）"><a href="#工厂函数（构造函数）" class="headerlink" title="工厂函数（构造函数）"></a>工厂函数（构造函数）</h3><p>工厂函数一般用于创建自定义的结构体，便于使用者调用</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewPerson</span><span class="params">(name <span class="type">string</span>)</span></span> *person &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;person&#123;name:name&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
@@ -138,10 +142,10 @@
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// error 定义</span></span><br><span class="line"><span class="keyword">type</span> <span class="type">error</span> <span class="keyword">interface</span> &#123;</span><br><span class="line">   Error() <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工厂函数</span></span><br><span class="line">errors.New(<span class="string">&quot;error&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p><strong>自定义异常</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> commonError <span class="keyword">struct</span> &#123;</span><br><span class="line">  errorCode <span class="type">int</span>    <span class="comment">//错误码</span></span><br><span class="line">  errorMsg  <span class="type">string</span> <span class="comment">//错误信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现了Error()就是自定义异常</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ce *commonError)</span></span> Error() <span class="type">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> ce.errorMsg</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> commonError <span class="keyword">struct</span> &#123;</span><br><span class="line">  errorCode <span class="type">int</span>    <span class="comment">//错误码</span></span><br><span class="line">  errorMsg  <span class="type">string</span> <span class="comment">//错误信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 实现了Error()就是自定义异常 </span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ce *commonError)</span></span> Error() <span class="type">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> ce.errorMsg</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="Error-Wrapping"><a href="#Error-Wrapping" class="headerlink" title="Error Wrapping"></a>Error Wrapping</h3><p>上述自定义异常可以满足我们的需求，但是非常烦琐，因为既要定义新的类型还要实现 error 接口。</p>
-<p> Go 语言 1.13 版本开始，Go 标准库新增了 Error Wrapping 功能，让我们可以基于一个存在的 error 生成新的 error，并且可以保留原 error 信息。</p>
+<p>&#x20;Go 语言 1.13 版本开始，Go 标准库新增了 Error Wrapping 功能，让我们可以基于一个存在的 error 生成新的 error，并且可以保留原 error 信息。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// wrap</span></span><br><span class="line">e := errors.New(<span class="string">&quot;原始错误e&quot;</span>)</span><br><span class="line">w := fmt.Errorf(<span class="string">&quot;Wrap了一个错误:%w&quot;</span>, e)</span><br><span class="line">fmt.Println(w)   <span class="comment">// wrap了一个错误:原始错误e</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Unwrap</span></span><br><span class="line">fmt.Println(errors.Unwrap(w))   <span class="comment">// 原始错误e</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <h3 id="errors-Is"><a href="#errors-Is" class="headerlink" title="errors.Is"></a>errors.Is</h3><p>有了 Error Wrapping 后，你会发现原来用的判断两个 error 是不是同一个 error 的方法失效了，比如 Go 语言标准库经常用到的如下代码中的方式：</p>
@@ -155,7 +159,9 @@
 <li>如果 err 和 target 是同一个，那么返回 true。</li>
 <li>如果 err 是一个 wrapping error，target 也包含在这个嵌套 error 链中的话，也返回 true。</li>
 </ul>
-<p>可以简单地概括为，两个 error 相等或 err 包含 target 的情况下返回 true，其余返回 false。</p>
+<blockquote>
+<p>📌可以简单地概括为，两个 error 相等或 err 包含 target 的情况下返回 true，其余返回 false。</p>
+</blockquote>
 <h3 id="errors-As"><a href="#errors-As" class="headerlink" title="errors.As"></a>errors.As</h3><p>同样的原因，有了 error 嵌套后，error 断言也不能用了，因为你不知道一个 error 是否被嵌套，又嵌套了几层。所以 Go 语言为解决这个问题提供了 errors.As 函数，比如前面 error 断言的例子，可以使用  errors.As 函数重写，效果是一样的，如下面的代码所示：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> cm *commonError</span><br><span class="line"><span class="keyword">if</span> errors.As(err,&amp;cm)&#123;</span><br><span class="line">   fmt.Println(<span class="string">&quot;错误代码为:&quot;</span>,cm.errorCode,<span class="string">&quot;，错误信息为：&quot;</span>,cm.errorMsg)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">   fmt.Println(sum)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -173,7 +179,7 @@
 <p><code>interface&#123;&#125;</code> 是空接口的意思，在 Go 语言中代表任意类型。</p>
 </blockquote>
 <p>panic 异常是一种非常严重的情况，会让程序中断运行，使程序崩溃，所以<strong>如果是不影响程序运行的错误，不要使用 panic，使用普通错误 error 即可。</strong></p>
-<h4 id="Recover-捕获-Panic-异常"><a href="#Recover-捕获-Panic-异常" class="headerlink" title="Recover 捕获 Panic 异常"></a>Recover 捕获 Panic 异常</h4><p>通常情况下，我们不对 panic 异常做任何处理，因为既然它是影响程序运行的异常，就让它直接崩溃即可。但是也的确有一些特例，比如<strong>在****程序崩溃前做一些资源释放的处理</strong>，这时候就需要从 panic 异常中恢复，才能完成处理。</p>
+<h4 id="Recover-捕获-Panic-异常"><a href="#Recover-捕获-Panic-异常" class="headerlink" title="Recover 捕获 Panic 异常"></a>Recover 捕获 Panic 异常</h4><p>通常情况下，我们不对 panic 异常做任何处理，因为既然它是影响程序运行的异常，就让它直接崩溃即可。但是也的确有一些特例，比如<strong>在程序崩溃前做一些资源释放的处理</strong>，这时候就需要从 panic 异常中恢复，才能完成处理。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">connectMySQL</span><span class="params">(ip, username, password <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> ip == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;ip不能为空&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//省略其他代码</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> p := <span class="built_in">recover</span>(); p != <span class="literal">nil</span> &#123;</span><br><span class="line">      fmt.Println(p)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;()</span><br><span class="line">  connectMySQL(<span class="string">&quot;&quot;</span>, <span class="string">&quot;root&quot;</span>, <span class="string">&quot;123456&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h1 id="并发基础"><a href="#并发基础" class="headerlink" title="并发基础"></a>并发基础</h1><h2 id="协程（Goroutine）"><a href="#协程（Goroutine）" class="headerlink" title="协程（Goroutine）"></a>协程（Goroutine）</h2><p>Go 语言中没有线程的概念，只有协程，也称为 goroutine。</p>
@@ -189,7 +195,7 @@
 <h3 id="有缓冲-channel"><a href="#有缓冲-channel" class="headerlink" title="有缓冲 channel"></a>有缓冲 channel</h3><p>有缓冲 channel 类似一个可阻塞的队列，内部的元素<em><strong>先进先出</strong></em>。通过 make 函数的第二个参数可以指定 channel 容量的大小，进而创建一个有缓冲 channel。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">cacheCh:=<span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>,<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://secure2.wostatic.cn/static/8LtrEHjKdDBKTB44Ymrrj5/CgqCHl-7fzmAVLu0AACSjW-neAE188.png?auth_key=1724515968-nWEVkVvt6cewEyMs4QoWSK-0-534da08e9f185d70edee370c71118f66"></p>
+<p><img src="/../images/CgqCHl-7fzmAVLu0AACSjW-neAE188_KyDQkHLLjx.png"></p>
 <p>一个有缓冲 channel 具备以下特点：</p>
 <ol>
 <li>有缓冲 channel 的内部有一个缓冲队列；</li>
@@ -220,7 +226,7 @@
 <h3 id="sync-RWMutex"><a href="#sync-RWMutex" class="headerlink" title="sync.RWMutex"></a>sync.RWMutex</h3><p>go中的读写锁。使用：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> mutex sync.RWMutex</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readSum</span><span class="params">()</span></span> <span class="type">int</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//只获取读锁</span></span><br><span class="line">   mutex.RLock()</span><br><span class="line">   <span class="keyword">defer</span> mutex.RUnlock()</span><br><span class="line">   b:=sum</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> b</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="sync-WaitGroup"><a href="#sync-WaitGroup" class="headerlink" title="sync.WaitGroup"></a>sync.WaitGroup</h3><p>相当于Java中的***<code>CountDownLatch</code>***，用于最终完成的场景，关键点在于一定要等待所有协程都执行完毕。</p>
+<h3 id="sync-WaitGroup"><a href="#sync-WaitGroup" class="headerlink" title="sync.WaitGroup"></a>sync.WaitGroup</h3><p>相当于Java中的***<code>CountDownLatch</code>** *，用于最终完成的场景，关键点在于一定要等待所有协程都执行完毕。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">   <span class="comment">//因为要监控110个协程，所以设置计数器为110</span></span><br><span class="line">   wg.Add(<span class="number">110</span>)</span><br><span class="line">   <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">      <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">         <span class="comment">//计数器值减1</span></span><br><span class="line">         <span class="keyword">defer</span> wg.Done()</span><br><span class="line">         add(<span class="number">10</span>)</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>;i++ &#123;</span><br><span class="line">      <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">         <span class="comment">//计数器值减1</span></span><br><span class="line">         <span class="keyword">defer</span> wg.Done()</span><br><span class="line">         fmt.Println(<span class="string">&quot;和为:&quot;</span>,readSum())</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//一直等待，直到计数器值为0</span></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="sync-Once"><a href="#sync-Once" class="headerlink" title="sync.Once"></a>sync.Once</h3><p>让代码只执行一次，哪怕是在高并发的情况下，比如创建一个单例。</p>
@@ -240,9 +246,9 @@
 <p>如果你以前学过 Java，会发现 sync.Cond 和 Java 的等待唤醒机制很像，它的三个方法 Wait、Signal、Broadcast 就分别对应 Java 中的 wait、notify、notifyAll。</p>
 <h2 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h2><blockquote>
 <p>一个任务会有很多个协程协作完成，一次 HTTP 请求也会触发很多个协程的启动，而这些协程有可能会启动更多的子协程，并且无法预知有多少层协程、每一层有多少个协程。</p>
+<p>如果因为某些原因导致任务终止了，HTTP 请求取消了，那么它们启动的协程怎么办？该如何取消呢？因为取消这些协程可以节约内存，提升性能，同时避免不可预料的 Bug。</p>
+<p>Context 就是用来简化解决这些问题的，并且是并发安全的。Context 是一个接口，它具备手动、定时、超时发出取消信号、传值等功能，主要用于控制多个协程之间的协作，尤其是取消操作。一旦取消指令下达，那么被 Context 跟踪的这些协程都会收到取消信号，就可以做清理和退出操作。</p>
 </blockquote>
-<p>  如果因为某些原因导致任务终止了，HTTP 请求取消了，那么它们启动的协程怎么办？该如何取消呢？因为取消这些协程可以节约内存，提升性能，同时避免不可预料的 Bug。</p>
-<p>  Context 就是用来简化解决这些问题的，并且是并发安全的。Context 是一个接口，它具备手动、定时、超时发出取消信号、传值等功能，主要用于控制多个协程之间的协作，尤其是取消操作。一旦取消指令下达，那么被 Context 跟踪的这些协程都会收到取消信号，就可以做清理和退出操作。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line"></span><br><span class="line">   Deadline() (deadline time.Time, ok <span class="type">bool</span>)</span><br><span class="line">   Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">   Err() <span class="type">error</span></span><br><span class="line">   Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="Context-树"><a href="#Context-树" class="headerlink" title="Context 树"></a>Context 树</h3><p>Go 语言提供了函数可以帮助我们生成不同的 Context，通过这些函数可以生成一颗 Context 树，这样 Context 才可以关联起来，父 Context 发出取消信号的时候，子 Context 也会发出，这样就可以控制不同层级的协程退出。</p>
@@ -253,10 +259,10 @@
 <li><strong>可定时取消的 Context</strong>：多了一个定时的功能。</li>
 <li><strong>值 Context</strong>：用于存储一个 key-value 键值对。</li>
 </ol>
-<p><img src="https://secure2.wostatic.cn/static/7nUCjqyRXkHWUmHZmAr6bH/CgqCHl_EyHOARbBqAAKzKmhclWo807.png"></p>
+<p><img src="/../images/CgqCHl_EyHOARbBqAAKzKmhclWo807_A5KZtclRKo.png"></p>
 <p><code> context.Background()</code>获取一个根节点 Context。</p>
 <hr>
-<p> Context 树要怎么生成呢？</p>
+<p>&#x20;Context 树要怎么生成呢？</p>
 <ol>
 <li>**<code>WithCancel(parent Context)</code>**：生成一个可取消的 Context。<ol>
 <li>**<code>WithDeadline(parent Context, d time.Time)</code>**：生成一个可定时取消的 Context，参数 d 为定时取消的具体时间。<ol>
@@ -277,20 +283,19 @@
 </li>
 <li><p>指针类型非常廉价，只占用 4 个或者 8 个字节的内存大小。</p>
 </li>
-<li><p><em><strong>通过 var 声明的指针变量还没有分配内存</strong></em>，因为这时候它仅仅是个变量，是不能直接赋值和取值的，它的值是 nil </p>
-<p>  <img src="https://secure2.wostatic.cn/static/ufFkB4smrJbx2cGQzJhYRt/image.png" alt="直接赋值和取值"></p>
-<p>  解决方法：将一块内存地址<code>&amp;m</code>赋值给指针变量<code>*p</code></p>
-</li>
-</ul>
+<li><p><em><strong>通过 var 声明的指针变量还没有分配内存</strong></em>，因为这时候它仅仅是个变量，是不能直接赋值和取值的，它的值是 nil&#x20;</p>
+<p><img src="/../images/image_t8e3mEYUbE.png" alt="直接赋值和取值" title="直接赋值和取值"></p>
+<p>解决方法：将一块内存地址<code>&amp;m</code>赋值给指针变量<code>*p</code></p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> p *<span class="type">int</span></span><br><span class="line"><span class="keyword">var</span> m <span class="type">int</span></span><br><span class="line">p = &amp;m</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过new创建的指针是存在内存地址的，可以直接赋值</p>
 <ul>
-<li>通过new创建的指针是存在内存地址的，可以直接赋值<ul>
 <li><code>var intP *int = new(int)</code></li>
 </ul>
 </li>
 </ul>
 <h1 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h1><p><strong>严格来说，Go 语言没有引用类型</strong>，但是我们可以把 map、chan 称为引用类型，这样便于理解。除了 map、chan 之外，Go 语言中的函数、接口、slice 切片、指针都可以称为引用类型。</p>
-<p><img src="https://secure2.wostatic.cn/static/sR7Qy5TGpv3nem4m1MYHsX/image.png"></p>
+<p><img src="/../images/image_trx0_Qi29q.png"></p>
 <p>总结：</p>
 <p>在 Go 语言中，<strong>函数的参数传递只有值传递</strong>，而且传递的实参都是原始数据的一份拷贝。</p>
 <p>如果拷贝的内容是值类型的，那么在函数中就无法修改原始数据；</p>
@@ -304,18 +309,15 @@
 <h2 id="make"><a href="#make" class="headerlink" title="make"></a>make</h2><p>make 函数只用于 slice、chan 和 map 这三种内置类型的创建和初始化，因为这三种类型的结构比较复杂，比如 slice 要提前初始化好内部元素的类型，slice 的长度和容量等，这样才可以更好地使用它们。</p>
 <h1 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h1><ul>
 <li><p><strong><code>reflect.Value</code></strong> 和**<code>reflect.Type</code>**</p>
-<p>  在 Go 语言的反射定义中，任何接口都由两部分组成：接口的具体类型，以及具体类型对应的值。比如 var i int &#x3D; 3，因为 <code>interface&#123;&#125;</code> 可以表示任何类型，所以变量 i 可以转为 interface{}。其中 Value 为变量的值，即 3，而 Type 为变量的类型，即 int。</p>
-</li>
-</ul>
+<p>在 Go 语言的反射定义中，任何接口都由两部分组成：接口的具体类型，以及具体类型对应的值。比如 var i int &#x3D; 3，因为 <code>interface&#123;&#125;</code> 可以表示任何类型，所以变量 i 可以转为 interface{}。其中 Value 为变量的值，即 3，而 Type 为变量的类型，即 int。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">i:=<span class="number">3</span></span><br><span class="line">iv:=reflect.ValueOf(i)</span><br><span class="line">it:=reflect.TypeOf(i)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>修改变量</p>
-<p>  要修改一个变量的值，有几个关键点：传递指针（可寻址），通过 Elem 方法获取指向的值，才可以保证值可以被修改，reflect.Value 为我们提供了 CanSet 方法判断是否可以修改该变量。</p>
 </li>
-</ul>
+<li><p>修改变量</p>
+<p>要修改一个变量的值，有几个关键点：传递指针（可寻址），通过 Elem 方法获取指向的值，才可以保证值可以被修改，reflect.Value 为我们提供了 CanSet 方法判断是否可以修改该变量。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">ipv := reflect.ValueOf(&amp;i)</span><br><span class="line">ipv.Elem().SetInt(<span class="number">4</span>)</span><br><span class="line">fmt.Println(i)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>反射的三大定律<ol>
+</li>
+<li><p>反射的三大定律</p>
+<ol>
 <li>任何接口值 <code>interface&#123;&#125;</code> 都可以反射出反射对象，也就是 reflect.Value 和 reflect.Type，通过函数 reflect.ValueOf 和 reflect.TypeOf 获得。</li>
 <li>反射对象也可以还原为 interface{} 变量，也就是第 1 条定律的可逆性，通过 reflect.Value 结构体的 Interface 方法获得。</li>
 <li>要修改反射的对象，该值必须可设置，也就是可寻址，参考上节课修改变量的值那一节的内容理解。</li>
@@ -324,8 +326,8 @@
 </ul>
 <h1 id="SliceHeader"><a href="#SliceHeader" class="headerlink" title="SliceHeader"></a>SliceHeader</h1><ul>
 <li><p>在 Go 语言中，切片其实是一个结构体，定义如下：</p>
-<p>  <img src="https://secure2.wostatic.cn/static/xrXdFcnYCgqoezWJtSoTTD/image.png"></p>
-<p>  SliceHeader 是切片在运行时的表现形式，它有三个字段 Data、Len 和 Cap。</p>
+<p><img src="/../images/image_X_Cyk8TKPo.png"></p>
+<p>SliceHeader 是切片在运行时的表现形式，它有三个字段 Data、Len 和 Cap。</p>
 <ol>
 <li>Data 用来指向存储切片元素的数组。</li>
 <li>Len 代表切片的长度。</li>
@@ -359,16 +361,16 @@
 <li><p>b.N 是基准测试框架提供的，表示循环的次数，因为需要反复调用测试的代码，才可以评估性能。</p>
 </li>
 <li><p>运行：<code>go test -bench=. ./ch18</code></p>
-<p>  <img src="https://secure2.wostatic.cn/static/hDbuwg1VMYR7m6gRV2Jzan/image.png"></p>
+<p><img src="/../images/image_JlVijZWatR.png"></p>
 </li>
 <li><p>计时方法</p>
-<p>  <img src="https://secure2.wostatic.cn/static/sWXY8i5ctWgycgHbtbUTUg/image.png"></p>
+<p><img src="/../images/image_01f3cRZXVK.png"></p>
 </li>
 <li><p>内存统计</p>
-<p>  <img src="https://secure2.wostatic.cn/static/47gz89cJQCKjeorCioMjcf/image.png"></p>
+<p><img src="/../images/image_0VABPfND_h.png"></p>
 </li>
 <li><p>并发基准测试</p>
-<p>  <img src="https://secure2.wostatic.cn/static/p5n1yEGVrDgwhRY3d4hufd/image.png"></p>
+<p><img src="/../images/image_KLlXB9vavX.png"></p>
 </li>
 </ul>
 <h1 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h1><p>Go的泛型使用<code>interface</code>实现</p>
@@ -385,8 +387,8 @@
     <content><![CDATA[<blockquote>
 <p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
 </blockquote>
-<p><img src="https://secure2.wostatic.cn/static/wwaepQhEfwH3yF5DXvXHxH/289b54f1b37819da340708c7cfb9e261.png?auth_key=1724516085-ctfu1KKbv8jNifQWcpPEAF-0-9c157460d370a29e98bfeca6594707c7"></p>
-<p><img src="https://secure2.wostatic.cn/static/uWv97hpRDFbjQZpp6TvjCM/1551908c7fb3dddbbc2d3b1e90a48cf1.png?auth_key=1724516085-6eZYyRZ9Qgnx9p7AF3aWNr-0-dc62b3d8c526470ac68236f9e9275f0a"></p>
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
 <p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
 <p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
 ]]></content>
@@ -464,7 +466,7 @@
 <p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="https://secure2.wostatic.cn/static/it8rXH1u6UWqnbC8N9pFe9/image.png?auth_key=1724516197-d2LEnTRaoRWe7AAzJUEvRD-0-dbd597f72fc9ab9050ed6c62c06268e5"></p>
+<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
 <p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
 ]]></content>
   </entry>
