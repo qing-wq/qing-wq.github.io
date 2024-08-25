@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spingboot3.0 升级记录">
+<meta property="og:url" content="http://example.com/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="背景：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/it8rXH1u6UWqnbC8N9pFe9/image.png?auth_key=1724516197-d2LEnTRaoRWe7AAzJUEvRD-0-dbd597f72fc9ab9050ed6c62c06268e5">
+<meta property="article:published_time" content="2024-06-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T16:18:48.821Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://secure2.wostatic.cn/static/it8rXH1u6UWqnbC8N9pFe9/image.png?auth_key=1724516197-d2LEnTRaoRWe7AAzJUEvRD-0-dbd597f72fc9ab9050ed6c62c06268e5">
+
+<link rel="canonical" href="http://example.com/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Spingboot3.0 升级记录 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spingboot3.0 升级记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-06-21 00:00:00" itemprop="dateCreated datePublished" datetime="2024-06-21T00:00:00+08:00">2024-06-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-25 00:18:48" itemprop="dateModified" datetime="2024-08-25T00:18:48+08:00">2024-08-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
+</blockquote>
+<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
+<ul>
+<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
+<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></table></figure>
+
+<p>更多改动详情，参考官方文档：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
+<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="https://secure2.wostatic.cn/static/it8rXH1u6UWqnbC8N9pFe9/image.png?auth_key=1724516197-d2LEnTRaoRWe7AAzJUEvRD-0-dbd597f72fc9ab9050ed6c62c06268e5"></p>
+<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/14/Go%20generic%20VS%20Java%20generic/" rel="prev" title="Go generic VS Java generic">
+      <i class="fa fa-chevron-left"></i> Go generic VS Java generic
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/20/LangChain4j-spring%20Bug/" rel="next" title="LangChain4j-spring Bug修复记录">
+      LangChain4j-spring Bug修复记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Boot-3-0-%E4%B8%BB%E8%A6%81%E6%94%B9%E5%8A%A8"><span class="nav-number">1.</span> <span class="nav-text">Spring Boot 3.0 主要改动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E8%BF%81%E7%A7%BB%E4%B8%AD%E5%8F%91%E7%8E%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">项目迁移中发现的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-Starter-%E4%B8%8D%E5%85%BC%E5%AE%B9"><span class="nav-number">2.1.</span> <span class="nav-text">自定义 Starter 不兼容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mybatis-%E5%85%BC%E5%AE%B9%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.</span> <span class="nav-text">Mybatis 兼容性问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

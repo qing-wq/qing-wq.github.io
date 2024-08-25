@@ -20,28 +20,44 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="环境搭建 GOPATH：代表 Go 语言项目的工作目录，在 Go Module 模式之前非常重要，现在基本上用来存放使用 go get 命令获取的项目。 GOBIN：代表 Go 编译生成的程序的安装目录，比如通过 go install 命令，会把生成的 Go 程序安装到 GOBIN 目录下，以供你在终端使用。 Go代理：GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn  1234export">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言基础">
+<meta property="og:url" content="http://example.com/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="环境搭建 GOPATH：代表 Go 语言项目的工作目录，在 Go Module 模式之前非常重要，现在基本上用来存放使用 go get 命令获取的项目。 GOBIN：代表 Go 编译生成的程序的安装目录，比如通过 go install 命令，会把生成的 Go 程序安装到 GOBIN 目录下，以供你在终端使用。 Go代理：GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn  1234export">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/k8fQqzzFVSh26rzvwN448L/image.png?auth_key=1724515796-k5iv3hkWWR3bioPhsstwKU-0-40d82f5dcc7d441bca0263405c03c9a5">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/kvvHdQUqD5LDsUdeW85h5M/Ciqc1F-yPMSAZ4k7AABU_GW4VxE080.png?auth_key=1724515796-n2t5hh2gwdRmet7e8AkuT4-0-f289ee1495e08d63808b00ecd1807fb4">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/8LtrEHjKdDBKTB44Ymrrj5/CgqCHl-7fzmAVLu0AACSjW-neAE188.png?auth_key=1724515968-nWEVkVvt6cewEyMs4QoWSK-0-534da08e9f185d70edee370c71118f66">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/7nUCjqyRXkHWUmHZmAr6bH/CgqCHl_EyHOARbBqAAKzKmhclWo807.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/ufFkB4smrJbx2cGQzJhYRt/image.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/sR7Qy5TGpv3nem4m1MYHsX/image.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/xrXdFcnYCgqoezWJtSoTTD/image.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/hDbuwg1VMYR7m6gRV2Jzan/image.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/sWXY8i5ctWgycgHbtbUTUg/image.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/47gz89cJQCKjeorCioMjcf/image.png">
+<meta property="og:image" content="https://secure2.wostatic.cn/static/p5n1yEGVrDgwhRY3d4hufd/image.png">
+<meta property="article:published_time" content="2023-08-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-25T07:37:05.442Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://secure2.wostatic.cn/static/k8fQqzzFVSh26rzvwN448L/image.png?auth_key=1724515796-k5iv3hkWWR3bioPhsstwKU-0-40d82f5dcc7d441bca0263405c03c9a5">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Hexo</title>
+  <title>Go语言基础 | Hexo</title>
   
 
 
@@ -139,366 +155,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/20/LangChain4j-spring%20Bug/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/08/20/LangChain4j-spring%20Bug/" class="post-title-link" itemprop="url">LangChain4j-spring Bug修复记录</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-08-20 00:00:00" itemprop="dateCreated datePublished" datetime="2024-08-20T00:00:00+08:00">2024-08-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-25 00:18:43" itemprop="dateModified" datetime="2024-08-25T00:18:43+08:00">2024-08-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>起因：在使用langchain4j的过程中发现，如果使用<code>@ComponentScan</code>扫描特定的文件路径，并且该文件路径中定义了带有<code>@AiService</code>，那么该接口将不会被扫描并生成代理类</p>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
-<ol>
-<li><code>Reflections</code>扫描当前启动类所在的类路径获取<code>@AiService</code>的class</li>
-<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) &#123;</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> &#123;</span><br><span class="line">        Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">        basePackages.addAll(autoConfigPackages);</span><br><span class="line"></span><br><span class="line">        String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">        <span class="keyword">for</span> (String beanName : beanNames) &#123;</span><br><span class="line">            Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">            <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">                <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) &#123;</span><br><span class="line">                    Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">                    Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">                    <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) &#123;</span><br><span class="line">                        basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>原来使用<code>Reflections</code>扫描的方式不太优雅，我们的目标是获取Bean，通过Spring本身的方法更好。但问题在于如何让Spring扫描自定义接口</p>
-<p>解决方案：参考Mybatis的实现，Mybtis通过<code>@Mapper</code>即可将类注入到Spring中，原理在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径</p>
-<p>使用<code>BeanDefinitionRegistryPostProcessor</code>在bean注册完成后，再次使用自定义<code>ClassPathBeanDefinitionScanner</code>扫描全部接口（默认的<code>BeanScanner</code>只会扫描类），扫描的路径为所有<code>@ComponentScan</code>指定的basePackage</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 同上</span></span><br><span class="line">    <span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后在<code>BeanFactoryPostProcessor</code>阶段，通过自定义的<code>AiServiceFactory</code>替换接口的beanClass，然后将原有的beanClass设置为他的内部属性并重写他的<code>getObject()</code>方法，这样就完成bean的替换</p>
-<h2 id="Issue"><a href="#Issue" class="headerlink" title="Issue"></a>Issue</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
-</ul>
-<hr>
-<p>参考资料：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/" class="post-title-link" itemprop="url">Spingboot3.0 升级记录</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-06-21 00:00:00" itemprop="dateCreated datePublished" datetime="2024-06-21T00:00:00+08:00">2024-06-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-25 00:18:48" itemprop="dateModified" datetime="2024-08-25T00:18:48+08:00">2024-08-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
-</blockquote>
-<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
-<ul>
-<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
-<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></table></figure>
-
-<p>更多改动详情，参考官方文档：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="https://secure2.wostatic.cn/static/it8rXH1u6UWqnbC8N9pFe9/image.png?auth_key=1724516197-d2LEnTRaoRWe7AAzJUEvRD-0-dbd597f72fc9ab9050ed6c62c06268e5"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/14/Go%20generic%20VS%20Java%20generic/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/14/Go%20generic%20VS%20Java%20generic/" class="post-title-link" itemprop="url">Go generic VS Java generic</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-14 00:00:00" itemprop="dateCreated datePublished" datetime="2024-02-14T00:00:00+08:00">2024-02-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-25 00:19:10" itemprop="dateModified" datetime="2024-08-25T00:19:10+08:00">2024-08-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
-<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) &#123;&#125;</code>中，<code>T</code>就是一个类型参数。</p>
-<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) &#123;&#125;</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
-<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
-<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T &#123;&#125;</code>。</p>
-<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
-<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
-<li>不支持泛型方法。</li>
-</ul>
-<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
-<ul>
-<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
-<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> &#123;</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T &#123;</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
-<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
-<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
-<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
-<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
-</ul>
-<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>Java泛型支持泛型方法。</li>
-<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
-</ul>
-<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
-<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
-<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
-</ul>
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
-<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
-<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
-</ul>
-<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
-<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
-<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
-</ul>
-<hr>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
-<li><a target="_blank" rel="noopener" href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/" class="post-title-link" itemprop="url">Spring Lazy-init 踩坑记录</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-11-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-01T00:00:00+08:00">2023-11-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-25 00:18:57" itemprop="dateModified" datetime="2024-08-25T00:18:57+08:00">2024-08-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
-</blockquote>
-<p><img src="https://secure2.wostatic.cn/static/wwaepQhEfwH3yF5DXvXHxH/289b54f1b37819da340708c7cfb9e261.png?auth_key=1724516085-ctfu1KKbv8jNifQWcpPEAF-0-9c157460d370a29e98bfeca6594707c7"></p>
-<p><img src="https://secure2.wostatic.cn/static/uWv97hpRDFbjQZpp6TvjCM/1551908c7fb3dddbbc2d3b1e90a48cf1.png?auth_key=1724516085-6eZYyRZ9Qgnx9p7AF3aWNr-0-dc62b3d8c526470ac68236f9e9275f0a"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
@@ -514,10 +174,9 @@
       <meta itemprop="name" content="Hexo">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">Go语言基础</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          Go语言基础
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -547,7 +206,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><ul>
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><ul>
 <li><strong>GOPATH</strong>：代表 Go 语言项目的工作目录，在 Go Module 模式之前非常重要，现在基本上用来存放使用 go get 命令获取的项目。</li>
 <li><strong>GOBIN</strong>：代表 Go 编译生成的程序的安装目录，比如通过 go install 命令，会把生成的 Go 程序安装到 GOBIN 目录下，以供你在终端使用。</li>
 <li>Go代理：<code>GOPROXY=https://goproxy.cn</code></li>
@@ -890,21 +549,30 @@
 </ul>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> &#123;</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T &#123;</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/" rel="next" title="Spring Lazy-init 踩坑记录">
+      Spring Lazy-init 踩坑记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -957,6 +625,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%8F%91%E5%B8%83"><span class="nav-number">1.1.</span> <span class="nav-text">编译发布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E7%BC%96%E8%AF%91"><span class="nav-number">1.2.</span> <span class="nav-text">跨平台编译</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number"></span> <span class="nav-text">基本数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B"><span class="nav-number">0.1.</span> <span class="nav-text">整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%AE%E7%82%B9%E6%95%B0"><span class="nav-number">0.2.</span> <span class="nav-text">浮点数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E6%95%B0"><span class="nav-number">0.3.</span> <span class="nav-text">复数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E5%B0%94%E5%80%BC"><span class="nav-number">0.4.</span> <span class="nav-text">布尔值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">0.5.</span> <span class="nav-text">字符串</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Array%E3%80%81Slice%E3%80%81Map"><span class="nav-number">1.</span> <span class="nav-text">Array、Slice、Map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%92%8C%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">函数和方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%80%BC%E7%B1%BB%E5%9E%8B%E6%8E%A5%E6%94%B6%E8%80%85%E5%92%8C%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E6%8E%A5%E6%94%B6%E8%80%85"><span class="nav-number">2.1.</span> <span class="nav-text">值类型接收者和指针类型接收者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%80%BC%E7%B1%BB%E5%9E%8B%E8%B0%83%E7%94%A8%E8%80%85%E5%92%8C%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E8%B0%83%E7%94%A8%E8%80%85"><span class="nav-number">2.2.</span> <span class="nav-text">值类型调用者和指针类型调用者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E5%8F%98%E9%87%8F%E8%B0%83%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">通过变量调用方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%92%8C%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.</span> <span class="nav-text">结构体和接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E5%8E%82%E5%87%BD%E6%95%B0%EF%BC%88%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">工厂函数（构造函数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%A7%E6%89%BF%E5%92%8C%E7%BB%84%E5%90%88"><span class="nav-number">3.2.</span> <span class="nav-text">继承和组合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E6%96%AD%E8%A8%80"><span class="nav-number">3.3.</span> <span class="nav-text">类型断言</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Error"><span class="nav-number">4.</span> <span class="nav-text">Error</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Error-Wrapping"><span class="nav-number">4.1.</span> <span class="nav-text">Error Wrapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#errors-Is"><span class="nav-number">4.2.</span> <span class="nav-text">errors.Is</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#errors-As"><span class="nav-number">4.3.</span> <span class="nav-text">errors.As</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deferred"><span class="nav-number">4.4.</span> <span class="nav-text">Deferred</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Panic"><span class="nav-number">4.5.</span> <span class="nav-text">Panic</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Recover-%E6%8D%95%E8%8E%B7-Panic-%E5%BC%82%E5%B8%B8"><span class="nav-number">4.5.1.</span> <span class="nav-text">Recover 捕获 Panic 异常</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80"><span class="nav-number"></span> <span class="nav-text">并发基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B%EF%BC%88Goroutine%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">协程（Goroutine）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Channel"><span class="nav-number">2.</span> <span class="nav-text">Channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0%E7%BC%93%E5%86%B2-channel"><span class="nav-number">2.1.</span> <span class="nav-text">无缓冲 channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E7%BC%93%E5%86%B2-channel"><span class="nav-number">2.2.</span> <span class="nav-text">有缓冲 channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%90%91-channel"><span class="nav-number">2.3.</span> <span class="nav-text">单向 channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8"><span class="nav-number">2.4.</span> <span class="nav-text">select 多路复用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sync-%E5%8C%85"><span class="nav-number">3.</span> <span class="nav-text">sync 包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#sync-Mutex"><span class="nav-number">3.1.</span> <span class="nav-text">sync.Mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sync-RWMutex"><span class="nav-number">3.2.</span> <span class="nav-text">sync.RWMutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sync-WaitGroup"><span class="nav-number">3.3.</span> <span class="nav-text">sync.WaitGroup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sync-Once"><span class="nav-number">3.4.</span> <span class="nav-text">sync.Once</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sync-Cond"><span class="nav-number">3.5.</span> <span class="nav-text">sync.Cond</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Context"><span class="nav-number">4.</span> <span class="nav-text">Context</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Context-%E6%A0%91"><span class="nav-number">4.1.</span> <span class="nav-text">Context 树</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%87%E9%92%88"><span class="nav-number"></span> <span class="nav-text">指针</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92"><span class="nav-number"></span> <span class="nav-text">参数传递</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="nav-number"></span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#new"><span class="nav-number">1.</span> <span class="nav-text">new</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#make"><span class="nav-number">2.</span> <span class="nav-text">make</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8D%E5%B0%84"><span class="nav-number"></span> <span class="nav-text">反射</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SliceHeader"><span class="nav-number"></span> <span class="nav-text">SliceHeader</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number"></span> <span class="nav-text">测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="nav-number">1.</span> <span class="nav-text">基准测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%9B%E5%9E%8B"><span class="nav-number"></span> <span class="nav-text">泛型</span></a></div>
       </div>
       <!--/noindex-->
 
