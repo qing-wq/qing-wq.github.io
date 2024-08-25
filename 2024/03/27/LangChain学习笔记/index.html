@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="基本架构  简介 LangChain是一个用于开发由语言模型驱动的应用程序的框架。 主要功能：  调用语言模型  将不同数据源接入到语言模型的交互中  允许语言模型与运行环境交互   LangChain中提供的模块  Modules：支持的模型类型和集成。  Prompt：提示词管理、优化和序列化。  Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。  Indexes：当语言模型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LangChain学习笔记">
+<meta property="og:url" content="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="基本架构  简介 LangChain是一个用于开发由语言模型驱动的应用程序的框架。 主要功能：  调用语言模型  将不同数据源接入到语言模型的交互中  允许语言模型与运行环境交互   LangChain中提供的模块  Modules：支持的模型类型和集成。  Prompt：提示词管理、优化和序列化。  Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。  Indexes：当语言模型">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/langchain_stack_dark_NdLaDhZn28.svg">
+<meta property="og:image" content="http://example.com/images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png">
+<meta property="og:image" content="http://example.com/images/image_96cXegtOz-.png">
+<meta property="og:image" content="http://example.com/images/image_tamQ_03vHR.png">
+<meta property="og:image" content="http://example.com/images/image_UPmDNoWd_p.png">
+<meta property="og:image" content="http://example.com/images/image_JliK3KA3oM.png">
+<meta property="og:image" content="http://example.com/images/image_Gf01np9mh3.png">
+<meta property="og:image" content="http://example.com/images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg">
+<meta property="og:image" content="http://example.com/images/image_cehTwhXkXE.png">
+<meta property="og:image" content="http://example.com/images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png">
+<meta property="og:image" content="http://example.com/images/image_kuqREZwJrr.png">
+<meta property="article:published_time" content="2024-03-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-25T20:04:37.927Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/langchain_stack_dark_NdLaDhZn28.svg">
+
+<link rel="canonical" href="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>LangChain学习笔记 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LangChain学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-27 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-27T00:00:00+08:00">2024-03-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-26 04:04:37" itemprop="dateModified" datetime="2024-08-26T04:04:37+08:00">2024-08-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>基本架构</p>
+<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
+<p>主要功能：</p>
+<ul>
+<li><p>调用语言模型</p>
+</li>
+<li><p>将不同数据源接入到语言模型的交互中</p>
+</li>
+<li><p>允许语言模型与运行环境交互</p>
+</li>
+</ul>
+<p>LangChain中提供的模块</p>
+<ul>
+<li><p>Modules：支持的模型类型和集成。</p>
+</li>
+<li><p>Prompt：提示词管理、优化和序列化。</p>
+</li>
+<li><p>Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。</p>
+</li>
+<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
+</li>
+<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
+</li>
+<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
+</li>
+<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
+</li>
+</ul>
+</blockquote>
+<p>应用场景：</p>
+<ul>
+<li>文档问答</li>
+<li>个人助理</li>
+<li>查询数据表格（CSV、SQL、DataFrame等）</li>
+<li>与API交互</li>
+<li>信息提取</li>
+<li>文档总结</li>
+</ul>
+<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I&#x2F;O"></a>Model I&#x2F;O</h1><p>四个核心组件：</p>
+<ul>
+<li>Prompts 提示词</li>
+<li>Chat Models 聊天模型<ul>
+<li>擅长对话</li>
+</ul>
+</li>
+<li>LLMs 纯文本模型<ul>
+<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
+</ul>
+</li>
+<li>Output parsers 输出转换器</li>
+</ul>
+<blockquote>
+<p>📌Chat Models 和 LLMs 的区别：</p>
+<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
+</blockquote>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
+<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
+</blockquote>
+<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
+<hr>
+<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
+<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
+<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
+<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
+<ul>
+<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
+<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
+<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
+</ul>
+</li>
+<li><code>AgentFinish</code>  Agents返回的最终结果</li>
+<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
+</ul>
+<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
+<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
+<li>required：<code>intermediate_steps</code></li>
+</ul>
+</li>
+<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
+<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
+</ul>
+</li>
+</ul>
+<p>demo：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;input&quot;</span>: <span class="keyword">lambda</span> x: x[<span class="string">&quot;input&quot;</span>],</span><br><span class="line">        <span class="string">&quot;agent_scratchpad&quot;</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">&quot;intermediate_steps&quot;</span>]</span><br><span class="line">        ),</span><br><span class="line">    &#125;</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
+<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
+<li>封装了各种错误处理、日志等</li>
+</ul>
+</li>
+</ul>
+<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
+<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
+<ul>
+<li>schema</li>
+<li>function</li>
+</ul>
+<p>设计Agents的关键：</p>
+<ul>
+<li>让Agents正确的使用tools</li>
+<li>以对代理最有帮助的方式描述工具</li>
+</ul>
+<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
+<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
+<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
+<ul>
+<li><p>微调</p>
+<ul>
+<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
+<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
+</ul>
+</li>
+<li><p>提示词工程</p>
+<ul>
+<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
+<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
+</ul>
+</li>
+</ul>
+<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
+<p>四种主要储存模块：</p>
+<ul>
+<li><code>ConversationBufferMemory</code>对话缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
+<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
+</ul>
+<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
+<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
+<p><img src="/../images/image_96cXegtOz-.png"></p>
+<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
+<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language&#x2F;get_started&#x2F;</a></p>
+<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
+<p>下面举一些简单的栗子：</p>
+<p>模型调用：</p>
+<p><img src="/../images/image_tamQ_03vHR.png"></p>
+<p>Stream流：</p>
+<p><img src="/../images/image_UPmDNoWd_p.png"></p>
+<p>Batch批处理：</p>
+<p><img src="/../images/image_JliK3KA3oM.png"></p>
+<p>异步调用：</p>
+<p><img src="/../images/image_Gf01np9mh3.png"></p>
+<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
+<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
+<p>核心组件：</p>
+<ul>
+<li><strong>Document loaders</strong>文档加载器</li>
+<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
+<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
+<li>text2vector</li>
+<li>llm</li>
+</ul>
+</li>
+<li>Retrievers检索器，用于在数据源中检索相关信息</li>
+<li>Indexing数据库索引，用于检索</li>
+</ul>
+<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
+<ul>
+<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
+</li>
+<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
+</li>
+<li><p>过滤元数据</p>
+</li>
+<li><p>LLM辅助检索 SelfQueryRetriever</p>
+</li>
+<li><p>压缩 ContextualCompressionRetriever</p>
+<ul>
+<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
+</ul>
+</li>
+</ul>
+<p>其他类型的检索：</p>
+<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
+<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
+<ul>
+<li>llm大语言模型</li>
+<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
+<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
+<li>API：create_stuff_documents_chain</li>
+</ul>
+</li>
+<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
+<li>MapReduceDocumentsChain</li>
+</ul>
+</li>
+<li><strong>Refine</strong><ul>
+<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
+<p><img src="/../images/image_kuqREZwJrr.png"></p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">&quot;&quot;&quot;Write a concise summary of the following:</span></span><br><span class="line"><span class="string">&quot;&#123;text&#125;&quot;</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:&quot;&quot;&quot;</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">&quot;gpt-3.5-turbo-16k&quot;</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">&quot;text&quot;</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/14/Go%20generic%20VS%20Java%20generic/" rel="prev" title="Go generic VS Java generic">
+      <i class="fa fa-chevron-left"></i> Go generic VS Java generic
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/" rel="next" title="Spingboot3.0 升级记录">
+      Spingboot3.0 升级记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Model-I-O"><span class="nav-number">2.</span> <span class="nav-text">Model I&#x2F;O</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Agents"><span class="nav-number">3.</span> <span class="nav-text">Agents</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">3.1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Schema"><span class="nav-number">3.1.1.</span> <span class="nav-text">Schema</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Agent"><span class="nav-number">3.1.2.</span> <span class="nav-text">Agent</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Agents-API"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">Agents API</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tools"><span class="nav-number">3.1.3.</span> <span class="nav-text">Tools</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Agent-Type"><span class="nav-number">3.2.</span> <span class="nav-text">Agent Type</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Prompt"><span class="nav-number">4.</span> <span class="nav-text">Prompt</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory"><span class="nav-number">5.</span> <span class="nav-text">Memory</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Chains"><span class="nav-number">6.</span> <span class="nav-text">Chains</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LCEL-Chains"><span class="nav-number">6.1.</span> <span class="nav-text">LCEL Chains</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RAG"><span class="nav-number">7.</span> <span class="nav-text">RAG</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Retrievers%E6%A3%80%E7%B4%A2"><span class="nav-number">7.1.</span> <span class="nav-text">Retrievers检索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%AF%9D%E6%A3%80%E7%B4%A2%E9%93%BE"><span class="nav-number">7.2.</span> <span class="nav-text">对话检索链</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E7%B4%A2%E9%93%BE%E7%B1%BB%E5%9E%8B"><span class="nav-number">7.2.1.</span> <span class="nav-text">检索链类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">7.2.2.</span> <span class="nav-text">示例</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
