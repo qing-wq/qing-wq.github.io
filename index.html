@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -17,18 +17,18 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"qing-wq.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta property="og:type" content="website">
 <meta property="og:title" content="Qing&#39;s Blog">
-<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:url" content="https://qing-wq.github.io/index.html">
 <meta property="og:site_name" content="Qing&#39;s Blog">
-<meta property="og:locale">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="qing-wq">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="https://qing-wq.github.io/">
 
 
 <script id="page-configurations">
@@ -37,7 +37,7 @@
     sidebar: "",
     isHome : true,
     isPost : false,
-    lang   : 'zh-Hans'
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -72,6 +72,8 @@
   </style>
 </noscript>
 
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -81,7 +83,7 @@
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
+    <div class="toggle" aria-label="切换导航栏">
       <span class="toggle-line toggle-line-first"></span>
       <span class="toggle-line toggle-line-middle"></span>
       <span class="toggle-line toggle-line-last"></span>
@@ -99,6 +101,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -110,19 +113,61 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -144,8 +189,8 @@
       
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/20/LangChain4j-spring%20Bug/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/08/20/LangChain4j-spring%20Bug/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -167,19 +212,42 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2024-08-20 00:00:00" itemprop="dateCreated datePublished" datetime="2024-08-20T00:00:00+08:00">2024-08-20</time>
+              <time title="创建时间：2024-08-20 00:00:00" itemprop="dateCreated datePublished" datetime="2024-08-20T00:00:00+08:00">2024-08-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-25 00:18:43" itemprop="dateModified" datetime="2024-08-25T00:18:43+08:00">2024-08-25</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:37:11" itemprop="dateModified" datetime="2024-08-26T19:37:11+08:00">2024-08-26</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+                </span>
+            </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -196,28 +264,14 @@
 <li><code>Reflections</code>扫描当前启动类所在的类路径获取<code>@AiService</code>的class</li>
 <li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) &#123;</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> &#123;</span><br><span class="line">        Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">        basePackages.addAll(autoConfigPackages);</span><br><span class="line"></span><br><span class="line">        String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">        <span class="keyword">for</span> (String beanName : beanNames) &#123;</span><br><span class="line">            Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">            <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">                <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) &#123;</span><br><span class="line">                    Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">                    Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">                    <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) &#123;</span><br><span class="line">                        basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>原来使用<code>Reflections</code>扫描的方式不太优雅，我们的目标是获取Bean，通过Spring本身的方法更好。但问题在于如何让Spring扫描自定义接口</p>
-<p>解决方案：参考Mybatis的实现，Mybtis通过<code>@Mapper</code>即可将类注入到Spring中，原理在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径</p>
-<p>使用<code>BeanDefinitionRegistryPostProcessor</code>在bean注册完成后，再次使用自定义<code>ClassPathBeanDefinitionScanner</code>扫描全部接口（默认的<code>BeanScanner</code>只会扫描类），扫描的路径为所有<code>@ComponentScan</code>指定的basePackage</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 同上</span></span><br><span class="line">    <span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后在<code>BeanFactoryPostProcessor</code>阶段，通过自定义的<code>AiServiceFactory</code>替换接口的beanClass，然后将原有的beanClass设置为他的内部属性并重写他的<code>getObject()</code>方法，这样就完成bean的替换</p>
-<h2 id="Issue"><a href="#Issue" class="headerlink" title="Issue"></a>Issue</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
-</ul>
-<hr>
-<p>参考资料：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/08/20/LangChain4j-spring%20Bug/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -235,8 +289,8 @@
       
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -258,19 +312,42 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2024-06-21 00:00:00" itemprop="dateCreated datePublished" datetime="2024-06-21T00:00:00+08:00">2024-06-21</time>
+              <time title="创建时间：2024-06-21 00:00:00" itemprop="dateCreated datePublished" datetime="2024-06-21T00:00:00+08:00">2024-06-21</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-26 03:38:20" itemprop="dateModified" datetime="2024-08-26T03:38:20+08:00">2024-08-26</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:39:00" itemprop="dateModified" datetime="2024-08-26T19:39:00+08:00">2024-08-26</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+                </span>
+            </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -289,22 +366,14 @@
 <li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
 <li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
 </ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></table></figure>
-
-<p>更多改动详情，参考官方文档：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;启动类路径&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -322,8 +391,113 @@
       
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="qing-wq">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Qing's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" class="post-title-link" itemprop="url">Spring中几个关键的后置处理器以及执行顺序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-26 21:28:48" itemprop="dateCreated datePublished" datetime="2024-05-26T21:28:48+08:00">2024-05-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 21:30:50" itemprop="dateModified" datetime="2024-08-26T21:30:50+08:00">2024-08-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>505</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在 <strong><strong><code>BeanFactoryPostProcessor</code></strong></strong> 之前</strong>。 </p>
+<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
+<blockquote>
+<p>Mybtis正是在这个阶段完成的Bean的替换</p>
+</blockquote>
+<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a><strong>BeanFactoryPostProcessor</strong></h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
+<blockquote>
+<p>Langchain4j在这个阶段完成的组件封装和Bean替换</p>
+</blockquote>
+<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a><strong>BeanPostProcessor</strong></h2><p>作用时机：Bean初始化前后</p>
+<p>**<code>BeanPostProcessors</code>**的<code>ProcessBeforeInitialization()</code>Bean初始化前调用</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -345,19 +519,42 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2024-03-27 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-27T00:00:00+08:00">2024-03-27</time>
+              <time title="创建时间：2024-03-27 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-27T00:00:00+08:00">2024-03-27</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-26 04:04:37" itemprop="dateModified" datetime="2024-08-26T04:04:37+08:00">2024-08-26</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:37:40" itemprop="dateModified" datetime="2024-08-26T19:37:40+08:00">2024-08-26</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/llm/" itemprop="url" rel="index"><span itemprop="name">llm</span></a>
+                </span>
+            </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -370,208 +567,14 @@
       
           <p>基本架构</p>
 <p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
-<p>主要功能：</p>
-<ul>
-<li><p>调用语言模型</p>
-</li>
-<li><p>将不同数据源接入到语言模型的交互中</p>
-</li>
-<li><p>允许语言模型与运行环境交互</p>
-</li>
-</ul>
-<p>LangChain中提供的模块</p>
-<ul>
-<li><p>Modules：支持的模型类型和集成。</p>
-</li>
-<li><p>Prompt：提示词管理、优化和序列化。</p>
-</li>
-<li><p>Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。</p>
-</li>
-<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
-</li>
-<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
-</li>
-<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
-</li>
-<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
-</li>
-</ul>
-</blockquote>
-<p>应用场景：</p>
-<ul>
-<li>文档问答</li>
-<li>个人助理</li>
-<li>查询数据表格（CSV、SQL、DataFrame等）</li>
-<li>与API交互</li>
-<li>信息提取</li>
-<li>文档总结</li>
-</ul>
-<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I&#x2F;O"></a>Model I&#x2F;O</h1><p>四个核心组件：</p>
-<ul>
-<li>Prompts 提示词</li>
-<li>Chat Models 聊天模型<ul>
-<li>擅长对话</li>
-</ul>
-</li>
-<li>LLMs 纯文本模型<ul>
-<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
-</ul>
-</li>
-<li>Output parsers 输出转换器</li>
-</ul>
-<blockquote>
-<p>📌Chat Models 和 LLMs 的区别：</p>
-<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
-</blockquote>
-<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
-<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
-</blockquote>
-<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
-<hr>
-<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
-<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
-<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
-<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
-<ul>
-<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
-<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
-<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
-</ul>
-</li>
-<li><code>AgentFinish</code>  Agents返回的最终结果</li>
-<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
-</ul>
-<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
-<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
-<li>required：<code>intermediate_steps</code></li>
-</ul>
-</li>
-<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
-<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
-</ul>
-</li>
-</ul>
-<p>demo：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;input&quot;</span>: <span class="keyword">lambda</span> x: x[<span class="string">&quot;input&quot;</span>],</span><br><span class="line">        <span class="string">&quot;agent_scratchpad&quot;</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">&quot;intermediate_steps&quot;</span>]</span><br><span class="line">        ),</span><br><span class="line">    &#125;</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
-<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
-<li>封装了各种错误处理、日志等</li>
-</ul>
-</li>
-</ul>
-<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
-<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
-<ul>
-<li>schema</li>
-<li>function</li>
-</ul>
-<p>设计Agents的关键：</p>
-<ul>
-<li>让Agents正确的使用tools</li>
-<li>以对代理最有帮助的方式描述工具</li>
-</ul>
-<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
-<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
-<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
-<ul>
-<li><p>微调</p>
-<ul>
-<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
-<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
-</ul>
-</li>
-<li><p>提示词工程</p>
-<ul>
-<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
-<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
-</ul>
-</li>
-</ul>
-<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
-<p>四种主要储存模块：</p>
-<ul>
-<li><code>ConversationBufferMemory</code>对话缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
-<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
-</ul>
-<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
-<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
-<p><img src="/../images/image_96cXegtOz-.png"></p>
-<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
-<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></table></figure>
-
-<p><a target="_blank" rel="noopener" href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language&#x2F;get_started&#x2F;</a></p>
-<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
-<p>下面举一些简单的栗子：</p>
-<p>模型调用：</p>
-<p><img src="/../images/image_tamQ_03vHR.png"></p>
-<p>Stream流：</p>
-<p><img src="/../images/image_UPmDNoWd_p.png"></p>
-<p>Batch批处理：</p>
-<p><img src="/../images/image_JliK3KA3oM.png"></p>
-<p>异步调用：</p>
-<p><img src="/../images/image_Gf01np9mh3.png"></p>
-<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
-<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
-<p>核心组件：</p>
-<ul>
-<li><strong>Document loaders</strong>文档加载器</li>
-<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
-<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
-<li>text2vector</li>
-<li>llm</li>
-</ul>
-</li>
-<li>Retrievers检索器，用于在数据源中检索相关信息</li>
-<li>Indexing数据库索引，用于检索</li>
-</ul>
-<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
-<ul>
-<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
-</li>
-<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
-</li>
-<li><p>过滤元数据</p>
-</li>
-<li><p>LLM辅助检索 SelfQueryRetriever</p>
-</li>
-<li><p>压缩 ContextualCompressionRetriever</p>
-<ul>
-<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
-</ul>
-</li>
-</ul>
-<p>其他类型的检索：</p>
-<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
-<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
-<ul>
-<li>llm大语言模型</li>
-<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
-<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
-<li>API：create_stuff_documents_chain</li>
-</ul>
-</li>
-<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
-<li>MapReduceDocumentsChain</li>
-</ul>
-</li>
-<li><strong>Refine</strong><ul>
-<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
-<p><img src="/../images/image_kuqREZwJrr.png"></p>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">&quot;&quot;&quot;Write a concise summary of the following:</span></span><br><span class="line"><span class="string">&quot;&#123;text&#125;&quot;</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:&quot;&quot;&quot;</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">&quot;gpt-3.5-turbo-16k&quot;</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">&quot;text&quot;</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></table></figure>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -589,8 +592,118 @@
       
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/14/Go%20generic%20VS%20Java%20generic/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="qing-wq">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Qing's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="post-title-link" itemprop="url">Mybatis实现动态注册bean的两种方式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-26 21:29:59" itemprop="dateCreated datePublished" datetime="2024-03-26T21:29:59+08:00">2024-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 21:30:42" itemprop="dateModified" datetime="2024-08-26T21:30:42+08:00">2024-08-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBtis/" itemprop="url" rel="index"><span itemprop="name">MyBtis</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>403</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li><code>@MapperScan</code><ul>
+<li>通过ImportBeanDefinitionRegistrar注入<code>MapperScannerRegistrar</code></li>
+<li>详细介绍<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+</ul>
+</li>
+<li><code>@Mapper</code><ul>
+<li>在Spring bean扫描阶段后使用<code>BeanDefinitionRegistryPostProcessor</code>扫描所有带<code>@Mapper</code>的类并注册到Spring中</li>
+<li>源码位置<code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code></li>
+<li>mapper的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code></li>
+</ul>
+</li>
+</ul>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></p>
+
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/02/14/Go%20generic%20VS%20Java%20generic/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -612,19 +725,33 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2024-02-14 00:00:00" itemprop="dateCreated datePublished" datetime="2024-02-14T00:00:00+08:00">2024-02-14</time>
+              <time title="创建时间：2024-02-14 00:00:00" itemprop="dateCreated datePublished" datetime="2024-02-14T00:00:00+08:00">2024-02-14</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-25 00:19:10" itemprop="dateModified" datetime="2024-08-25T00:19:10+08:00">2024-08-25</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:39:46" itemprop="dateModified" datetime="2024-08-26T19:39:46+08:00">2024-08-26</time>
               </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -636,50 +763,16 @@
 
       
           <p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
-<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) &#123;&#125;</code>中，<code>T</code>就是一个类型参数。</p>
-<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) &#123;&#125;</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
-<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
-<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T &#123;&#125;</code>。</p>
-<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
-<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
-<li>不支持泛型方法。</li>
-</ul>
-<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
-<ul>
-<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
-<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> &#123;</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T &#123;</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
-<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
-<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
-<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
-<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
-</ul>
-<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>Java泛型支持泛型方法。</li>
-<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
-</ul>
-<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
-<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
-<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
-</ul>
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
-<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
-<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
-</ul>
-<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
-<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
-<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
-</ul>
-<hr>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
-<li><a target="_blank" rel="noopener" href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
-</ul>
-
+<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
+<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/02/14/Go%20generic%20VS%20Java%20generic/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -697,8 +790,8 @@
       
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -720,19 +813,42 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2023-11-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-01T00:00:00+08:00">2023-11-01</time>
+              <time title="创建时间：2023-11-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-01T00:00:00+08:00">2023-11-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-26 03:36:57" itemprop="dateModified" datetime="2024-08-26T03:36:57+08:00">2024-08-26</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:39:30" itemprop="dateModified" datetime="2024-08-26T19:39:30+08:00">2024-08-26</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+                </span>
+            </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>186</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -746,11 +862,14 @@
           <blockquote>
 <p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
 </blockquote>
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -768,8 +887,8 @@
       
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -791,19 +910,42 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2023-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-09-01T00:00:00+08:00">2023-09-01</time>
+              <time title="创建时间：2023-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-09-01T00:00:00+08:00">2023-09-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-26 03:44:23" itemprop="dateModified" datetime="2024-08-26T03:44:23+08:00">2024-08-26</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:39:12" itemprop="dateModified" datetime="2024-08-26T19:39:12+08:00">2024-08-26</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a>
+                </span>
+            </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -819,346 +961,18 @@
 <li><strong>GOBIN</strong>：代表 Go 编译生成的程序的安装目录，比如通过 go install 命令，会把生成的 Go 程序安装到 GOBIN 目录下，以供你在终端使用。</li>
 <li>Go代理：<code>GOPROXY=https://goproxy.cn</code></li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GOROOT=/usr/local/go </span><br><span class="line"><span class="built_in">export</span> GOPATH=<span class="variable">$HOME</span>/MyDoucument/code/goProject</span><br><span class="line"><span class="built_in">export</span> GOBIN=<span class="variable">$GOPATH</span>/bin</span><br><span class="line"><span class="built_in">export</span> GO111MODULE=on</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GOROOT=/usr/local/go </span><br><span class="line"><span class="built_in">export</span> GOPATH=<span class="variable">$HOME</span>/MyDoucument/code/goProject</span><br><span class="line"><span class="built_in">export</span> GOBIN=<span class="variable">$GOPATH</span>/bin</span><br><span class="line"><span class="built_in">export</span> GO111MODULE=on</span><br></pre></td></tr></tbody></table></figure>
 
 <h3 id="编译发布"><a href="#编译发布" class="headerlink" title="编译发布"></a>编译发布</h3><p><code>go build</code>编译生成可执行文件</p>
 <p><code>go install</code>把它安装到 <code>$GOBIN</code> 目录或者任意位置</p>
-<h3 id="跨平台编译"><a href="#跨平台编译" class="headerlink" title="跨平台编译"></a>跨平台编译</h3><p>Go 语言通过两个环境变量来控制跨平台编译，它们分别是 <code>GOOS</code> 和 <code>GOARCH</code> 。</p>
-<ul>
-<li><strong>GOOS</strong>：代表要编译的目标操作系统，常见的有 Linux、Windows、Darwin 等。</li>
-<li><strong>GOARCH</strong>：代表要编译的目标处理器架构，常见的有 386、AMD64、ARM64 等。</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GOOS=linux GOARCH=amd64 go build ./ch01/main.go</span><br></pre></td></tr></table></figure>
-
-<h1 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h1><h3 id="整型"><a href="#整型" class="headerlink" title="整型"></a>整型</h3><ul>
-<li><strong>有符号整型</strong>：如 <code>int</code>、<code>int8</code>、<code>int16</code>、<code>int32</code> 和 <code>int64</code>。</li>
-<li><strong>无符号整型</strong>：如 <code>uint</code>、<code>uint8</code>、<code>uint16</code>、<code>uint32</code> 和 <code>uint64</code>。</li>
-</ul>
-<p>除了有用“位”（bit）大小表示的整型外，还有 int 和 uint 这两个没有具体 bit 大小的整型，它们的大小可能是 32bit，也可能是 64bit，和硬件设备 CPU 有关。</p>
-<h3 id="浮点数"><a href="#浮点数" class="headerlink" title="浮点数"></a>浮点数</h3><ul>
-<li><code>float32</code>&#x20;</li>
-<li><code>float64</code></li>
-</ul>
-<h3 id="复数"><a href="#复数" class="headerlink" title="复数"></a>复数</h3><ul>
-<li><code>complex64</code></li>
-<li><code>complex128</code></li>
-</ul>
-<p>复数有实部和虚部，<code>complex64</code>的实部和虚部为32位，<code>complex128</code>的实部和虚部为64位</p>
-<h3 id="布尔值"><a href="#布尔值" class="headerlink" title="布尔值"></a>布尔值</h3><p><code>bool</code></p>
-<ul>
-<li>布尔类型变量的默认值为false。</li>
-<li>Go 语言中不允许将整型强制转换为布尔型.</li>
-<li>布尔型无法参与数值运算，也无法与其他类型进行转换</li>
-</ul>
-<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><p>*** Go 语言里的字符串的内部实现使用UTF-8编码，每个字符串的底层都是byte数组***​</p>
-<ul>
-<li><em><strong>byte：相当于uint8</strong></em></li>
-<li><em><strong>rune：相当于int32</strong></em><ul>
-<li>Go 使用了特殊 <code>rune</code> 类型来处理 <code>Unicode</code>（复合字符，包括中文、日文等用多字节表示字符）</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//utf-8遍历</span></span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(str); i++ &#123;</span><br><span class="line">    ch := str[i]</span><br><span class="line">    fmt.Printf(<span class="string">&quot;%c \n&quot;</span>, ch)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Unicode遍历</span></span><br><span class="line"><span class="keyword">for</span> _, ch1 := <span class="keyword">range</span> str &#123;</span><br><span class="line">    fmt.Printf(<span class="string">&quot;%c \n&quot;</span>, ch1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="Array、Slice、Map"><a href="#Array、Slice、Map" class="headerlink" title="Array、Slice、Map"></a>Array、Slice、Map</h2><p><img src="/../images/image_hekea8NFLl.png"></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">array1:=[<span class="number">5</span>]<span class="type">string</span>&#123;<span class="number">1</span>:<span class="string">&quot;b&quot;</span>,<span class="number">3</span>:<span class="string">&quot;d&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">slice:=array[start:end]</span><br><span class="line"></span><br><span class="line">slice1:=<span class="built_in">make</span>([]<span class="type">string</span>,<span class="number">4</span>,<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">slice2:=<span class="built_in">append</span>(slice1,<span class="string">&quot;f&quot;</span>)</span><br><span class="line"></span><br><span class="line">nameAgeMap:=<span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>)</span><br><span class="line"></span><br><span class="line">nameAgeMap:=<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>&#123;<span class="string">&quot;飞雪无情&quot;</span>:<span class="number">20</span>&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>📌提示</p>
-<p>在创建新切片的时候，最好要让新切片的长度和容量一样，这样在追加操作的时候就会生成新的底层数组，从而和原有数组分离，就不会因为共用底层数组导致修改内容的时候影响多个切片。</p>
-</blockquote>
-<h2 id="函数和方法"><a href="#函数和方法" class="headerlink" title="函数和方法"></a>函数和方法</h2><p>在 Go 语言中，方法和函数是两个概念，但又非常相似，不同点在于方法必须要有一个接收者，这个接收者是一个类型，这样方法就和这个类型绑定在一起，称为这个类型的方法。</p>
-<ul>
-<li>函数：正常的代码逻辑</li>
-<li>方法：特定类型才有，相当于对象的方法</li>
-</ul>
-<h3 id="值类型接收者和指针类型接收者"><a href="#值类型接收者和指针类型接收者" class="headerlink" title="值类型接收者和指针类型接收者"></a>值类型接收者和指针类型接收者</h3><ul>
-<li>值类型接收者：不会改变原来的对象，相当于操作对象的拷贝</li>
-<li>指针类型接收者：通过指针可以获取对象地址，可以直接改变原来的对象</li>
-</ul>
-<blockquote>
-<p>提示：在调用方法的时候，传递的接收者本质上都是副本，只不过一个是这个值的副本，一是指向这个值指针的副本。指针具有指向原有值的特性，所以修改了指针指向的值，也就修改了原有的值。<em><strong>我们可以简单地理解为值接收者使用的是值的副本来调用方法，而指针接收者使用实际的值来调用方法。</strong></em></p>
-</blockquote>
-<blockquote>
-<p>📌值接受者方法不会改变原始结构体实例</p>
-</blockquote>
-<ul>
-<li>如果使用一个值类型变量调用指针类型接收者的方法，Go 语言编译器会自动帮我们取指针调用，以满足指针接收者的要求。</li>
-<li>同样的原理，如果使用一个指针类型变量调用值类型接收者的方法，Go 语言编译器会自动帮我们解引用调用，以满足值类型接收者的要求。</li>
-</ul>
-<h3 id="值类型调用者和指针类型调用者"><a href="#值类型调用者和指针类型调用者" class="headerlink" title="值类型调用者和指针类型调用者"></a>值类型调用者和指针类型调用者</h3><p>在官方effective go文档中，对两者区别描述如下：</p>
-<ul>
-<li><em><strong>值方法（value methods）可以通过指针和值调用，但是指针方法（pointer methods）只能通过指针来调用</strong></em>** <em>。</em>** ​</li>
-<li>但有一个例外，如果某个值是可寻址的（addressable，或者说<em>左值</em>），那么编译器会在值调用指针方法时自动插入取地址符，使得在此情形下看起来像指针方法也可以通过值来调用。</li>
-</ul>
-<hr>
-<p>总结：</p>
-<ul>
-<li>不管是普通对象还是指针，都可以调用他们的值方法和指针方法，因为编译器会自行处理（语法糖</li>
-<li><strong>遇事不决请用pointer method！！！</strong></li>
-</ul>
-<h3 id="通过变量调用方法"><a href="#通过变量调用方法" class="headerlink" title="通过变量调用方法"></a>通过变量调用方法</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">student := Student(<span class="string">&quot;my name is xiaoming, I am &quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法赋值给变量</span></span><br><span class="line">sm := Student.stu</span><br><span class="line">sm2 := (*Student).stu2</span><br><span class="line">sm(student, <span class="number">2</span>)</span><br><span class="line">sm2(&amp;student)</span><br><span class="line">student.stu(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="结构体和接口"><a href="#结构体和接口" class="headerlink" title="结构体和接口"></a>结构体和接口</h2><p>结构体定义：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">type Stu <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">  name <span class="built_in">string</span></span><br><span class="line">  age <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名结构体 变量 </span></span><br><span class="line">var stu <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">  name <span class="built_in">string</span></span><br><span class="line">  age <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名结构体变量另一种写法</span></span><br><span class="line">newCar := <span class="keyword">struct</span> &#123;</span><br><span class="line">  Make    <span class="built_in">string</span> `json:<span class="string">&quot;make&quot;</span>`</span><br><span class="line">  Model   <span class="built_in">string</span> `json:<span class="string">&quot;model&quot;</span>`</span><br><span class="line">  Mileage <span class="type">int</span>    `json:<span class="string">&quot;mileage&quot;</span>`</span><br><span class="line">&#125;&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MyStringer interface</span></span><br><span class="line">type MyStringer interface&#123;</span><br><span class="line">  myString() <span class="built_in">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><em><strong>以指针类型接收者实现接口的时候，只有对应的指针类型实例才被认为实现了该接口。</strong></em></p>
-<p><img src="/../images/Ciqc1F-yPMSAZ4k7AABU_GW4VxE080_J3w0-tF9PU.png"></p>
-<h3 id="工厂函数（构造函数）"><a href="#工厂函数（构造函数）" class="headerlink" title="工厂函数（构造函数）"></a>工厂函数（构造函数）</h3><p>工厂函数一般用于创建自定义的结构体，便于使用者调用</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewPerson</span><span class="params">(name <span class="type">string</span>)</span></span> *person &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;person&#123;name:name&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="继承和组合"><a href="#继承和组合" class="headerlink" title="继承和组合"></a>继承和组合</h3><p>在 Go 语言中没有继承的概念，所以结构、接口之间也没有父子关系，Go 语言提倡的是组合，利用组合达到代码复用的目的，这也更灵活。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 组合</span></span><br><span class="line">p:=person&#123;</span><br><span class="line">    age:<span class="number">30</span>,</span><br><span class="line">    name:<span class="string">&quot;飞雪无情&quot;</span>,</span><br><span class="line">    address:address&#123;</span><br><span class="line">        province: <span class="string">&quot;北京&quot;</span>,</span><br><span class="line">        city:     <span class="string">&quot;北京&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//像使用自己的字段一样，直接使用</span></span><br><span class="line">fmt.Println(p.province)</span><br></pre></td></tr></table></figure>
-
-<p>类型组合后，外部类型不仅可以使用内部类型的字段，也可以使用内部类型的方法，就像使用自己的方法一样。<br><strong>方法覆写</strong>：如果外部类型定义了和内部类型同样的方法，那么外部类型的会覆盖内部类型，这就是。</p>
-<h3 id="类型断言"><a href="#类型断言" class="headerlink" title="类型断言"></a>类型断言</h3><p>类型断言用来判断一个接口的值是否是实现该接口的某个具体类型。</p>
-<p>接口引用拥有断言能力，用于判断当前引用是否属于某个对象的实例</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接口引用指向子类实例</span></span><br><span class="line"><span class="keyword">var</span> myInterface MyInterface = NewTest(<span class="string">&quot;test&quot;</span>, <span class="number">18</span>, <span class="string">&quot;test&quot;</span>)</span><br><span class="line"><span class="comment">// 判断myInterface是否是Test类型</span></span><br><span class="line"><span class="keyword">if</span> _, ok := myInterface.(*Test);!ok &#123;</span><br><span class="line">  <span class="built_in">panic</span>(<span class="string">&quot;myInterface 不是 Test实例&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>在类型断言的时候，同时完成了类型转换</strong></p>
-<h2 id="Error"><a href="#Error" class="headerlink" title="Error"></a>Error</h2><p>在 Go 语言中，错误是通过内置的 error 接口表示的：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// error 定义</span></span><br><span class="line"><span class="keyword">type</span> <span class="type">error</span> <span class="keyword">interface</span> &#123;</span><br><span class="line">   Error() <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工厂函数</span></span><br><span class="line">errors.New(<span class="string">&quot;error&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong>自定义异常</strong></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> commonError <span class="keyword">struct</span> &#123;</span><br><span class="line">  errorCode <span class="type">int</span>    <span class="comment">//错误码</span></span><br><span class="line">  errorMsg  <span class="type">string</span> <span class="comment">//错误信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 实现了Error()就是自定义异常 </span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ce *commonError)</span></span> Error() <span class="type">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> ce.errorMsg</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Error-Wrapping"><a href="#Error-Wrapping" class="headerlink" title="Error Wrapping"></a>Error Wrapping</h3><p>上述自定义异常可以满足我们的需求，但是非常烦琐，因为既要定义新的类型还要实现 error 接口。</p>
-<p>&#x20;Go 语言 1.13 版本开始，Go 标准库新增了 Error Wrapping 功能，让我们可以基于一个存在的 error 生成新的 error，并且可以保留原 error 信息。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// wrap</span></span><br><span class="line">e := errors.New(<span class="string">&quot;原始错误e&quot;</span>)</span><br><span class="line">w := fmt.Errorf(<span class="string">&quot;Wrap了一个错误:%w&quot;</span>, e)</span><br><span class="line">fmt.Println(w)   <span class="comment">// wrap了一个错误:原始错误e</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Unwrap</span></span><br><span class="line">fmt.Println(errors.Unwrap(w))   <span class="comment">// 原始错误e</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="errors-Is"><a href="#errors-Is" class="headerlink" title="errors.Is"></a>errors.Is</h3><p>有了 Error Wrapping 后，你会发现原来用的判断两个 error 是不是同一个 error 的方法失效了，比如 Go 语言标准库经常用到的如下代码中的方式：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fmt.Println(errors.Is(w, e))  <span class="comment">// true</span></span><br><span class="line">fmt.Println(e == os.ErrExist) <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
-
-<p><code>errors.ls</code></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Is</span><span class="params">(err, target <span class="type">error</span>)</span></span> <span class="type">bool</span></span><br></pre></td></tr></table></figure>
-
-<p>以上就是errors.Is 函数的定义，可以解释为：</p>
-<ul>
-<li>如果 err 和 target 是同一个，那么返回 true。</li>
-<li>如果 err 是一个 wrapping error，target 也包含在这个嵌套 error 链中的话，也返回 true。</li>
-</ul>
-<blockquote>
-<p>📌可以简单地概括为，两个 error 相等或 err 包含 target 的情况下返回 true，其余返回 false。</p>
-</blockquote>
-<h3 id="errors-As"><a href="#errors-As" class="headerlink" title="errors.As"></a>errors.As</h3><p>同样的原因，有了 error 嵌套后，error 断言也不能用了，因为你不知道一个 error 是否被嵌套，又嵌套了几层。所以 Go 语言为解决这个问题提供了 errors.As 函数，比如前面 error 断言的例子，可以使用  errors.As 函数重写，效果是一样的，如下面的代码所示：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> cm *commonError</span><br><span class="line"><span class="keyword">if</span> errors.As(err,&amp;cm)&#123;</span><br><span class="line">   fmt.Println(<span class="string">&quot;错误代码为:&quot;</span>,cm.errorCode,<span class="string">&quot;，错误信息为：&quot;</span>,cm.errorMsg)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">   fmt.Println(sum)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Deferred"><a href="#Deferred" class="headerlink" title="Deferred"></a>Deferred</h3><p>defer 语句常被用于成对的操作，如文件的打开和关闭，加锁和释放锁，连接的建立和断开等。不管多么复杂的操作，都可以保证资源被正确地释放。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReadFile</span><span class="params">(filename <span class="type">string</span>)</span></span> ([]<span class="type">byte</span>, <span class="type">error</span>) &#123;</span><br><span class="line">   f, err := os.Open(filename)</span><br><span class="line">   <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">defer</span> f.Close()</span><br><span class="line">   <span class="comment">//省略无关代码</span></span><br><span class="line">   <span class="keyword">return</span> readAll(f, n)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>在一个方法或者函数中，可以有多个 defer 语句；</li>
-<li>defer 有一个调用栈，多个 defer 语句的执行顺序依照<strong>后进先出</strong>的原则。</li>
-</ol>
-<h3 id="Panic"><a href="#Panic" class="headerlink" title="Panic"></a>Panic</h3><p>Go 语言是一门静态的强类型语言，很多问题都尽可能地在编译时捕获，但是有一些只能在运行时检查，比如数组越界访问、不相同的类型强制转换等，这类运行时的问题会引起 panic 异常。除了运行时可以产生 panic 外，我们自己也可以抛出 panic 异常。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">panic</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span></span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><code>interface&#123;&#125;</code> 是空接口的意思，在 Go 语言中代表任意类型。</p>
-</blockquote>
-<p>panic 异常是一种非常严重的情况，会让程序中断运行，使程序崩溃，所以<strong>如果是不影响程序运行的错误，不要使用 panic，使用普通错误 error 即可。</strong></p>
-<h4 id="Recover-捕获-Panic-异常"><a href="#Recover-捕获-Panic-异常" class="headerlink" title="Recover 捕获 Panic 异常"></a>Recover 捕获 Panic 异常</h4><p>通常情况下，我们不对 panic 异常做任何处理，因为既然它是影响程序运行的异常，就让它直接崩溃即可。但是也的确有一些特例，比如<strong>在程序崩溃前做一些资源释放的处理</strong>，这时候就需要从 panic 异常中恢复，才能完成处理。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">connectMySQL</span><span class="params">(ip, username, password <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> ip == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;ip不能为空&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//省略其他代码</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> p := <span class="built_in">recover</span>(); p != <span class="literal">nil</span> &#123;</span><br><span class="line">      fmt.Println(p)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;()</span><br><span class="line">  connectMySQL(<span class="string">&quot;&quot;</span>, <span class="string">&quot;root&quot;</span>, <span class="string">&quot;123456&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="并发基础"><a href="#并发基础" class="headerlink" title="并发基础"></a>并发基础</h1><h2 id="协程（Goroutine）"><a href="#协程（Goroutine）" class="headerlink" title="协程（Goroutine）"></a>协程（Goroutine）</h2><p>Go 语言中没有线程的概念，只有协程，也称为 goroutine。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> function()</span><br></pre></td></tr></table></figure>
-
-<h2 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ch:=<span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">string</span>)</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>接收：获取 chan 中的值，操作符为<code> &lt;- chan</code>。</li>
-<li>发送：向 chan 发送值，把值放在 chan 中，操作符为 <code>chan &lt;-</code>。</li>
-</ol>
-<h3 id="无缓冲-channel"><a href="#无缓冲-channel" class="headerlink" title="无缓冲 channel"></a><strong>无缓冲 channel</strong></h3><p>无缓冲 channel，它的容量是 0，不能存储任何数据。所以无缓冲 channel 只起到传输数据的作用，数据并不会在 channel 中做任何停留。这也意味着，无缓冲 channel 的发送和接收操作是同时进行的，它也可以称为同步 channel。</p>
-<h3 id="有缓冲-channel"><a href="#有缓冲-channel" class="headerlink" title="有缓冲 channel"></a>有缓冲 channel</h3><p>有缓冲 channel 类似一个可阻塞的队列，内部的元素<em><strong>先进先出</strong></em>。通过 make 函数的第二个参数可以指定 channel 容量的大小，进而创建一个有缓冲 channel。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cacheCh:=<span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>,<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/../images/CgqCHl-7fzmAVLu0AACSjW-neAE188_KyDQkHLLjx.png"></p>
-<p>一个有缓冲 channel 具备以下特点：</p>
-<ol>
-<li>有缓冲 channel 的内部有一个缓冲队列；</li>
-<li>发送操作是向队列的尾部插入元素，如果队列已满，则阻塞等待，直到另一个 goroutine 执行，接收操作释放队列的空间；</li>
-<li>接收操作是从队列的头部获取元素并把它从队列中删除，如果队列为空，则阻塞等待，直到另一个 goroutine 执行，发送操作插入新的元素。</li>
-</ol>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取队列容量和元素个数：</span></span><br><span class="line">fmt.Println(<span class="string">&quot;cacheCh容量为:&quot;</span>,<span class="built_in">cap</span>(cacheCh),<span class="string">&quot;,元素个数为：&quot;</span>,<span class="built_in">len</span>(cacheCh))</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭 channel</span></span><br><span class="line"><span class="built_in">close</span>(cacheCh)</span><br></pre></td></tr></table></figure>
-
-<p>如果一个 channel 被关闭了，就不能向里面发送数据了，如果发送的话，会引起 painc 异常。但是还可以接收 channel 里的数据，如果 channel 里没有数据的话，接收的数据是元素类型的零值。</p>
-<h3 id="单向-channel"><a href="#单向-channel" class="headerlink" title="单向 channel"></a>单向 channel</h3><p>有时候，我们有一些特殊的业务需求，比如限制一个 channel 只可以接收但是不能发送，或者限制一个 channel 只能发送但不能接收，这种 channel 称为单向 channel。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">onlySend := <span class="built_in">make</span>(<span class="keyword">chan</span>&lt;- <span class="type">int</span>)</span><br><span class="line">onlyReceive:=<span class="built_in">make</span>(&lt;-<span class="keyword">chan</span> <span class="type">int</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="select-多路复用"><a href="#select-多路复用" class="headerlink" title="select 多路复用"></a>select 多路复用</h3><blockquote>
-<p>小提示：多路复用可以简单地理解为，N 个 channel 中，任意一个 channel 有数据产生，select 都可以监听到，然后执行相应的分支，接收数据并处理。</p>
-</blockquote>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line">   <span class="keyword">case</span> i1 = &lt;-c1:</span><br><span class="line">     <span class="comment">//todo</span></span><br><span class="line">   <span class="keyword">case</span> c2 &lt;- i2:</span><br><span class="line">     <span class="comment">//todo</span></span><br><span class="line">   <span class="keyword">default</span>:</span><br><span class="line">     <span class="comment">// default todo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="sync-包"><a href="#sync-包" class="headerlink" title="sync 包"></a>sync 包</h2><blockquote>
-<p>小技巧：使用 go build、go run、go test 这些 Go 语言工具链提供的命令时，添加 <code>-race</code> 标识可以帮你检查 Go 语言代码是否存在资源竞争。</p>
-</blockquote>
-<h3 id="sync-Mutex"><a href="#sync-Mutex" class="headerlink" title="sync.Mutex"></a><strong>sync.Mutex</strong></h3><p>互斥锁，顾名思义，指的是在同一时刻只有一个协程执行某段代码，其他协程都要等待该协程执行完毕后才能继续执行。</p>
-<p>Mutex 的 <code>Lock</code> 和 <code>Unlock</code> 方法总是成对出现，而且要确保 Lock 获得锁后，一定执行 UnLock 释放锁</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span>(</span><br><span class="line">   sum <span class="type">int</span></span><br><span class="line">   mutex sync.Mutex</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(i <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">   mutex.Lock()</span><br><span class="line">   sum += i</span><br><span class="line">   mutex.Unlock()</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>小提示：以上被加锁保护的 sum+&#x3D;i 代码片段又称为<strong>临界区</strong>。在同步的程序设计中，临界区段指的是一个访问共享资源的程序片段，而这些共享资源又有无法同时被多个协程访问的特性。</p>
-</blockquote>
-<h3 id="sync-RWMutex"><a href="#sync-RWMutex" class="headerlink" title="sync.RWMutex"></a>sync.RWMutex</h3><p>go中的读写锁。使用：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> mutex sync.RWMutex</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readSum</span><span class="params">()</span></span> <span class="type">int</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//只获取读锁</span></span><br><span class="line">   mutex.RLock()</span><br><span class="line">   <span class="keyword">defer</span> mutex.RUnlock()</span><br><span class="line">   b:=sum</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> b</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="sync-WaitGroup"><a href="#sync-WaitGroup" class="headerlink" title="sync.WaitGroup"></a>sync.WaitGroup</h3><p>相当于Java中的***<code>CountDownLatch</code>** *，用于最终完成的场景，关键点在于一定要等待所有协程都执行完毕。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">   <span class="comment">//因为要监控110个协程，所以设置计数器为110</span></span><br><span class="line">   wg.Add(<span class="number">110</span>)</span><br><span class="line">   <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">      <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">         <span class="comment">//计数器值减1</span></span><br><span class="line">         <span class="keyword">defer</span> wg.Done()</span><br><span class="line">         add(<span class="number">10</span>)</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>;i++ &#123;</span><br><span class="line">      <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">         <span class="comment">//计数器值减1</span></span><br><span class="line">         <span class="keyword">defer</span> wg.Done()</span><br><span class="line">         fmt.Println(<span class="string">&quot;和为:&quot;</span>,readSum())</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//一直等待，直到计数器值为0</span></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="sync-Once"><a href="#sync-Once" class="headerlink" title="sync.Once"></a>sync.Once</h3><p>让代码只执行一次，哪怕是在高并发的情况下，比如创建一个单例。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">   doOnce()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doOnce</span><span class="params">()</span></span> &#123;</span><br><span class="line">   <span class="keyword">var</span> once sync.Once</span><br><span class="line">   onceBody := <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      fmt.Println(<span class="string">&quot;Only once&quot;</span>)</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//用于等待协程执行完毕</span></span><br><span class="line">   done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">//启动10个协程执行once.Do(onceBody)</span></span><br><span class="line">   <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">      <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">         <span class="comment">//把要执行的函数(方法)作为参数传给once.Do方法即可</span></span><br><span class="line">         once.Do(onceBody)</span><br><span class="line">         done &lt;- <span class="literal">true</span></span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">      &lt;-done</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="sync-Cond"><a href="#sync-Cond" class="headerlink" title="sync.Cond"></a>sync.Cond</h3><p>sync.Cond 可以用于发号施令，一声令下所有协程都可以开始执行，关键点在于协程开始的时候是等待的，要等待 sync.Cond 唤醒才能执行。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//10个人赛跑，1个裁判发号施令</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">race</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">   cond :=sync.NewCond(&amp;sync.Mutex&#123;&#125;)</span><br><span class="line">   <span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">   wg.Add(<span class="number">11</span>)</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;<span class="number">10</span>; i++ &#123;</span><br><span class="line">      <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(num <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">         <span class="keyword">defer</span>  wg.Done()</span><br><span class="line">         fmt.Println(num,<span class="string">&quot;号已经就位&quot;</span>)</span><br><span class="line">         cond.L.Lock()</span><br><span class="line">         cond.Wait()<span class="comment">//等待发令枪响</span></span><br><span class="line">         fmt.Println(num,<span class="string">&quot;号开始跑……&quot;</span>)</span><br><span class="line">         cond.L.Unlock()</span><br><span class="line">      &#125;(i)</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//等待所有goroutine都进入wait状态</span></span><br><span class="line">   time.Sleep(<span class="number">2</span>*time.Second)</span><br><span class="line"></span><br><span class="line">   <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      <span class="keyword">defer</span>  wg.Done()</span><br><span class="line">      fmt.Println(<span class="string">&quot;裁判已经就位，准备发令枪&quot;</span>)</span><br><span class="line">      fmt.Println(<span class="string">&quot;比赛开始，大家准备跑&quot;</span>)</span><br><span class="line">      cond.Broadcast()<span class="comment">//发令枪响</span></span><br><span class="line">   &#125;()</span><br><span class="line">   <span class="comment">//防止函数提前返回退出</span></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><strong>Wait</strong>，阻塞当前协程，直到被其他协程调用 Broadcast 或者 Signal 方法唤醒，使用的时候需要加锁，使用 sync.Cond 中的锁即可，也就是 L 字段。</li>
-<li><strong>Signal</strong>，唤醒一个等待时间最长的协程。</li>
-<li><strong>Broadcast</strong>，唤醒所有等待的协程。</li>
-</ol>
-<blockquote>
-<p>注意：在调用 Signal 或者 Broadcast 之前，要确保目标协程处于 Wait 阻塞状态，不然会出现死锁问题。</p>
-</blockquote>
-<p>如果你以前学过 Java，会发现 sync.Cond 和 Java 的等待唤醒机制很像，它的三个方法 Wait、Signal、Broadcast 就分别对应 Java 中的 wait、notify、notifyAll。</p>
-<h2 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h2><blockquote>
-<p>一个任务会有很多个协程协作完成，一次 HTTP 请求也会触发很多个协程的启动，而这些协程有可能会启动更多的子协程，并且无法预知有多少层协程、每一层有多少个协程。</p>
-<p>如果因为某些原因导致任务终止了，HTTP 请求取消了，那么它们启动的协程怎么办？该如何取消呢？因为取消这些协程可以节约内存，提升性能，同时避免不可预料的 Bug。</p>
-<p>Context 就是用来简化解决这些问题的，并且是并发安全的。Context 是一个接口，它具备手动、定时、超时发出取消信号、传值等功能，主要用于控制多个协程之间的协作，尤其是取消操作。一旦取消指令下达，那么被 Context 跟踪的这些协程都会收到取消信号，就可以做清理和退出操作。</p>
-</blockquote>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line"></span><br><span class="line">   Deadline() (deadline time.Time, ok <span class="type">bool</span>)</span><br><span class="line">   Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">   Err() <span class="type">error</span></span><br><span class="line">   Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Context-树"><a href="#Context-树" class="headerlink" title="Context 树"></a>Context 树</h3><p>Go 语言提供了函数可以帮助我们生成不同的 Context，通过这些函数可以生成一颗 Context 树，这样 Context 才可以关联起来，父 Context 发出取消信号的时候，子 Context 也会发出，这样就可以控制不同层级的协程退出。</p>
-<p>从使用功能上分，有四种实现好的 Context。</p>
-<ol>
-<li><strong>空 Context</strong>：不可取消，没有截止时间，主要用于 Context 树的根节点。</li>
-<li><strong>可取消的 Context</strong>：用于发出取消信号，当取消的时候，它的子 Context 也会取消。</li>
-<li><strong>可定时取消的 Context</strong>：多了一个定时的功能。</li>
-<li><strong>值 Context</strong>：用于存储一个 key-value 键值对。</li>
-</ol>
-<p><img src="/../images/CgqCHl_EyHOARbBqAAKzKmhclWo807_A5KZtclRKo.png"></p>
-<p><code> context.Background()</code>获取一个根节点 Context。</p>
-<hr>
-<p>&#x20;Context 树要怎么生成呢？</p>
-<ol>
-<li>**<code>WithCancel(parent Context)</code>**：生成一个可取消的 Context。<ol>
-<li>**<code>WithDeadline(parent Context, d time.Time)</code>**：生成一个可定时取消的 Context，参数 d 为定时取消的具体时间。<ol>
-<li>**<code>WithTimeout(parent Context, timeout time.Duration)</code>**：生成一个可超时取消的 Context，参数 timeout 用于设置多久后取消</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>**<code>WithValue(parent Context, key, val interface&#123;&#125;)</code>**：生成一个可携带 key-value 键值对的 Context。</li>
-</ol>
-<p>以上四个生成 Context 的函数中，前三个都属于可取消的 Context，它们是一类函数，最后一个是值 Context，用于存储一个 key-value 键值对。</p>
-<h1 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    name:=<span class="string">&quot;xiaoming&quot;</span></span><br><span class="line">    <span class="keyword">var</span> nameP *<span class="type">string</span> = &amp;name</span><br><span class="line">    fmt.Println(*nameP)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>获取一个变量的指针非常容易，使用取地址符 &amp; 就可以</p>
-</li>
-<li><p>指针类型就是在对应的类型前加 * 号</p>
-</li>
-<li><p>指针类型非常廉价，只占用 4 个或者 8 个字节的内存大小。</p>
-</li>
-<li><p><em><strong>通过 var 声明的指针变量还没有分配内存</strong></em>，因为这时候它仅仅是个变量，是不能直接赋值和取值的，它的值是 nil&#x20;</p>
-<p><img src="/../images/image_t8e3mEYUbE.png" alt="直接赋值和取值" title="直接赋值和取值"></p>
-<p>解决方法：将一块内存地址<code>&amp;m</code>赋值给指针变量<code>*p</code></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p *<span class="type">int</span></span><br><span class="line"><span class="keyword">var</span> m <span class="type">int</span></span><br><span class="line">p = &amp;m</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>通过new创建的指针是存在内存地址的，可以直接赋值</p>
-<ul>
-<li><code>var intP *int = new(int)</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h1><p><strong>严格来说，Go 语言没有引用类型</strong>，但是我们可以把 map、chan 称为引用类型，这样便于理解。除了 map、chan 之外，Go 语言中的函数、接口、slice 切片、指针都可以称为引用类型。</p>
-<p><img src="/../images/image_trx0_Qi29q.png"></p>
-<p>总结：</p>
-<p>在 Go 语言中，<strong>函数的参数传递只有值传递</strong>，而且传递的实参都是原始数据的一份拷贝。</p>
-<p>如果拷贝的内容是值类型的，那么在函数中就无法修改原始数据；</p>
-<p>如果拷贝的内容是指针（或者可以理解为引用类型 map、chan 等），那么就可以在函数中修改原始数据。</p>
-<h1 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h1><ul>
-<li>指针类型的变量如果没有分配内存，就默认是零值 nil，它没有指向的内存，所以无法使用，强行使用就会得到以上 nil 指针错误</li>
-<li>对于值类型来说，即使只声明一个变量，没有对其初始化，该变量也会有分配好的内存。</li>
-<li>两个关键函数：new和make</li>
-</ul>
-<h2 id="new"><a href="#new" class="headerlink" title="new"></a>new</h2><p>new 函数只用于分配内存，并且把内存清零，也就是返回一个指向对应类型零值的指针。new 函数一般用于需要显式地返回指针的情况，不是太常用。</p>
-<h2 id="make"><a href="#make" class="headerlink" title="make"></a>make</h2><p>make 函数只用于 slice、chan 和 map 这三种内置类型的创建和初始化，因为这三种类型的结构比较复杂，比如 slice 要提前初始化好内部元素的类型，slice 的长度和容量等，这样才可以更好地使用它们。</p>
-<h1 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h1><ul>
-<li><p><strong><code>reflect.Value</code></strong> 和**<code>reflect.Type</code>**</p>
-<p>在 Go 语言的反射定义中，任何接口都由两部分组成：接口的具体类型，以及具体类型对应的值。比如 var i int &#x3D; 3，因为 <code>interface&#123;&#125;</code> 可以表示任何类型，所以变量 i 可以转为 interface{}。其中 Value 为变量的值，即 3，而 Type 为变量的类型，即 int。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">i:=<span class="number">3</span></span><br><span class="line">iv:=reflect.ValueOf(i)</span><br><span class="line">it:=reflect.TypeOf(i)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改变量</p>
-<p>要修改一个变量的值，有几个关键点：传递指针（可寻址），通过 Elem 方法获取指向的值，才可以保证值可以被修改，reflect.Value 为我们提供了 CanSet 方法判断是否可以修改该变量。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ipv := reflect.ValueOf(&amp;i)</span><br><span class="line">ipv.Elem().SetInt(<span class="number">4</span>)</span><br><span class="line">fmt.Println(i)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>反射的三大定律</p>
-<ol>
-<li>任何接口值 <code>interface&#123;&#125;</code> 都可以反射出反射对象，也就是 reflect.Value 和 reflect.Type，通过函数 reflect.ValueOf 和 reflect.TypeOf 获得。</li>
-<li>反射对象也可以还原为 interface{} 变量，也就是第 1 条定律的可逆性，通过 reflect.Value 结构体的 Interface 方法获得。</li>
-<li>要修改反射的对象，该值必须可设置，也就是可寻址，参考上节课修改变量的值那一节的内容理解。</li>
-</ol>
-</li>
-</ul>
-<h1 id="SliceHeader"><a href="#SliceHeader" class="headerlink" title="SliceHeader"></a>SliceHeader</h1><ul>
-<li><p>在 Go 语言中，切片其实是一个结构体，定义如下：</p>
-<p><img src="/../images/image_X_Cyk8TKPo.png"></p>
-<p>SliceHeader 是切片在运行时的表现形式，它有三个字段 Data、Len 和 Cap。</p>
-<ol>
-<li>Data 用来指向存储切片元素的数组。</li>
-<li>Len 代表切片的长度。</li>
-<li>Cap 代表切片的容量。</li>
-</ol>
-</li>
-<li><p>优点</p>
-<ol>
-<li>支持动态扩容</li>
-<li>切片的本质是 SliceHeader，又因为函数的参数是值传递，所以传递的是 SliceHeader 的副本，而不是底层数组的副本。这时候切片的优势就体现出来了，因为 SliceHeader 的副本内存占用非常少，即使是一个非常大的切片，也顶多占用 24 个字节的内存，这就解决了大数组在传参时内存浪费的问题。</li>
-</ol>
-</li>
-</ul>
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><ul>
-<li>测试文件以_test.go结尾</li>
-<li>测试函数以Testxxx（xxx为测试函数名）开头</li>
-</ul>
-<p>假设编写的函数在<em>ch18&#x2F;main.go</em>中：<code>go test -v ./ch18</code></p>
-<hr>
-<ul>
-<li>go test -v –coverprofile&#x3D;ch18.cover .&#x2F;ch18：得到一个单元测试覆盖率文件</li>
-</ul>
-<h2 id="基准测试"><a href="#基准测试" class="headerlink" title="基准测试"></a>基准测试</h2><p>衡量代码的性能</p>
-<ul>
-<li><p>函数必须以 Benchmark 开头</p>
-</li>
-<li><p>函数的签名必须接收一个指向 testing.B 类型的指针，并且不能返回任何值；</p>
-</li>
-<li><p>最后的 for 循环很重要，被测试的代码要放到循环里；</p>
-</li>
-<li><p>b.N 是基准测试框架提供的，表示循环的次数，因为需要反复调用测试的代码，才可以评估性能。</p>
-</li>
-<li><p>运行：<code>go test -bench=. ./ch18</code></p>
-<p><img src="/../images/image_JlVijZWatR.png"></p>
-</li>
-<li><p>计时方法</p>
-<p><img src="/../images/image_01f3cRZXVK.png"></p>
-</li>
-<li><p>内存统计</p>
-<p><img src="/../images/image_0VABPfND_h.png"></p>
-</li>
-<li><p>并发基准测试</p>
-<p><img src="/../images/image_KLlXB9vavX.png"></p>
-</li>
-</ul>
-<h1 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h1><p>Go的泛型使用<code>interface</code>实现</p>
-<ul>
-<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
-<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> &#123;</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> &#123;</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T &#123;</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1217,10 +1031,10 @@
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
-          Table of Contents
+          文章目录
         </li>
         <li class="sidebar-nav-overview">
-          Overview
+          站点概览
         </li>
       </ul>
 
@@ -1239,12 +1053,27 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
-          <span class="site-state-item-name">posts</span>
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
         </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
 
 
 
@@ -1272,8 +1101,20 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">qing-wq</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">25k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">22 分钟</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
         
@@ -1310,6 +1151,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

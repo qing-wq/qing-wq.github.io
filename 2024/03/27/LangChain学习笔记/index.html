@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -17,34 +17,35 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"qing-wq.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="基本架构  简介 LangChain是一个用于开发由语言模型驱动的应用程序的框架。 主要功能：  调用语言模型  将不同数据源接入到语言模型的交互中  允许语言模型与运行环境交互   LangChain中提供的模块  Modules：支持的模型类型和集成。  Prompt：提示词管理、优化和序列化。  Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。  Indexes：当语言模型">
+  <meta name="description" content="基本架构">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LangChain学习笔记">
-<meta property="og:url" content="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:url" content="https://qing-wq.github.io/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="Qing&#39;s Blog">
-<meta property="og:description" content="基本架构  简介 LangChain是一个用于开发由语言模型驱动的应用程序的框架。 主要功能：  调用语言模型  将不同数据源接入到语言模型的交互中  允许语言模型与运行环境交互   LangChain中提供的模块  Modules：支持的模型类型和集成。  Prompt：提示词管理、优化和序列化。  Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。  Indexes：当语言模型">
-<meta property="og:locale">
-<meta property="og:image" content="http://example.com/images/langchain_stack_dark_NdLaDhZn28.svg">
-<meta property="og:image" content="http://example.com/images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png">
-<meta property="og:image" content="http://example.com/images/image_96cXegtOz-.png">
-<meta property="og:image" content="http://example.com/images/image_tamQ_03vHR.png">
-<meta property="og:image" content="http://example.com/images/image_UPmDNoWd_p.png">
-<meta property="og:image" content="http://example.com/images/image_JliK3KA3oM.png">
-<meta property="og:image" content="http://example.com/images/image_Gf01np9mh3.png">
-<meta property="og:image" content="http://example.com/images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg">
-<meta property="og:image" content="http://example.com/images/image_cehTwhXkXE.png">
-<meta property="og:image" content="http://example.com/images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png">
-<meta property="og:image" content="http://example.com/images/image_kuqREZwJrr.png">
+<meta property="og:description" content="基本架构">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qing-wq.github.io/images/langchain_stack_dark_NdLaDhZn28.svg">
+<meta property="og:image" content="https://qing-wq.github.io/images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_96cXegtOz-.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_tamQ_03vHR.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_UPmDNoWd_p.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_JliK3KA3oM.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_Gf01np9mh3.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_cehTwhXkXE.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_kuqREZwJrr.png">
 <meta property="article:published_time" content="2024-03-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-08-25T20:04:37.927Z">
+<meta property="article:modified_time" content="2024-08-26T11:37:40.494Z">
 <meta property="article:author" content="qing-wq">
+<meta property="article:tag" content="langchain">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/images/langchain_stack_dark_NdLaDhZn28.svg">
+<meta name="twitter:image" content="https://qing-wq.github.io/images/langchain_stack_dark_NdLaDhZn28.svg">
 
-<link rel="canonical" href="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+<link rel="canonical" href="https://qing-wq.github.io/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
 
 <script id="page-configurations">
@@ -53,7 +54,7 @@
     sidebar: "",
     isHome : false,
     isPost : true,
-    lang   : 'zh-Hans'
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -88,6 +89,8 @@
   </style>
 </noscript>
 
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -97,7 +100,7 @@
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
+    <div class="toggle" aria-label="切换导航栏">
       <span class="toggle-line toggle-line-first"></span>
       <span class="toggle-line toggle-line-middle"></span>
       <span class="toggle-line toggle-line-last"></span>
@@ -115,6 +118,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -126,19 +130,61 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -161,8 +207,8 @@
     
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -183,19 +229,42 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2024-03-27 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-27T00:00:00+08:00">2024-03-27</time>
+              <time title="创建时间：2024-03-27 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-27T00:00:00+08:00">2024-03-27</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-26 04:04:37" itemprop="dateModified" datetime="2024-08-26T04:04:37+08:00">2024-08-26</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-26 19:37:40" itemprop="dateModified" datetime="2024-08-26T19:37:40+08:00">2024-08-26</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/llm/" itemprop="url" rel="index"><span itemprop="name">llm</span></a>
+                </span>
+            </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -208,6 +277,8 @@
       
         <p>基本架构</p>
 <p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
+<span id="more"></span>
+
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
 <p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
 <p>主要功能：</p>
@@ -225,7 +296,7 @@
 </li>
 <li><p>Prompt：提示词管理、优化和序列化。</p>
 </li>
-<li><p>Memory：内存是指在链&#x2F;代理调用之间持续存在的状态。</p>
+<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
 </li>
 <li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
 </li>
@@ -246,7 +317,7 @@
 <li>信息提取</li>
 <li>文档总结</li>
 </ul>
-<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I&#x2F;O"></a>Model I&#x2F;O</h1><p>四个核心组件：</p>
+<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
 <ul>
 <li>Prompts 提示词</li>
 <li>Chat Models 聊天模型<ul>
@@ -293,7 +364,7 @@
 </li>
 </ul>
 <p>demo：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;input&quot;</span>: <span class="keyword">lambda</span> x: x[<span class="string">&quot;input&quot;</span>],</span><br><span class="line">        <span class="string">&quot;agent_scratchpad&quot;</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">&quot;intermediate_steps&quot;</span>]</span><br><span class="line">        ),</span><br><span class="line">    &#125;</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
 
 <h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
 <li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
@@ -342,9 +413,9 @@
 <p><img src="/../images/image_96cXegtOz-.png"></p>
 <h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
 <h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
 
-<p><a target="_blank" rel="noopener" href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language&#x2F;get_started&#x2F;</a></p>
+<p><a target="_blank" rel="noopener" href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
 <p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
 <p>下面举一些简单的栗子：</p>
 <p>模型调用：</p>
@@ -408,15 +479,35 @@
 </ul>
 <p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
 <p><img src="/../images/image_kuqREZwJrr.png"></p>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">&quot;&quot;&quot;Write a concise summary of the following:</span></span><br><span class="line"><span class="string">&quot;&#123;text&#125;&quot;</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:&quot;&quot;&quot;</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">&quot;gpt-3.5-turbo-16k&quot;</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">&quot;text&quot;</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></table></figure>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
 
     </div>
 
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>qing-wq
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://qing-wq.github.io/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="LangChain学习笔记">https://qing-wq.github.io/2024/03/27/LangChain学习笔记/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/langchain/" rel="tag"># langchain</a>
+          </div>
 
         
 
@@ -424,12 +515,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2024/02/14/Go%20generic%20VS%20Java%20generic/" rel="prev" title="Go generic VS Java generic">
-      <i class="fa fa-chevron-left"></i> Go generic VS Java generic
+    <a href="/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/" rel="prev" title="Mybatis实现动态注册bean的两种方式">
+      <i class="fa fa-chevron-left"></i> Mybatis实现动态注册bean的两种方式
     </a></div>
       <div class="post-nav-item">
-    <a href="/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/" rel="next" title="Spingboot3.0 升级记录">
-      Spingboot3.0 升级记录 <i class="fa fa-chevron-right"></i>
+    <a href="/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" rel="next" title="Spring中几个关键的后置处理器以及执行顺序">
+      Spring中几个关键的后置处理器以及执行顺序 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -480,10 +571,10 @@
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
-          Table of Contents
+          文章目录
         </li>
         <li class="sidebar-nav-overview">
-          Overview
+          站点概览
         </li>
       </ul>
 
@@ -503,12 +594,27 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
-          <span class="site-state-item-name">posts</span>
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
         </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
 
 
 
@@ -536,8 +642,20 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">qing-wq</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">25k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">22 分钟</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
         
@@ -574,6 +692,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 
