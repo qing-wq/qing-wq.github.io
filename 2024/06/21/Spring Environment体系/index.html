@@ -20,21 +20,23 @@
     var CONFIG = {"hostname":"qing-wq.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="背景：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案">
+  <meta name="description" content="概要 PropertySource：管理各种配置源的抽象类，即属性源 PropertySources：用于统一管理和访问多个 PropertySource 实例 PropertyResolver：通用属性解析 Environment：应用环境表示，提供属性访问，支持profile。 ConfigurablePropertyResolver：属性解析配置，支持占位符解析。   Binder：配置绑定">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spingboot3.0 升级记录">
-<meta property="og:url" content="https://qing-wq.github.io/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:title" content="Spring Environment体系">
+<meta property="og:url" content="https://qing-wq.github.io/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/index.html">
 <meta property="og:site_name" content="Qing&#39;s Blog">
-<meta property="og:description" content="背景：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案">
+<meta property="og:description" content="概要 PropertySource：管理各种配置源的抽象类，即属性源 PropertySources：用于统一管理和访问多个 PropertySource 实例 PropertyResolver：通用属性解析 Environment：应用环境表示，提供属性访问，支持profile。 ConfigurablePropertyResolver：属性解析配置，支持占位符解析。   Binder：配置绑定">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://qing-wq.github.io/images/Secure2%20Image.png">
-<meta property="article:published_time" content="2024-06-20T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-08-26T11:39:00.673Z">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_98WWM6BQwA.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_eZgD5dC_Ym.png">
+<meta property="og:image" content="https://qing-wq.github.io/images/image_TL0vgbMjbo.png">
+<meta property="article:published_time" content="2024-06-21T10:14:48.000Z">
+<meta property="article:modified_time" content="2024-08-28T10:17:16.110Z">
 <meta property="article:author" content="qing-wq">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://qing-wq.github.io/images/Secure2%20Image.png">
+<meta name="twitter:image" content="https://qing-wq.github.io/images/image_98WWM6BQwA.png">
 
-<link rel="canonical" href="https://qing-wq.github.io/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
+<link rel="canonical" href="https://qing-wq.github.io/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">
 
 
 <script id="page-configurations">
@@ -47,7 +49,7 @@
   };
 </script>
 
-  <title>Spingboot3.0 升级记录 | Qing's Blog</title>
+  <title>Spring Environment体系 | Qing's Blog</title>
   
 
 
@@ -197,7 +199,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">
+    <link itemprop="mainEntityOfPage" href="https://qing-wq.github.io/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -210,7 +212,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Spingboot3.0 升级记录
+          Spring Environment体系
         </h1>
 
         <div class="post-meta">
@@ -220,14 +222,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2024-06-21 00:00:00" itemprop="dateCreated datePublished" datetime="2024-06-21T00:00:00+08:00">2024-06-21</time>
+              <time title="创建时间：2024-06-21 18:14:48" itemprop="dateCreated datePublished" datetime="2024-06-21T18:14:48+08:00">2024-06-21</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-08-26 19:39:00" itemprop="dateModified" datetime="2024-08-26T19:39:00+08:00">2024-08-26</time>
+                <time title="修改时间：2024-08-28 18:17:16" itemprop="dateModified" datetime="2024-08-28T18:17:16+08:00">2024-08-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -245,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -264,31 +266,52 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <blockquote>
-<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
-</blockquote>
-<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
-<ul>
-<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
-<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
+        <h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
+<li><code>PropertySource</code>：管理各种配置源的抽象类，即属性源</li>
+<li><code>PropertySources</code>：用于统一管理和访问多个 PropertySource 实例</li>
+<li><code>PropertyResolver</code>：通用属性解析<ul>
+<li><code>Environment</code>：应用环境表示，提供属性访问，支持profile。</li>
+<li><code>ConfigurablePropertyResolver</code>：属性解析配置，支持占位符解析。</li>
 </ul>
+</li>
+<li><code>Binder</code>：配置绑定工具</li>
+</ul>
+<p>大致关系图：</p>
+<p><img src="/../images/image_98WWM6BQwA.png"></p>
 <span id="more"></span>
 
-<figure class="highlight xml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
+<blockquote>
+<p>图片来自<a target="_blank" rel="noopener" href="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-%E5%92%8Cspring%E9%9B%86%E6%88%90%E7%9A%84%E5%8E%9F%E7%90%86" title="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理">https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理</a></p>
+</blockquote>
+<h2 id="PropertySource"><a href="#PropertySource" class="headerlink" title="PropertySource"></a>PropertySource</h2><p><img src="/../images/image_eZgD5dC_Ym.png"></p>
+<p>PropertySource是 Spring 框架中的一个关键抽象类，封装了一个属性源，属性源可以是一个<code>Map</code>、<code>Resource</code>对象、系统变量等等</p>
+<h2 id="PropertySources"><a href="#PropertySources" class="headerlink" title="PropertySources"></a>PropertySources</h2><p><code>PropertySources</code> 是一个Spring框架中的接口，用于表示和管理一组属性源（<code>PropertySource</code>），这些属性源包含了应用程序环境中的配置数据。该接口提供了一系列方法来检索、添加、替换和删除这些属性源，允许开发者以统一的方式访问不同来源的配置信息，如环境变量、系统属性、配置文件等。</p>
+<h2 id="PropertyResolver"><a href="#PropertyResolver" class="headerlink" title="PropertyResolver"></a>PropertyResolver</h2><p><code>PropertyResolver</code>是一个顶层接口，提供了一套灵活且强大的机制来处理应用程序配置属性。它定义了一些获取属性值，以及解析占位符的方法，用于访问和操纵来自各种源的属性值。</p>
+<p><img src="/../images/image_TL0vgbMjbo.png"></p>
+<h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p><code>Environment</code> 接口是 Spring 框架中的一个核心部分，它提供了一个统一的方式来访问各种外部化的配置数据（继承自<code>PropertyResolver</code>）；支持配置文件（Profiles）的概念，可以在不同环境下进行条件性的配置，管理多个属性源。</p>
+<p>可以看到<code>Environment</code>是继承了<code>PropertyResolver</code>接口的，<strong>只是增加了一些环境信息方法(profile)</strong></p>
+<p>其中<code>Environment</code>实例关于<code>PropertyResolver</code>接口的方法是通过组合模式实现的，内部持有一个<code>PropertySourcesPropertyResolver</code>实例。</p>
+<h3 id="ConfigurablePropertyResolver"><a href="#ConfigurablePropertyResolver" class="headerlink" title="ConfigurablePropertyResolver"></a>ConfigurablePropertyResolver</h3><p><code>ConfigurablePropertyResolver</code> 接口则增加了一些配置方法，在Spring中关键作用是提供灵活的配置属性解析。它支持<strong>占位符解析</strong>，并解析这些占位符为实际的配置值，提升配置的动态性和灵活性。</p>
+<h3 id="其他实现"><a href="#其他实现" class="headerlink" title="其他实现"></a>其他实现</h3><ul>
+<li><code>ConfigurableEnvironment</code>，增加了一些配置的方法，以及可以获取到内部的<code>PropertySource</code>列表。</li>
+<li><code>StandardEnvironment</code>，非web上下文使用的环境实例。</li>
+<li><code>StandardServletEnvironment</code>，web上下文使用的环境实例。</li>
 </ul>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="Binder"><a href="#Binder" class="headerlink" title="Binder"></a>Binder</h2><p>Spring提供了一个很强大的工具类<code>Binder</code>，可以将<code>Environment</code>或者<code>ConfigurationPropertySource</code>中的属性绑定到一个Java对象中，且支持占位符，类型转换，宽松绑定。Binder的使用可以参考</p>
+<h3 id="ConfigurationProperties实现原理"><a href="#ConfigurationProperties实现原理" class="headerlink" title="@ConfigurationProperties实现原理"></a>@ConfigurationProperties实现原理</h3><p><code>@ConfigurationProperties</code>注解在Spring Boot中常用来绑定属性到Java Bean中，不难猜出内部原理便是使用上面所介绍的<code>Binder</code>类来实现的。</p>
+<p>使用该注解时常常搭配<code>@EnableConfigurationProperties</code>注解一起使用，<code>@EnableConfigurationProperties</code>的主要作用就是注册了一个<code>ConfigurationPropertiesBindingPostProcessor</code></p>
+<p>绑定的核心逻辑在<code>ConfigurationPropertiesBindingPostProcessor</code>中</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">  <span class="keyword">if</span> (!hasBoundValueObject(beanName)) {</span><br><span class="line">    bind(ConfigurationPropertiesBean.get(<span class="built_in">this</span>.applicationContext, bean, beanName));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(ConfigurationPropertiesBean bean)</span> {</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="built_in">this</span>.binder.bind(bean);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (Exception ex) {</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationPropertiesBindException</span>(bean, ex);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
 
-<p>更多改动详情，参考官方文档：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">BindResult&lt;?&gt; bind(ConfigurationPropertiesBean propertiesBean) {</span><br><span class="line">    Bindable&lt;?&gt; target = propertiesBean.asBindTarget();</span><br><span class="line">    <span class="type">ConfigurationProperties</span> <span class="variable">annotation</span> <span class="operator">=</span> propertiesBean.getAnnotation();</span><br><span class="line">    <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(target, annotation);</span><br><span class="line">     <span class="keyword">return</span> getBinder().bind(annotation.prefix(), target, bindHandler); </span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
 
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
+<p>关键点在于Binder将<code>ConfigurationProperties</code>的前缀和实际的Bean对象绑定在了一起，实现配置的注入</p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wt20/p/17588895.html" title="https://www.cnblogs.com/wt20/p/17588895.html">https://www.cnblogs.com/wt20/p/17588895.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot%E4%B9%8B%E7%BC%96%E7%A8%8B%E5%BC%8F%E5%B1%9E%E6%80%A7%E7%BB%91%E5%AE%9ABinder/" title="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/">https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/</a></li>
+</ul>
 
     </div>
 
@@ -304,7 +327,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://qing-wq.github.io/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/" title="Spingboot3.0 升级记录">https://qing-wq.github.io/2024/06/21/Spingboot3.0 升级记录/</a>
+    <a href="https://qing-wq.github.io/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/" title="Spring Environment体系">https://qing-wq.github.io/2024/06/21/Spring Environment体系/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -321,12 +344,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" rel="prev" title="Spring中几个关键的后置处理器以及执行顺序">
-      <i class="fa fa-chevron-left"></i> Spring中几个关键的后置处理器以及执行顺序
+    <a href="/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/" rel="prev" title="Spingboot3.0 升级记录">
+      <i class="fa fa-chevron-left"></i> Spingboot3.0 升级记录
     </a></div>
       <div class="post-nav-item">
-    <a href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/" rel="next" title="Spring Environment体系">
-      Spring Environment体系 <i class="fa fa-chevron-right"></i>
+    <a href="/2024/08/20/LangChain4j-spring%20Bug/" rel="next" title="LangChain4j-spring Bug修复记录">
+      LangChain4j-spring Bug修复记录 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -386,7 +409,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Boot-3-0-%E4%B8%BB%E8%A6%81%E6%94%B9%E5%8A%A8"><span class="nav-number">1.</span> <span class="nav-text">Spring Boot 3.0 主要改动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E8%BF%81%E7%A7%BB%E4%B8%AD%E5%8F%91%E7%8E%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">项目迁移中发现的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-Starter-%E4%B8%8D%E5%85%BC%E5%AE%B9"><span class="nav-number">2.1.</span> <span class="nav-text">自定义 Starter 不兼容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mybatis-%E5%85%BC%E5%AE%B9%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.</span> <span class="nav-text">Mybatis 兼容性问题</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">概要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PropertySource"><span class="nav-number">2.</span> <span class="nav-text">PropertySource</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PropertySources"><span class="nav-number">3.</span> <span class="nav-text">PropertySources</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PropertyResolver"><span class="nav-number">4.</span> <span class="nav-text">PropertyResolver</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Environment"><span class="nav-number">4.1.</span> <span class="nav-text">Environment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConfigurablePropertyResolver"><span class="nav-number">4.2.</span> <span class="nav-text">ConfigurablePropertyResolver</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.3.</span> <span class="nav-text">其他实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder"><span class="nav-number">5.</span> <span class="nav-text">Binder</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ConfigurationProperties%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text">@ConfigurationProperties实现原理</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
