@@ -1,57 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Go generic VS Java generic</title>
-    <url>/2024/02/14/Go%20generic%20VS%20Java%20generic/</url>
-    <content><![CDATA[<p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
-<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
-<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
-<span id="more"></span>
-
-<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
-<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T {}</code>。</p>
-<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
-<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
-<li>不支持泛型方法。</li>
-</ul>
-<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
-<ul>
-<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
-<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
-</ul>
-<figure class="highlight go"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 {</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> {</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T {</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> {</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
-<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
-<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
-<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
-<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
-</ul>
-<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>Java泛型支持泛型方法。</li>
-<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
-</ul>
-<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
-<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
-<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
-</ul>
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
-<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
-<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
-</ul>
-<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
-<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
-<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
-</ul>
-<hr>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
-<li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
-</ul>
-]]></content>
-  </entry>
-  <entry>
     <title>Go语言基础</title>
     <url>/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><ul>
@@ -443,6 +392,161 @@
       </categories>
   </entry>
   <entry>
+    <title>MyBatis实现动态注册bean的两种方式</title>
+    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
+    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
+<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<ul>
+<li><code>MapperScannerConfigurer</code>核心配置类<ul>
+<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
+</ul>
+</li>
+<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
+<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
+<ul>
+<li><code>@MapperScan</code><ul>
+<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
+<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
+</ul>
+</li>
+<li><code>@Mapper</code><ul>
+<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
+<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MyBatis</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spingboot3.0 升级记录</title>
+    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
+</blockquote>
+<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
+<ul>
+<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
+<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
+</ul>
+<span id="more"></span>
+
+<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
+
+<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
+<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
+<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spring实现自定义配置注入&amp;动态更新</title>
+    <url>/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，openai_key可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
+<p>常见的做法是接入一个配置中心，如Apollo、ZK等等，但是目前项目中是没有用到这些中间件的，接入这些配置中心可能会给项目带来一些风险，况且我这是个单体项目，用这些复杂的配置中心有点大材小用了，再说直接拿来就用没什么意思</p>
+<p>鉴于此，我参考了网上和Apollo配置中心的一些技术方案，实现了一个非常实用的配置拓展，支持从自定义数据源中获取配置，并注入到Environment中，且优先级最高，同时也支持配置的动态刷新</p>
+<span id="more"></span>
+
+<blockquote>
+<p>为了更好的理解本文的逻辑，你可能需要以下前置知识点：<a href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">Spring Environment体系</a></p>
+</blockquote>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>直接说思路</strong>：<u>借助Mysql，维护一个配置表<code>global_config</code>，原因是方便构造自定义数据源和持久化用户配置，在Spring启动时读取数据库中的数据构造为我们自定义的属性源，并设置为首要，再利用<code>Binder</code>更新内存中的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段，这样就可以实现覆盖<code>properties</code>文件中的配置</u></p>
+<blockquote>
+<p>其实这里存在一个问题，就是如果能在<code>PropertySourcesPropertyResolver</code>的配置解析阶段就将自定义的属性源注入，那么初始化后的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段本身就是我们自定义数据源中的配置，但我尝试后发现无论如何都无法在解析前将自定义数据源注入到Environment中，于是只能在项目完全启动后刷新所有配置<br><img src="/../images/image_Secure2_Image.png"></p>
+</blockquote>
+<h2 id="具体细节"><a href="#具体细节" class="headerlink" title="具体细节"></a>具体细节</h2><p>我的项目中配置的使用姿势主要分两种：</p>
+<ol>
+<li>通过<code>@ConfigurationProperties</code>注入的<code>Property</code>对象</li>
+<li>通过<code>@Value</code>注入的配置字段</li>
+</ol>
+<p>两个部分需要不同的更新方式，因此配置的更新方式分为两部分：</p>
+<h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a><code>@ConfigurationProperties</code></h3><ul>
+<li>在初始化阶段：读取数据库中的配置表 → 生成自定义<code>MapPropertySource</code> →** 将自定义****<code>MapPropertySource</code>**<strong>添加到Environment中并设置为最高优先级</strong></li>
+<li>监听到配置变更：检查DB中的数据库与当前缓存中的<code>MapPropertySource</code>是否一致 ，如果不一致就调用refresh方法刷新Environment中的<code>MapPropertySource</code>。refresh方法的逻辑其实就是<strong>重新使用Binder绑定内存中的</strong><strong><code>ConfigurationProperties</code></strong></li>
+</ul>
+<h3 id="Value"><a href="#Value" class="headerlink" title="@Value"></a><code>@Value</code></h3><p>这部分的配置更新参考了<strong>Apollo</strong>的实现：利用一个<strong>括号匹配</strong>算法，在<code>BeanPostProcessor</code>阶段扫描所有带<code>@Value</code>占位符的Bean，包括表达式、占位符等等，连带对应的Bean引用全部存起来</p>
+<p>当有相关的key变化时，通过Bean的引用反射更新对应的Bean字段，你也可以使用观察者模式监听对应的key的变化，就可以做到当配置变化后自动触发对应Bean字段的更新</p>
+<blockquote>
+<p><a href="https://github.com/apolloconfig/apollo/pull/972">https://github.com/apolloconfig/apollo/pull/972</a></p>
+</blockquote>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>这部分的代码具体实现其实也参考了<code>ConfigurationProperties</code>的注入原理——<code>ConfigurationPropertiesBindingPostProcessor</code>的实现。为了缩减篇幅删除了一些非核心逻辑：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义的动态配置工厂类</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> qing</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2024/8/10</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicConfigContainer</span></span><br><span class="line">        <span class="keyword">implements</span> <span class="title class_">ApplicationContextAware</span>, InitializingBean, EnvironmentAware, CommandLineRunner {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ConfigurableEnvironment environment;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存储db中的全局配置，优先级最高</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; cache;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> DynamicConfigBinder binder;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        cache = Maps.newHashMap();</span><br><span class="line">        <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">DynamicConfigBinder</span>(<span class="built_in">this</span>.applicationContext, environment.getPropertySources());</span><br><span class="line">        bindBeansFromLocalCache(<span class="string">"dbConfig"</span>, cache);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从db中获取全量的配置信息</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true 表示有信息变更; false 表示无信息变更</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">loadAllConfigFromDb</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">"select `key`, `value` from global_conf where deleted = 0"</span>;</span><br><span class="line">        List&lt;Map&lt;String, Object&gt;&gt; list = applicationContext.getBean(JdbcTemplate.class).queryForList(sql);</span><br><span class="line">        Map&lt;String, Object&gt; val = Maps.newHashMapWithExpectedSize(list.size());</span><br><span class="line">        <span class="keyword">for</span> (Map&lt;String, Object&gt; conf : list) {</span><br><span class="line">            val.put(conf.get(<span class="string">"key"</span>).toString(), conf.get(<span class="string">"value"</span>).toString());</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">if</span> (val.equals(cache)) {</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        }</span><br><span class="line">        cache.clear();</span><br><span class="line">        cache.putAll(val);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bindBeansFromLocalCache</span><span class="params">(String namespace, Map&lt;String, Object&gt; cache)</span> {</span><br><span class="line">        <span class="comment">// 将内存的配置信息设置为最高优先级</span></span><br><span class="line">        <span class="type">MapPropertySource</span> <span class="variable">propertySource</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MapPropertySource</span>(namespace, cache);</span><br><span class="line">        environment.getPropertySources().addFirst(propertySource);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(Bindable bindable)</span> {</span><br><span class="line">        binder.bind(bindable);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 监听配置的变更</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reloadConfig</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">before</span> <span class="operator">=</span> JsonUtil.toStr(cache);</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">toRefresh</span> <span class="operator">=</span> loadAllConfigFromDb();</span><br><span class="line">        <span class="keyword">if</span> (toRefresh) {</span><br><span class="line">            refreshConfig();</span><br><span class="line">            log.info(<span class="string">"config update! Old:{}, New:{}"</span>, before, JsonUtil.toStr(cache));</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 支持配置的动态刷新</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">refreshConfig</span><span class="params">()</span> {</span><br><span class="line">        applicationContext.getBeansWithAnnotation(ConfigurationProperties.class).values().forEach(bean -&gt; {</span><br><span class="line">            Bindable&lt;?&gt; target = Bindable.ofInstance(bean).withAnnotations(AnnotationUtils.findAnnotation(bean.getClass(), ConfigurationProperties.class));</span><br><span class="line">            bind(target);</span><br><span class="line">        });</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 应用启动之后，执行的动态配置初始化</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> args</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String... args)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        reloadConfig();</span><br><span class="line">        <span class="comment">// SpringValueRegistry.updateAll();</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicConfigBinder</span> {</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PropertySources propertySources;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Binder binder;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DynamicConfigBinder</span><span class="params">(ApplicationContext applicationContext, PropertySources propertySources)</span> {</span><br><span class="line">        <span class="built_in">this</span>.applicationContext = applicationContext;</span><br><span class="line">        <span class="built_in">this</span>.propertySources = propertySources;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(Bindable&lt;T&gt; bindable)</span> {</span><br><span class="line">        <span class="type">ConfigurationProperties</span> <span class="variable">propertiesAno</span> <span class="operator">=</span> bindable.getAnnotation(ConfigurationProperties.class);</span><br><span class="line">        <span class="keyword">if</span> (propertiesAno != <span class="literal">null</span>) {</span><br><span class="line">            <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(propertiesAno);</span><br><span class="line">            getBinder().bind(propertiesAno.prefix(), bindable, bindHandler);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(String prefix, Bindable&lt;T&gt; bindable, BindHandler bindHandler)</span> {</span><br><span class="line">        getBinder().bind(prefix, bindable, bindHandler);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> BindHandler <span class="title function_">getBindHandler</span><span class="params">(ConfigurationProperties annotation)</span> {</span><br><span class="line">        <span class="type">BindHandler</span> <span class="variable">handler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">IgnoreTopLevelConverterNotFoundBindHandler</span>();</span><br><span class="line">        <span class="keyword">if</span> (annotation.ignoreInvalidFields()) {</span><br><span class="line">            handler = <span class="keyword">new</span> <span class="title class_">IgnoreErrorsBindHandler</span>(handler);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">if</span> (!annotation.ignoreUnknownFields()) {</span><br><span class="line">            <span class="type">UnboundElementsSourceFilter</span> <span class="variable">filter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnboundElementsSourceFilter</span>();</span><br><span class="line">            handler = <span class="keyword">new</span> <span class="title class_">NoUnboundElementsBindHandler</span>(handler, filter);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> handler;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 参考ConfigurationPropertiesBindingPostProcessor</span></span><br><span class="line">    <span class="keyword">private</span> Binder <span class="title function_">getBinder</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="built_in">this</span>) {</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">                    <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">Binder</span>(getConfigurationPropertySources(),</span><br><span class="line">                            getPropertySourcesPlaceholdersResolver(), getConversionService(),</span><br><span class="line">                            getPropertyEditorInitializer());</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.binder;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>当监听到对应的配置更新时，除了更新数据库，还需要推送对应的消息，在这里由于我项目中使用的是Spring Event实现的消息机制，因此监听者的操作如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onApplicationEvent</span><span class="params">(ConfigRefreshEvent event)</span> {</span><br><span class="line">      dynamicConfigContainer.reloadConfig();</span><br><span class="line">      <span class="comment">// SpringValueRegistry.updateValue(event.getKey());</span></span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
+
+<p>至于<code>@Value</code>的部分，代码在<a href="https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo">https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo</a></p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>Spring Environment</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring Lazy-init 踩坑记录</title>
+    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
+<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
+<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>bug</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring中几个关键的后置处理器以及执行顺序</title>
+    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
+    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
+<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
+<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
+<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
+<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
+<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
     <title>LangChain入门笔记</title>
     <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<p>基本架构</p>
@@ -659,100 +763,6 @@
       </tags>
   </entry>
   <entry>
-    <title>MyBatis实现动态注册bean的两种方式</title>
-    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
-    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
-<ul>
-<li><code>MapperScannerConfigurer</code>核心配置类<ul>
-<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
-</ul>
-</li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
-<ul>
-<li><code>@MapperScan</code><ul>
-<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
-<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
-</ul>
-</li>
-<li><code>@Mapper</code><ul>
-<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
-<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>MyBatis</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spingboot3.0 升级记录</title>
-    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
-</blockquote>
-<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
-<ul>
-<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
-<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
-</ul>
-<span id="more"></span>
-
-<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
-
-<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spring Lazy-init 踩坑记录</title>
-    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
-</blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>bug</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Spring Environment体系</title>
     <url>/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/</url>
     <content><![CDATA[<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
@@ -810,63 +820,54 @@
       </tags>
   </entry>
   <entry>
-    <title>Spring中几个关键的后置处理器以及执行顺序</title>
-    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
-<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
-<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
-<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
-<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
-<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spring实现动态更新配置</title>
-    <url>/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，openai_key可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
-<p>常见的做法是接入一个配置中心，如Apollo、ZK等等，但是目前项目中是没有用到这些中间件的，接入这些配置中心可能会给项目带来一些风险，况且我这是个单体项目，用这些复杂的配置中心有点大材小用了，再说直接拿来就用没什么意思，于是参考了网上一些方案自己实现了项目的动态配置</p>
+    <title>Go generic VS Java generic</title>
+    <url>/2024/02/14/Go%20generic%20VS%20Java%20generic/</url>
+    <content><![CDATA[<p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
+<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
+<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
 <span id="more"></span>
 
-<blockquote>
-<p>为了更好的理解本文的逻辑，你可能需要以下前置知识点：<a href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">Spring Environment体系</a></p>
-</blockquote>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>直接说思路</strong>：<u>借助Mysql，维护一个配置表<code>global_config</code>，原因是方便构造自定义数据源和持久化用户配置，在Spring启动时读取数据库中的数据构造为我们自定义的属性源，并设置为首要，再利用<code>Binder</code>更新内存中的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段，这样就可以实现覆盖<code>properties</code>文件中的配置</u></p>
-<blockquote>
-<p>其实这里存在一个问题，就是如果能在<code>PropertySourcesPropertyResolver</code>的配置解析阶段就将自定义的属性源注入，那么初始化后的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段本身就是我们自定义数据源中的配置，但我尝试后发现无论如何都无法在解析前将自定义数据源注入到Environment中，于是只能在项目完全启动后刷新所有配置<br><img src="/../images/image_Secure2_Image.png"></p>
-</blockquote>
-<h2 id="具体细节"><a href="#具体细节" class="headerlink" title="具体细节"></a>具体细节</h2><p>我的项目中配置的使用姿势主要分两种：</p>
-<ol>
-<li>通过<code>@ConfigurationProperties</code>注入的<code>Property</code>对象</li>
-<li>通过<code>@Value</code>注入的配置字段</li>
-</ol>
-<p>两个部分需要不同的更新方式，因此配置的更新方式分为两部分：</p>
-<h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a><code>@ConfigurationProperties</code></h3><ul>
-<li>在初始化阶段：读取数据库中的配置表 → 生成自定义<code>MapPropertySource</code> →** 将自定义****<code>MapPropertySource</code>**<strong>添加到Environment中并设置为最高优先级</strong></li>
-<li>监听到配置变更：检查DB中的数据库与当前缓存中的<code>MapPropertySource</code>是否一致 ，如果不一致就调用refresh方法刷新Environment中的<code>MapPropertySource</code>。refresh方法的逻辑其实就是<strong>重新使用Binder绑定内存中的</strong><strong><code>ConfigurationProperties</code></strong></li>
+<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
+<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T {}</code>。</p>
+<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
+<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
+<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
+<li>不支持泛型方法。</li>
 </ul>
-<h3 id="Value"><a href="#Value" class="headerlink" title="@Value"></a><code>@Value</code></h3><p>这部分的配置更新参考了<strong>Apollo</strong>的实现：利用一个<strong>括号匹配</strong>算法，在<code>BeanPostProcessor</code>阶段扫描所有带<code>@Value</code>占位符的Bean，包括表达式、占位符等等，连带对应的Bean引用全部存起来</p>
-<p>当有相关的key变化时，通过Bean的引用反射更新对应的Bean字段，你也可以使用观察者模式监听对应的key的变化，就可以做到当配置变化后自动触发对应Bean字段的更新</p>
-<blockquote>
-<p><a href="https://github.com/apolloconfig/apollo/pull/972">https://github.com/apolloconfig/apollo/pull/972</a></p>
-</blockquote>
-<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>这部分的代码具体实现其实也参考了<code>ConfigurationProperties</code>的注入原理——<code>ConfigurationPropertiesBindingPostProcessor</code>的实现。为了缩减篇幅删除了一些非核心逻辑：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义的动态配置工厂类</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> qing</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2024/8/10</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicConfigContainer</span></span><br><span class="line">        <span class="keyword">implements</span> <span class="title class_">ApplicationContextAware</span>, InitializingBean, EnvironmentAware, CommandLineRunner {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ConfigurableEnvironment environment;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存储db中的全局配置，优先级最高</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; cache;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> DynamicConfigBinder binder;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        cache = Maps.newHashMap();</span><br><span class="line">        <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">DynamicConfigBinder</span>(<span class="built_in">this</span>.applicationContext, environment.getPropertySources());</span><br><span class="line">        bindBeansFromLocalCache(<span class="string">"dbConfig"</span>, cache);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从db中获取全量的配置信息</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true 表示有信息变更; false 表示无信息变更</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">loadAllConfigFromDb</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">"select `key`, `value` from global_conf where deleted = 0"</span>;</span><br><span class="line">        List&lt;Map&lt;String, Object&gt;&gt; list = applicationContext.getBean(JdbcTemplate.class).queryForList(sql);</span><br><span class="line">        Map&lt;String, Object&gt; val = Maps.newHashMapWithExpectedSize(list.size());</span><br><span class="line">        <span class="keyword">for</span> (Map&lt;String, Object&gt; conf : list) {</span><br><span class="line">            val.put(conf.get(<span class="string">"key"</span>).toString(), conf.get(<span class="string">"value"</span>).toString());</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">if</span> (val.equals(cache)) {</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        }</span><br><span class="line">        cache.clear();</span><br><span class="line">        cache.putAll(val);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bindBeansFromLocalCache</span><span class="params">(String namespace, Map&lt;String, Object&gt; cache)</span> {</span><br><span class="line">        <span class="comment">// 将内存的配置信息设置为最高优先级</span></span><br><span class="line">        <span class="type">MapPropertySource</span> <span class="variable">propertySource</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MapPropertySource</span>(namespace, cache);</span><br><span class="line">        environment.getPropertySources().addFirst(propertySource);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(Bindable bindable)</span> {</span><br><span class="line">        binder.bind(bindable);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 监听配置的变更</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reloadConfig</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">before</span> <span class="operator">=</span> JsonUtil.toStr(cache);</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">toRefresh</span> <span class="operator">=</span> loadAllConfigFromDb();</span><br><span class="line">        <span class="keyword">if</span> (toRefresh) {</span><br><span class="line">            refreshConfig();</span><br><span class="line">            log.info(<span class="string">"config update! Old:{}, New:{}"</span>, before, JsonUtil.toStr(cache));</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 支持配置的动态刷新</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">refreshConfig</span><span class="params">()</span> {</span><br><span class="line">        applicationContext.getBeansWithAnnotation(ConfigurationProperties.class).values().forEach(bean -&gt; {</span><br><span class="line">            Bindable&lt;?&gt; target = Bindable.ofInstance(bean).withAnnotations(AnnotationUtils.findAnnotation(bean.getClass(), ConfigurationProperties.class));</span><br><span class="line">            bind(target);</span><br><span class="line">        });</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 应用启动之后，执行的动态配置初始化</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> args</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String... args)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        reloadConfig();</span><br><span class="line">        <span class="comment">// SpringValueRegistry.updateAll();</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
+<ul>
+<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
+<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
+</ul>
+<figure class="highlight go"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 {</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> {</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T {</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> {</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicConfigBinder</span> {</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PropertySources propertySources;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Binder binder;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DynamicConfigBinder</span><span class="params">(ApplicationContext applicationContext, PropertySources propertySources)</span> {</span><br><span class="line">        <span class="built_in">this</span>.applicationContext = applicationContext;</span><br><span class="line">        <span class="built_in">this</span>.propertySources = propertySources;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(Bindable&lt;T&gt; bindable)</span> {</span><br><span class="line">        <span class="type">ConfigurationProperties</span> <span class="variable">propertiesAno</span> <span class="operator">=</span> bindable.getAnnotation(ConfigurationProperties.class);</span><br><span class="line">        <span class="keyword">if</span> (propertiesAno != <span class="literal">null</span>) {</span><br><span class="line">            <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(propertiesAno);</span><br><span class="line">            getBinder().bind(propertiesAno.prefix(), bindable, bindHandler);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(String prefix, Bindable&lt;T&gt; bindable, BindHandler bindHandler)</span> {</span><br><span class="line">        getBinder().bind(prefix, bindable, bindHandler);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> BindHandler <span class="title function_">getBindHandler</span><span class="params">(ConfigurationProperties annotation)</span> {</span><br><span class="line">        <span class="type">BindHandler</span> <span class="variable">handler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">IgnoreTopLevelConverterNotFoundBindHandler</span>();</span><br><span class="line">        <span class="keyword">if</span> (annotation.ignoreInvalidFields()) {</span><br><span class="line">            handler = <span class="keyword">new</span> <span class="title class_">IgnoreErrorsBindHandler</span>(handler);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">if</span> (!annotation.ignoreUnknownFields()) {</span><br><span class="line">            <span class="type">UnboundElementsSourceFilter</span> <span class="variable">filter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnboundElementsSourceFilter</span>();</span><br><span class="line">            handler = <span class="keyword">new</span> <span class="title class_">NoUnboundElementsBindHandler</span>(handler, filter);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> handler;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 参考ConfigurationPropertiesBindingPostProcessor</span></span><br><span class="line">    <span class="keyword">private</span> Binder <span class="title function_">getBinder</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="built_in">this</span>) {</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">                    <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">Binder</span>(getConfigurationPropertySources(),</span><br><span class="line">                            getPropertySourcesPlaceholdersResolver(), getConversionService(),</span><br><span class="line">                            getPropertyEditorInitializer());</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.binder;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<p>当监听到对应的配置更新时，除了更新数据库，还需要推送对应的消息，在这里由于我项目中使用的是Spring Event实现的消息机制，因此监听者的操作如下：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onApplicationEvent</span><span class="params">(ConfigRefreshEvent event)</span> {</span><br><span class="line">      dynamicConfigContainer.reloadConfig();</span><br><span class="line">      <span class="comment">// SpringValueRegistry.updateValue(event.getKey());</span></span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
-
-<p>至于<code>@Value</code>的部分，代码在<a href="https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo">https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo</a></p>
+<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
+<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
+<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
+<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
+<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
+</ul>
+<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
+<li>Java泛型支持泛型方法。</li>
+<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
+</ul>
+<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
+<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
+<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
+</ul>
+<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
+<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
+<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
+</ul>
+<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
+<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
+<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
+</ul>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
+<li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
+</ul>
 ]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>Spring Environment</tag>
-      </tags>
   </entry>
 </search>
