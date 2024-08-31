@@ -223,7 +223,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">430</a> 
+                            <a href="">427</a> 
                         </span>
                     
                     
@@ -254,27 +254,27 @@
 <span id="more"></span>
 
 <h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><ol>
-<li><p><strong>实现了</strong>**<code>ApplicationContextAware</code>**<strong>接口</strong>  </p>
+<li><p><strong>实现了<code>ApplicationContextAware</code>接口</strong>  </p>
 <p> 使用ApplicationContext来生成并管理Bean的话，才有此步；否则，没有。  </p>
 <p> 如果这个Bean已经实现了ApplicationContextAware接口，会调用<code>setApplicationContext()</code>方法，传入Spring上下文（同样这个方式也可以实现上一步的内容，但比上一步更好，因为ApplicationContext是BeanFactory的子接口，有更多的实现方法）；</p>
 </li>
-<li><p>**<code>BeanPostProcessors</code>**的<code>ProcessBeforeInitialization()  </code></p>
+<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessBeforeInitialization()</code></strong></p>
 <p> 如果有BeanPostProcessors和Bean关联，那么其<code>postProcessBeforeInitialization()</code>方法将被将被调用。</p>
 </li>
-<li><p><code>@PostConstruct</code></p>
-<p> 这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。它在执行依赖项注入后被执行，即<strong>构造函数之后，</strong>**<code>init()</code>**<strong>方法之前执行</strong></p>
+<li><p><strong><code>@PostConstruct</code></strong></p>
+<p> 这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。它在执行依赖项注入后被执行，即<strong>构造函数之后，<code>init()</code>方法之前执行</strong></p>
 </li>
-<li><p>**<code>initializingBean</code>**的<code>afterPropertiesSet()</code>：  </p>
+<li><p><strong><code>initializingBean</code>的<code>afterPropertiesSet()</code></strong></p>
 <p> 如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
 </li>
 <li><p>Bean的<code>init-method</code>  </p>
 </li>
-<li><p>**<code>BeanPostProcessors</code>**的<code>ProcessaAfterInitialization()</code></p>
+<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessaAfterInitialization()</code></strong></p>
 <p> 容器中如果有实现BeanPostProcessors接口的实例，则Bean在初始化之前都会执行这个实例的<code>processAfterInitialization()</code>方法。</p>
 </li>
 <li><p>如果原始对象中的某个方法被AOP了，那么则需要根据原始对象生成一个代理对象</p>
 </li>
-<li><p>把最终生成的代理对象放入<strong>单例池</strong>（源码中叫做singletonObjects）中，下次getBean时就直接从单例池拿即可</p>
+<li><p>把最终生成的代理对象放入单例池（源码中叫做<code>singletonObjects</code>）中，下次getBean时就直接从单例池拿即可</p>
 </li>
 </ol>
 
@@ -300,11 +300,6 @@
                         <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
                     </p>
                 
-                
-                     <p class="copyright-item">
-                         <span>Slogan:</span>
-                         <span></span>
-                     </p>
                 
 
             </section>
