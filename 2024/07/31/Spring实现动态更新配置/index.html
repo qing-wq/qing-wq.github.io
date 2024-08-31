@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+
+
+<title>Spring实现动态更新配置 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Spring实现动态更新配置</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">七月 31, 2024&nbsp;&nbsp;14:30:48</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，openai_key可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
+<p>常见的做法是接入一个配置中心，如Apollo、ZK等等，但是目前项目中是没有用到这些中间件的，接入这些配置中心可能会给项目带来一些风险，况且我这是个单体项目，用这些复杂的配置中心有点大材小用了，再说直接拿来就用没什么意思，于是参考了网上一些方案自己实现了项目的动态配置</p>
+<span id="more"></span>
+
+<blockquote>
+<p>为了更好的理解本文的逻辑，你可能需要以下前置知识点：<a href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">Spring Environment体系</a></p>
+</blockquote>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>直接说思路</strong>：<u>借助Mysql，维护一个配置表<code>global_config</code>，原因是方便构造自定义数据源和持久化用户配置，在Spring启动时读取数据库中的数据构造为我们自定义的属性源，并设置为首要，再利用<code>Binder</code>更新内存中的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段，这样就可以实现覆盖<code>properties</code>文件中的配置</u></p>
+<blockquote>
+<p>其实这里存在一个问题，就是如果能在<code>PropertySourcesPropertyResolver</code>的配置解析阶段就将自定义的属性源注入，那么初始化后的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段本身就是我们自定义数据源中的配置，但我尝试后发现无论如何都无法在解析前将自定义数据源注入到Environment中，于是只能在项目完全启动后刷新所有配置<br><img src="/../images/image_Secure2_Image.png"></p>
+</blockquote>
+<h2 id="具体细节"><a href="#具体细节" class="headerlink" title="具体细节"></a>具体细节</h2><p>我的项目中配置的使用姿势主要分两种：</p>
+<ol>
+<li>通过<code>@ConfigurationProperties</code>注入的<code>Property</code>对象</li>
+<li>通过<code>@Value</code>注入的配置字段</li>
+</ol>
+<p>两个部分需要不同的更新方式，因此配置的更新方式分为两部分：</p>
+<h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a><code>@ConfigurationProperties</code></h3><ul>
+<li>在初始化阶段：读取数据库中的配置表 → 生成自定义<code>MapPropertySource</code> →** 将自定义****<code>MapPropertySource</code>**<strong>添加到Environment中并设置为最高优先级</strong></li>
+<li>监听到配置变更：检查DB中的数据库与当前缓存中的<code>MapPropertySource</code>是否一致 ，如果不一致就调用refresh方法刷新Environment中的<code>MapPropertySource</code>。refresh方法的逻辑其实就是<strong>重新使用Binder绑定内存中的</strong><strong><code>ConfigurationProperties</code></strong></li>
+</ul>
+<h3 id="Value"><a href="#Value" class="headerlink" title="@Value"></a><code>@Value</code></h3><p>这部分的配置更新参考了<strong>Apollo</strong>的实现：利用一个<strong>括号匹配</strong>算法，在<code>BeanPostProcessor</code>阶段扫描所有带<code>@Value</code>占位符的Bean，包括表达式、占位符等等，连带对应的Bean引用全部存起来</p>
+<p>当有相关的key变化时，通过Bean的引用反射更新对应的Bean字段，你也可以使用观察者模式监听对应的key的变化，就可以做到当配置变化后自动触发对应Bean字段的更新</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/apolloconfig/apollo/pull/972">https://github.com/apolloconfig/apollo/pull/972</a></p>
+</blockquote>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>这部分的代码具体实现其实也参考了<code>ConfigurationProperties</code>的注入原理——<code>ConfigurationPropertiesBindingPostProcessor</code>的实现。为了缩减篇幅删除了一些非核心逻辑：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义的动态配置工厂类</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> qing</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2024/8/10</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicConfigContainer</span></span><br><span class="line">        <span class="keyword">implements</span> <span class="title class_">ApplicationContextAware</span>, InitializingBean, EnvironmentAware, CommandLineRunner {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ConfigurableEnvironment environment;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存储db中的全局配置，优先级最高</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; cache;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> DynamicConfigBinder binder;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        cache = Maps.newHashMap();</span><br><span class="line">        <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">DynamicConfigBinder</span>(<span class="built_in">this</span>.applicationContext, environment.getPropertySources());</span><br><span class="line">        bindBeansFromLocalCache(<span class="string">"dbConfig"</span>, cache);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从db中获取全量的配置信息</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true 表示有信息变更; false 表示无信息变更</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">loadAllConfigFromDb</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">"select `key`, `value` from global_conf where deleted = 0"</span>;</span><br><span class="line">        List&lt;Map&lt;String, Object&gt;&gt; list = applicationContext.getBean(JdbcTemplate.class).queryForList(sql);</span><br><span class="line">        Map&lt;String, Object&gt; val = Maps.newHashMapWithExpectedSize(list.size());</span><br><span class="line">        <span class="keyword">for</span> (Map&lt;String, Object&gt; conf : list) {</span><br><span class="line">            val.put(conf.get(<span class="string">"key"</span>).toString(), conf.get(<span class="string">"value"</span>).toString());</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">if</span> (val.equals(cache)) {</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        }</span><br><span class="line">        cache.clear();</span><br><span class="line">        cache.putAll(val);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bindBeansFromLocalCache</span><span class="params">(String namespace, Map&lt;String, Object&gt; cache)</span> {</span><br><span class="line">        <span class="comment">// 将内存的配置信息设置为最高优先级</span></span><br><span class="line">        <span class="type">MapPropertySource</span> <span class="variable">propertySource</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MapPropertySource</span>(namespace, cache);</span><br><span class="line">        environment.getPropertySources().addFirst(propertySource);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(Bindable bindable)</span> {</span><br><span class="line">        binder.bind(bindable);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 监听配置的变更</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reloadConfig</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">before</span> <span class="operator">=</span> JsonUtil.toStr(cache);</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">toRefresh</span> <span class="operator">=</span> loadAllConfigFromDb();</span><br><span class="line">        <span class="keyword">if</span> (toRefresh) {</span><br><span class="line">            refreshConfig();</span><br><span class="line">            log.info(<span class="string">"config update! Old:{}, New:{}"</span>, before, JsonUtil.toStr(cache));</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 支持配置的动态刷新</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">refreshConfig</span><span class="params">()</span> {</span><br><span class="line">        applicationContext.getBeansWithAnnotation(ConfigurationProperties.class).values().forEach(bean -&gt; {</span><br><span class="line">            Bindable&lt;?&gt; target = Bindable.ofInstance(bean).withAnnotations(AnnotationUtils.findAnnotation(bean.getClass(), ConfigurationProperties.class));</span><br><span class="line">            bind(target);</span><br><span class="line">        });</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 应用启动之后，执行的动态配置初始化</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> args</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String... args)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        reloadConfig();</span><br><span class="line">        <span class="comment">// SpringValueRegistry.updateAll();</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicConfigBinder</span> {</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PropertySources propertySources;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Binder binder;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DynamicConfigBinder</span><span class="params">(ApplicationContext applicationContext, PropertySources propertySources)</span> {</span><br><span class="line">        <span class="built_in">this</span>.applicationContext = applicationContext;</span><br><span class="line">        <span class="built_in">this</span>.propertySources = propertySources;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(Bindable&lt;T&gt; bindable)</span> {</span><br><span class="line">        <span class="type">ConfigurationProperties</span> <span class="variable">propertiesAno</span> <span class="operator">=</span> bindable.getAnnotation(ConfigurationProperties.class);</span><br><span class="line">        <span class="keyword">if</span> (propertiesAno != <span class="literal">null</span>) {</span><br><span class="line">            <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(propertiesAno);</span><br><span class="line">            getBinder().bind(propertiesAno.prefix(), bindable, bindHandler);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(String prefix, Bindable&lt;T&gt; bindable, BindHandler bindHandler)</span> {</span><br><span class="line">        getBinder().bind(prefix, bindable, bindHandler);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> BindHandler <span class="title function_">getBindHandler</span><span class="params">(ConfigurationProperties annotation)</span> {</span><br><span class="line">        <span class="type">BindHandler</span> <span class="variable">handler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">IgnoreTopLevelConverterNotFoundBindHandler</span>();</span><br><span class="line">        <span class="keyword">if</span> (annotation.ignoreInvalidFields()) {</span><br><span class="line">            handler = <span class="keyword">new</span> <span class="title class_">IgnoreErrorsBindHandler</span>(handler);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">if</span> (!annotation.ignoreUnknownFields()) {</span><br><span class="line">            <span class="type">UnboundElementsSourceFilter</span> <span class="variable">filter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnboundElementsSourceFilter</span>();</span><br><span class="line">            handler = <span class="keyword">new</span> <span class="title class_">NoUnboundElementsBindHandler</span>(handler, filter);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> handler;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 参考ConfigurationPropertiesBindingPostProcessor</span></span><br><span class="line">    <span class="keyword">private</span> Binder <span class="title function_">getBinder</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="built_in">this</span>) {</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">                    <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">Binder</span>(getConfigurationPropertySources(),</span><br><span class="line">                            getPropertySourcesPlaceholdersResolver(), getConversionService(),</span><br><span class="line">                            getPropertyEditorInitializer());</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.binder;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>当监听到对应的配置更新时，除了更新数据库，还需要推送对应的消息，在这里由于我项目中使用的是Spring Event实现的消息机制，因此监听者的操作如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onApplicationEvent</span><span class="params">(ConfigRefreshEvent event)</span> {</span><br><span class="line">      dynamicConfigContainer.reloadConfig();</span><br><span class="line">      <span class="comment">// SpringValueRegistry.updateValue(event.getKey());</span></span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
+
+<p>至于<code>@Value</code>的部分，代码在<a target="_blank" rel="noopener" href="https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo">https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo</a></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/">https://qing-wq.github.io/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/08/20/LangChain4j-spring%20Bug/">LangChain4j-spring Bug修复记录</a>
+            
+            
+            <a class="next" rel="next" href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">Spring Environment体系</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
