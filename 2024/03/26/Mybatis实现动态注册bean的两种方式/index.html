@@ -13,7 +13,7 @@
 
 
 
-<title>Mybatis实现动态注册bean的两种方式 | Qing&#39;s Blog</title>
+<title>MyBatis实现动态注册bean的两种方式 | Qing&#39;s Blog</title>
 
 
 
@@ -198,7 +198,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Mybatis实现动态注册bean的两种方式</h1>
+            <h1 class="post-title">MyBatis实现动态注册bean的两种方式</h1>
             
                 <div class="post-meta">
                     
@@ -214,7 +214,7 @@
                         <span class="post-category">
                     Category:
                             
-                                <a href="/categories/MyBtis/">MyBtis</a>
+                                <a href="/categories/MyBatis/">MyBatis</a>
                             
                         </span>
                     
@@ -224,7 +224,7 @@
 
         <div class="post-content">
             <p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="Myabtis代理DAO接口类过程"><a href="#Myabtis代理DAO接口类过程" class="headerlink" title="Myabtis代理DAO接口类过程"></a>Myabtis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
 <ul>
 <li><code>MapperScannerConfigurer</code>核心配置类<ul>
 <li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>

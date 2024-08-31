@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Go generic VS Java generic</title>
+    <url>/2024/02/14/Go%20generic%20VS%20Java%20generic/</url>
+    <content><![CDATA[<p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
+<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
+<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
+<span id="more"></span>
+
+<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
+<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T {}</code>。</p>
+<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
+<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
+<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
+<li>不支持泛型方法。</li>
+</ul>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
+<ul>
+<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
+<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
+</ul>
+<figure class="highlight go"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 {</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> {</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T {</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> {</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
+<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
+<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
+<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
+<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
+</ul>
+<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
+<li>Java泛型支持泛型方法。</li>
+<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
+</ul>
+<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
+<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
+<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
+</ul>
+<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
+<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
+<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
+</ul>
+<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
+<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
+<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
+</ul>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
+<li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
     <title>Go语言基础</title>
     <url>/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><ul>
@@ -355,57 +406,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Go generic VS Java generic</title>
-    <url>/2024/02/14/Go%20generic%20VS%20Java%20generic/</url>
-    <content><![CDATA[<p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
-<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
-<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
-<span id="more"></span>
-
-<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
-<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T {}</code>。</p>
-<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
-<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
-<li>不支持泛型方法。</li>
-</ul>
-<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
-<ul>
-<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
-<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
-</ul>
-<figure class="highlight go"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 {</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> {</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T {</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> {</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
-<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
-<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
-<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
-<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
-</ul>
-<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>Java泛型支持泛型方法。</li>
-<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
-</ul>
-<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
-<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
-<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
-</ul>
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
-<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
-<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
-</ul>
-<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
-<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
-<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
-</ul>
-<hr>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
-<li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
-</ul>
-]]></content>
-  </entry>
-  <entry>
     <title>LangChain4j-spring Bug修复记录</title>
     <url>/2024/08/20/LangChain4j-spring%20Bug/</url>
     <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，如果使用<code>@ComponentScan</code>扫描特定的文件路径，并且该文件路径中定义了带有<code>@AiService</code>，那么该接口将不会被扫描并生成代理类</p>
@@ -437,128 +437,6 @@
 <ul>
 <li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
 </ul>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spring Environment体系</title>
-    <url>/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/</url>
-    <content><![CDATA[<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
-<li><code>PropertySource</code>：管理各种配置源的抽象类，即属性源</li>
-<li><code>PropertySources</code>：用于统一管理和访问多个 PropertySource 实例</li>
-<li><code>PropertyResolver</code>：通用属性解析<ul>
-<li><code>Environment</code>：应用环境表示，提供属性访问，支持profile。</li>
-<li><code>ConfigurablePropertyResolver</code>：属性解析配置，支持占位符解析。</li>
-</ul>
-</li>
-<li><code>Binder</code>：配置绑定工具</li>
-</ul>
-<p>大致关系图：</p>
-<p><img src="/../images/image_98WWM6BQwA.png"></p>
-<span id="more"></span>
-
-<blockquote>
-<p>图片来自<a href="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-%E5%92%8Cspring%E9%9B%86%E6%88%90%E7%9A%84%E5%8E%9F%E7%90%86" title="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理">https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理</a></p>
-</blockquote>
-<h2 id="PropertySource"><a href="#PropertySource" class="headerlink" title="PropertySource"></a>PropertySource</h2><p><img src="/../images/image_eZgD5dC_Ym.png"></p>
-<p>PropertySource是 Spring 框架中的一个关键抽象类，封装了一个属性源，属性源可以是一个<code>Map</code>、<code>Resource</code>对象、系统变量等等</p>
-<h2 id="PropertySources"><a href="#PropertySources" class="headerlink" title="PropertySources"></a>PropertySources</h2><p><code>PropertySources</code> 是一个Spring框架中的接口，用于表示和管理一组属性源（<code>PropertySource</code>），这些属性源包含了应用程序环境中的配置数据。该接口提供了一系列方法来检索、添加、替换和删除这些属性源，允许开发者以统一的方式访问不同来源的配置信息，如环境变量、系统属性、配置文件等。</p>
-<h2 id="PropertyResolver"><a href="#PropertyResolver" class="headerlink" title="PropertyResolver"></a>PropertyResolver</h2><p><code>PropertyResolver</code>是一个顶层接口，提供了一套灵活且强大的机制来处理应用程序配置属性。它定义了一些获取属性值，以及解析占位符的方法，用于访问和操纵来自各种源的属性值。</p>
-<p><img src="/../images/image_TL0vgbMjbo.png"></p>
-<h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p><code>Environment</code> 接口是 Spring 框架中的一个核心部分，它提供了一个统一的方式来访问各种外部化的配置数据（继承自<code>PropertyResolver</code>）；支持配置文件（Profiles）的概念，可以在不同环境下进行条件性的配置，管理多个属性源。</p>
-<p>可以看到<code>Environment</code>是继承了<code>PropertyResolver</code>接口的，<strong>只是增加了一些环境信息方法(profile)</strong></p>
-<p>其中<code>Environment</code>实例关于<code>PropertyResolver</code>接口的方法是通过组合模式实现的，内部持有一个<code>PropertySourcesPropertyResolver</code>实例。</p>
-<h3 id="ConfigurablePropertyResolver"><a href="#ConfigurablePropertyResolver" class="headerlink" title="ConfigurablePropertyResolver"></a>ConfigurablePropertyResolver</h3><p><code>ConfigurablePropertyResolver</code> 接口则增加了一些配置方法，在Spring中关键作用是提供灵活的配置属性解析。它支持<strong>占位符解析</strong>，并解析这些占位符为实际的配置值，提升配置的动态性和灵活性。</p>
-<h3 id="其他实现"><a href="#其他实现" class="headerlink" title="其他实现"></a>其他实现</h3><ul>
-<li><code>ConfigurableEnvironment</code>，增加了一些配置的方法，以及可以获取到内部的<code>PropertySource</code>列表。</li>
-<li><code>StandardEnvironment</code>，非web上下文使用的环境实例。</li>
-<li><code>StandardServletEnvironment</code>，web上下文使用的环境实例。</li>
-</ul>
-<h2 id="Binder"><a href="#Binder" class="headerlink" title="Binder"></a>Binder</h2><p>Spring提供了一个很强大的工具类<code>Binder</code>，可以将<code>Environment</code>或者<code>ConfigurationPropertySource</code>中的属性绑定到一个Java对象中，且支持占位符，类型转换，宽松绑定。Binder的使用可以参考</p>
-<h3 id="ConfigurationProperties实现原理"><a href="#ConfigurationProperties实现原理" class="headerlink" title="@ConfigurationProperties实现原理"></a>@ConfigurationProperties实现原理</h3><p><code>@ConfigurationProperties</code>注解在Spring Boot中常用来绑定属性到Java Bean中，不难猜出内部原理便是使用上面所介绍的<code>Binder</code>类来实现的。</p>
-<p>使用该注解时常常搭配<code>@EnableConfigurationProperties</code>注解一起使用，<code>@EnableConfigurationProperties</code>的主要作用就是注册了一个<code>ConfigurationPropertiesBindingPostProcessor</code></p>
-<p>绑定的核心逻辑在<code>ConfigurationPropertiesBindingPostProcessor</code>中</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">  <span class="keyword">if</span> (!hasBoundValueObject(beanName)) {</span><br><span class="line">    bind(ConfigurationPropertiesBean.get(<span class="built_in">this</span>.applicationContext, bean, beanName));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(ConfigurationPropertiesBean bean)</span> {</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="built_in">this</span>.binder.bind(bean);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (Exception ex) {</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationPropertiesBindException</span>(bean, ex);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">BindResult&lt;?&gt; bind(ConfigurationPropertiesBean propertiesBean) {</span><br><span class="line">    Bindable&lt;?&gt; target = propertiesBean.asBindTarget();</span><br><span class="line">    <span class="type">ConfigurationProperties</span> <span class="variable">annotation</span> <span class="operator">=</span> propertiesBean.getAnnotation();</span><br><span class="line">    <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(target, annotation);</span><br><span class="line">     <span class="keyword">return</span> getBinder().bind(annotation.prefix(), target, bindHandler); </span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
-
-<p>关键点在于Binder将<code>ConfigurationProperties</code>的前缀和实际的Bean对象绑定在了一起，实现配置的注入</p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://www.cnblogs.com/wt20/p/17588895.html" title="https://www.cnblogs.com/wt20/p/17588895.html">https://www.cnblogs.com/wt20/p/17588895.html</a></li>
-<li><a href="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot%E4%B9%8B%E7%BC%96%E7%A8%8B%E5%BC%8F%E5%B1%9E%E6%80%A7%E7%BB%91%E5%AE%9ABinder/" title="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/">https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spring Lazy-init 踩坑记录</title>
-    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
-</blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>spring</tag>
-        <tag>bug</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spring中几个关键的后置处理器以及执行顺序</title>
-    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
-<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
-<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
-<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
-<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
-<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spingboot3.0 升级记录</title>
-    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
-</blockquote>
-<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
-<ul>
-<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
-<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
-</ul>
-<span id="more"></span>
-
-<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
-
-<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
 ]]></content>
       <categories>
         <category>Spring</category>
@@ -781,6 +659,171 @@
       </tags>
   </entry>
   <entry>
+    <title>MyBatis实现动态注册bean的两种方式</title>
+    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
+    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
+<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<ul>
+<li><code>MapperScannerConfigurer</code>核心配置类<ul>
+<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
+</ul>
+</li>
+<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
+<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
+<ul>
+<li><code>@MapperScan</code><ul>
+<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
+<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
+</ul>
+</li>
+<li><code>@Mapper</code><ul>
+<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
+<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MyBatis</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spingboot3.0 升级记录</title>
+    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
+</blockquote>
+<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
+<ul>
+<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
+<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
+</ul>
+<span id="more"></span>
+
+<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
+
+<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
+<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
+<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spring Lazy-init 踩坑记录</title>
+    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
+<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
+<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>bug</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring Environment体系</title>
+    <url>/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/</url>
+    <content><![CDATA[<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
+<li><code>PropertySource</code>：管理各种配置源的抽象类，即属性源</li>
+<li><code>PropertySources</code>：用于统一管理和访问多个 PropertySource 实例</li>
+<li><code>PropertyResolver</code>：通用属性解析<ul>
+<li><code>Environment</code>：应用环境表示，提供属性访问，支持profile。</li>
+<li><code>ConfigurablePropertyResolver</code>：属性解析配置，支持占位符解析。</li>
+</ul>
+</li>
+<li><code>Binder</code>：配置绑定工具</li>
+</ul>
+<p>大致关系图：</p>
+<p><img src="/../images/image_98WWM6BQwA.png"></p>
+<span id="more"></span>
+
+<blockquote>
+<p>图片来自<a href="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-%E5%92%8Cspring%E9%9B%86%E6%88%90%E7%9A%84%E5%8E%9F%E7%90%86" title="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理">https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理</a></p>
+</blockquote>
+<h2 id="PropertySource"><a href="#PropertySource" class="headerlink" title="PropertySource"></a>PropertySource</h2><p><img src="/../images/image_eZgD5dC_Ym.png"></p>
+<p>PropertySource是 Spring 框架中的一个关键抽象类，封装了一个属性源，属性源可以是一个<code>Map</code>、<code>Resource</code>对象、系统变量等等</p>
+<h2 id="PropertySources"><a href="#PropertySources" class="headerlink" title="PropertySources"></a>PropertySources</h2><p><code>PropertySources</code> 是一个Spring框架中的接口，用于表示和管理一组属性源（<code>PropertySource</code>），这些属性源包含了应用程序环境中的配置数据。该接口提供了一系列方法来检索、添加、替换和删除这些属性源，允许开发者以统一的方式访问不同来源的配置信息，如环境变量、系统属性、配置文件等。</p>
+<h2 id="PropertyResolver"><a href="#PropertyResolver" class="headerlink" title="PropertyResolver"></a>PropertyResolver</h2><p><code>PropertyResolver</code>是一个顶层接口，提供了一套灵活且强大的机制来处理应用程序配置属性。它定义了一些获取属性值，以及解析占位符的方法，用于访问和操纵来自各种源的属性值。</p>
+<p><img src="/../images/image_TL0vgbMjbo.png"></p>
+<h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p><code>Environment</code> 接口是 Spring 框架中的一个核心部分，它提供了一个统一的方式来访问各种外部化的配置数据（继承自<code>PropertyResolver</code>）；支持配置文件（Profiles）的概念，可以在不同环境下进行条件性的配置，管理多个属性源。</p>
+<p>可以看到<code>Environment</code>是继承了<code>PropertyResolver</code>接口的，<strong>只是增加了一些环境信息方法(profile)</strong></p>
+<p>其中<code>Environment</code>实例关于<code>PropertyResolver</code>接口的方法是通过组合模式实现的，内部持有一个<code>PropertySourcesPropertyResolver</code>实例。</p>
+<h3 id="ConfigurablePropertyResolver"><a href="#ConfigurablePropertyResolver" class="headerlink" title="ConfigurablePropertyResolver"></a>ConfigurablePropertyResolver</h3><p><code>ConfigurablePropertyResolver</code> 接口则增加了一些配置方法，在Spring中关键作用是提供灵活的配置属性解析。它支持<strong>占位符解析</strong>，并解析这些占位符为实际的配置值，提升配置的动态性和灵活性。</p>
+<h3 id="其他实现"><a href="#其他实现" class="headerlink" title="其他实现"></a>其他实现</h3><ul>
+<li><code>ConfigurableEnvironment</code>，增加了一些配置的方法，以及可以获取到内部的<code>PropertySource</code>列表。</li>
+<li><code>StandardEnvironment</code>，非web上下文使用的环境实例。</li>
+<li><code>StandardServletEnvironment</code>，web上下文使用的环境实例。</li>
+</ul>
+<h2 id="Binder"><a href="#Binder" class="headerlink" title="Binder"></a>Binder</h2><p>Spring提供了一个很强大的工具类<code>Binder</code>，可以将<code>Environment</code>或者<code>ConfigurationPropertySource</code>中的属性绑定到一个Java对象中，且支持占位符，类型转换，宽松绑定。Binder的使用可以参考</p>
+<h3 id="ConfigurationProperties实现原理"><a href="#ConfigurationProperties实现原理" class="headerlink" title="@ConfigurationProperties实现原理"></a>@ConfigurationProperties实现原理</h3><p><code>@ConfigurationProperties</code>注解在Spring Boot中常用来绑定属性到Java Bean中，不难猜出内部原理便是使用上面所介绍的<code>Binder</code>类来实现的。</p>
+<p>使用该注解时常常搭配<code>@EnableConfigurationProperties</code>注解一起使用，<code>@EnableConfigurationProperties</code>的主要作用就是注册了一个<code>ConfigurationPropertiesBindingPostProcessor</code></p>
+<p>绑定的核心逻辑在<code>ConfigurationPropertiesBindingPostProcessor</code>中</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">  <span class="keyword">if</span> (!hasBoundValueObject(beanName)) {</span><br><span class="line">    bind(ConfigurationPropertiesBean.get(<span class="built_in">this</span>.applicationContext, bean, beanName));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(ConfigurationPropertiesBean bean)</span> {</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="built_in">this</span>.binder.bind(bean);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (Exception ex) {</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationPropertiesBindException</span>(bean, ex);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">BindResult&lt;?&gt; bind(ConfigurationPropertiesBean propertiesBean) {</span><br><span class="line">    Bindable&lt;?&gt; target = propertiesBean.asBindTarget();</span><br><span class="line">    <span class="type">ConfigurationProperties</span> <span class="variable">annotation</span> <span class="operator">=</span> propertiesBean.getAnnotation();</span><br><span class="line">    <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(target, annotation);</span><br><span class="line">     <span class="keyword">return</span> getBinder().bind(annotation.prefix(), target, bindHandler); </span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
+
+<p>关键点在于Binder将<code>ConfigurationProperties</code>的前缀和实际的Bean对象绑定在了一起，实现配置的注入</p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://www.cnblogs.com/wt20/p/17588895.html" title="https://www.cnblogs.com/wt20/p/17588895.html">https://www.cnblogs.com/wt20/p/17588895.html</a></li>
+<li><a href="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot%E4%B9%8B%E7%BC%96%E7%A8%8B%E5%BC%8F%E5%B1%9E%E6%80%A7%E7%BB%91%E5%AE%9ABinder/" title="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/">https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>Spring Environment</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring中几个关键的后置处理器以及执行顺序</title>
+    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
+    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
+<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
+<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
+<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
+<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
+<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Spring实现动态更新配置</title>
     <url>/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，openai_key可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
@@ -819,46 +862,11 @@
 
 <p>至于<code>@Value</code>的部分，代码在<a href="https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo">https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo</a></p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>Mybatis实现动态注册bean的两种方式</title>
-    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
-    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="Myabtis代理DAO接口类过程"><a href="#Myabtis代理DAO接口类过程" class="headerlink" title="Myabtis代理DAO接口类过程"></a>Myabtis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
-<ul>
-<li><code>MapperScannerConfigurer</code>核心配置类<ul>
-<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
-</ul>
-</li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
-<ul>
-<li><code>@MapperScan</code><ul>
-<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
-<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
-</ul>
-</li>
-<li><code>@Mapper</code><ul>
-<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
-<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
-</ul>
-]]></content>
       <categories>
-        <category>MyBtis</category>
+        <category>Spring</category>
       </categories>
+      <tags>
+        <tag>Spring Environment</tag>
+      </tags>
   </entry>
 </search>
