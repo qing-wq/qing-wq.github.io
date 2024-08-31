@@ -13,7 +13,7 @@
 
 
 
-<title>MyBatis实现动态注册bean的两种方式 | Qing&#39;s Blog</title>
+<title>Bean的生命周期 | Qing&#39;s Blog</title>
 
 
 
@@ -198,7 +198,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">MyBatis实现动态注册bean的两种方式</h1>
+            <h1 class="post-title">Bean的生命周期</h1>
             
                 <div class="post-meta">
                     
@@ -207,7 +207,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">三月 26, 2024</a>
+                        📅Date: <a href="#">八月 31, 2023</a>
                         </span>
                     
                     <br/>
@@ -215,7 +215,7 @@
                         <span class="post-category">
                             📚Category:
                             
-                                <a href="/categories/MyBatis/">MyBatis</a>
+                                <a href="/categories/Spring/">Spring</a>
                             
                         </span>
                     
@@ -223,7 +223,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">336</a> 
+                            <a href="">430</a> 
                         </span>
                     
                     
@@ -237,39 +237,46 @@
         </header>
 
         <div class="post-content">
-            <p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
-<ul>
-<li><code>MapperScannerConfigurer</code>核心配置类<ul>
-<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
-</ul>
+            <p><img src="/../images/bean.svg"></p>
+<p><em><strong><u>大致过程：实例化→属性注入→初始化→销毁</u></strong></em></p>
+<h1 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h1><ol>
+<li>Spring扫描所有的Bean（通过xml配置文件或者注解）得到BeanDefinition</li>
+<li>根据得到的BeanDefinition去生成bean<ol>
+<li>首先根据class推断构造方法</li>
+<li>根据推断出来的构造方法，反射，得到一个对象（暂时叫做<strong>原始对象</strong>）</li>
+</ol>
 </li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
-</ul>
+</ol>
+<blockquote>
+<p>总结：扫描Bean，获取构造方法并生成原始对象，分配内存空间</p>
+</blockquote>
+<h1 id="属性注入"><a href="#属性注入" class="headerlink" title="属性注入"></a>属性注入</h1><p>填充原始对象中的属性（即依赖注入）</p>
 <span id="more"></span>
 
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
-<ul>
-<li><code>@MapperScan</code><ul>
-<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
-<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
-</ul>
+<h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><ol>
+<li><p><strong>实现了</strong>**<code>ApplicationContextAware</code>**<strong>接口</strong>  </p>
+<p> 使用ApplicationContext来生成并管理Bean的话，才有此步；否则，没有。  </p>
+<p> 如果这个Bean已经实现了ApplicationContextAware接口，会调用<code>setApplicationContext()</code>方法，传入Spring上下文（同样这个方式也可以实现上一步的内容，但比上一步更好，因为ApplicationContext是BeanFactory的子接口，有更多的实现方法）；</p>
 </li>
-<li><code>@Mapper</code><ul>
-<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
-<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
-</ul>
+<li><p>**<code>BeanPostProcessors</code>**的<code>ProcessBeforeInitialization()  </code></p>
+<p> 如果有BeanPostProcessors和Bean关联，那么其<code>postProcessBeforeInitialization()</code>方法将被将被调用。</p>
 </li>
-</ul>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-<li><a target="_blank" rel="noopener" href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
-</ul>
+<li><p><code>@PostConstruct</code></p>
+<p> 这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。它在执行依赖项注入后被执行，即<strong>构造函数之后，</strong>**<code>init()</code>**<strong>方法之前执行</strong></p>
+</li>
+<li><p>**<code>initializingBean</code>**的<code>afterPropertiesSet()</code>：  </p>
+<p> 如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
+</li>
+<li><p>Bean的<code>init-method</code>  </p>
+</li>
+<li><p>**<code>BeanPostProcessors</code>**的<code>ProcessaAfterInitialization()</code></p>
+<p> 容器中如果有实现BeanPostProcessors接口的实例，则Bean在初始化之前都会执行这个实例的<code>processAfterInitialization()</code>方法。</p>
+</li>
+<li><p>如果原始对象中的某个方法被AOP了，那么则需要根据原始对象生成一个代理对象</p>
+</li>
+<li><p>把最终生成的代理对象放入<strong>单例池</strong>（源码中叫做singletonObjects）中，下次getBean时就直接从单例池拿即可</p>
+</li>
+</ol>
 
         </div>
 
@@ -284,7 +291,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">https://qing-wq.github.io/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</a></span>
+                        <span><a href="https://qing-wq.github.io/2023/08/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">https://qing-wq.github.io/2023/08/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</a></span>
                     </p>
                 
                 
@@ -317,10 +324,8 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">LangChain入门笔记</a>
+                <a class="prev" rel="prev" href="/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">Go语言基础</a>
             
-            
-            <a class="next" rel="next" href="/2024/02/14/Go%20generic%20VS%20Java%20generic/">Go generic VS Java generic</a>
             
         </section>
 
