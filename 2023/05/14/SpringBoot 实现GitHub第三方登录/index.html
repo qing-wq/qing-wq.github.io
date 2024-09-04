@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+
+
+<title>SpringBoot实现GitHub第三方登录 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">SpringBoot实现GitHub第三方登录</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">五月 14, 2023</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/Spring/">Spring</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">549</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">2min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
+<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
+<p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
+<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a target="_blank" rel="noopener" href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
+<p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
+<p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
+<p>下面是Demo：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<p>相关文档：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
+<li><a target="_blank" rel="noopener" href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2023/05/14/SpringBoot%20%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/">https://qing-wq.github.io/2023/05/14/SpringBoot%20%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/oauth/"># oauth</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/06/03/JMM/">JMM</a>
+            
+            
+            <a class="next" rel="next" href="/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/">Java中的四大函数式接口</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

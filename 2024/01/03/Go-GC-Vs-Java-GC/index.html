@@ -13,7 +13,7 @@
 
 
 
-<title>Spring Lazy-init 踩坑记录 | Qing&#39;s Blog</title>
+<title>Go GC VS Java GC | Qing&#39;s Blog</title>
 
 
 
@@ -129,11 +129,76 @@
                 <div class="container">
     
     
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
 
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Spring Lazy-init 踩坑记录</h1>
+            <h1 class="post-title">Go GC VS Java GC</h1>
             
                 <div class="post-meta">
                     
@@ -142,7 +207,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">十一月 1, 2023</a>
+                        📅Date: <a href="#">一月 3, 2024</a>
                         </span>
                     
                     <br/>
@@ -150,7 +215,7 @@
                         <span class="post-category">
                             📚Category:
                             
-                                <a href="/categories/Spring/">Spring</a>
+                                <a href="/categories/Go/">Go</a>
                             
                         </span>
                     
@@ -158,13 +223,13 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">82</a> 
+                            <a href="">675</a> 
                         </span>
                     
                     
                         <span class="post-count">
                             ⏱️Time:
-                            <a href="">1min</a> 
+                            <a href="">2min</a> 
                         </span>
                                             
                 </div>
@@ -172,15 +237,33 @@
         </header>
 
         <div class="post-content">
-            <blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
-</blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+            <p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
+<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
+<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
+<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
+<ul>
+<li>JDK 8：Parallel Scavenge</li>
+<li>JDK 9 ~ JDK20: G1</li>
+</ul>
+<p><strong>特点：</strong></p>
+<ul>
+<li>都会造成STW，这是影响性能最主要的因素</li>
+<li>部分算法还会产生大量空间碎片</li>
+</ul>
+<p>介绍一下Java中比较经典的垃圾回收器：</p>
+<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
+<ul>
+<li>主要优点：<strong>并发收集、低停顿</strong></li>
+<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
+</ul>
+<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
+<p>G1使用<strong>标记-整理</strong>算法</p>
+<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
+<ul>
+<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
+<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
+<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
+</ul>
 
         </div>
 
@@ -195,7 +278,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">https://qing-wq.github.io/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/01/03/Go-GC-Vs-Java-GC/">https://qing-wq.github.io/2024/01/03/Go-GC-Vs-Java-GC/</a></span>
                     </p>
                 
                 
@@ -214,7 +297,7 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/bug/"># bug</a>
+                        <a href="/tags/Java-VS-Go/"># Java VS Go</a>
                     
                         
                 </span>
@@ -227,10 +310,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/01/03/Go-GC-Vs-Java-GC/">Go GC VS Java GC</a>
+                <a class="prev" rel="prev" href="/2024/02/14/Go%20generic%20VS%20Java%20generic/">Go generic VS Java generic</a>
             
             
-            <a class="next" rel="next" href="/2023/09/03/JUC%E5%9F%BA%E7%A1%80/">JUC基础</a>
+            <a class="next" rel="next" href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Spring Lazy-init 踩坑记录</a>
             
         </section>
 

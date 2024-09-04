@@ -13,7 +13,7 @@
 
 
 
-<title>Spring Lazy-init 踩坑记录 | Qing&#39;s Blog</title>
+<title>📌 Bean的生命周期 | Qing&#39;s Blog</title>
 
 
 
@@ -129,11 +129,76 @@
                 <div class="container">
     
     
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
 
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Spring Lazy-init 踩坑记录</h1>
+            <h1 class="post-title">📌 Bean的生命周期</h1>
             
                 <div class="post-meta">
                     
@@ -142,7 +207,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">十一月 1, 2023</a>
+                        📅Date: <a href="#">三月 31, 2024</a>
                         </span>
                     
                     <br/>
@@ -158,7 +223,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">82</a> 
+                            <a href="">427</a> 
                         </span>
                     
                     
@@ -172,15 +237,46 @@
         </header>
 
         <div class="post-content">
-            <blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+            <p><img src="/../images/bean.svg"></p>
+<p><em><strong><u>大致过程：实例化→属性注入→初始化→销毁</u></strong></em></p>
+<h1 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h1><ol>
+<li>Spring扫描所有的Bean（通过xml配置文件或者注解）得到BeanDefinition</li>
+<li>根据得到的BeanDefinition去生成bean<ol>
+<li>首先根据class推断构造方法</li>
+<li>根据推断出来的构造方法，反射，得到一个对象（暂时叫做<strong>原始对象</strong>）</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>总结：扫描Bean，获取构造方法并生成原始对象，分配内存空间</p>
 </blockquote>
+<h1 id="属性注入"><a href="#属性注入" class="headerlink" title="属性注入"></a>属性注入</h1><p>填充原始对象中的属性（即依赖注入）</p>
 <span id="more"></span>
 
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+<h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><ol>
+<li><p><strong>实现了<code>ApplicationContextAware</code>接口</strong>  </p>
+<p> 使用ApplicationContext来生成并管理Bean的话，才有此步；否则，没有。  </p>
+<p> 如果这个Bean已经实现了ApplicationContextAware接口，会调用<code>setApplicationContext()</code>方法，传入Spring上下文（同样这个方式也可以实现上一步的内容，但比上一步更好，因为ApplicationContext是BeanFactory的子接口，有更多的实现方法）；</p>
+</li>
+<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessBeforeInitialization()</code></strong></p>
+<p> 如果有BeanPostProcessors和Bean关联，那么其<code>postProcessBeforeInitialization()</code>方法将被将被调用。</p>
+</li>
+<li><p><strong><code>@PostConstruct</code></strong></p>
+<p> 这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。它在执行依赖项注入后被执行，即<strong>构造函数之后，<code>init()</code>方法之前执行</strong></p>
+</li>
+<li><p><strong><code>initializingBean</code>的<code>afterPropertiesSet()</code></strong></p>
+<p> 如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
+</li>
+<li><p>Bean的<code>init-method</code>  </p>
+</li>
+<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessaAfterInitialization()</code></strong></p>
+<p> 容器中如果有实现BeanPostProcessors接口的实例，则Bean在初始化之前都会执行这个实例的<code>processAfterInitialization()</code>方法。</p>
+</li>
+<li><p>如果原始对象中的某个方法被AOP了，那么则需要根据原始对象生成一个代理对象</p>
+</li>
+<li><p>把最终生成的代理对象放入单例池（源码中叫做<code>singletonObjects</code>）中，下次getBean时就直接从单例池拿即可</p>
+</li>
+</ol>
 
         </div>
 
@@ -195,7 +291,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">https://qing-wq.github.io/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/03/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">https://qing-wq.github.io/2024/03/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</a></span>
                     </p>
                 
                 
@@ -213,10 +309,6 @@
                 <span>Tag(s):</span>
                 <span class="tag">
                     
-                    
-                        <a href="/tags/bug/"># bug</a>
-                    
-                        
                 </span>
             </div>
             <div>
@@ -227,10 +319,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/01/03/Go-GC-Vs-Java-GC/">Go GC VS Java GC</a>
+                <a class="prev" rel="prev" href="/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">Spring中几个关键的后置处理器以及执行顺序</a>
             
             
-            <a class="next" rel="next" href="/2023/09/03/JUC%E5%9F%BA%E7%A1%80/">JUC基础</a>
+            <a class="next" rel="next" href="/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">LangChain入门笔记</a>
             
         </section>
 

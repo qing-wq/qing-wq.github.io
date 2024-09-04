@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Bean的生命周期</title>
-    <url>/2023/08/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</url>
+    <title>📌 Bean的生命周期</title>
+    <url>/2024/03/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</url>
     <content><![CDATA[<p><img src="/../images/bean.svg"></p>
 <p><em><strong><u>大致过程：实例化→属性注入→初始化→销毁</u></strong></em></p>
 <h1 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h1><ol>
@@ -98,222 +98,423 @@
 <li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
 </ul>
 ]]></content>
-  </entry>
-  <entry>
-    <title>LangChain入门笔记</title>
-    <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<p>基本架构</p>
-<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
-<span id="more"></span>
-
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
-<p>主要功能：</p>
-<ul>
-<li><p>调用语言模型</p>
-</li>
-<li><p>将不同数据源接入到语言模型的交互中</p>
-</li>
-<li><p>允许语言模型与运行环境交互</p>
-</li>
-</ul>
-<p>LangChain中提供的模块</p>
-<ul>
-<li><p>Modules：支持的模型类型和集成。</p>
-</li>
-<li><p>Prompt：提示词管理、优化和序列化。</p>
-</li>
-<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
-</li>
-<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
-</li>
-<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
-</li>
-<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
-</li>
-<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
-</li>
-</ul>
-</blockquote>
-<p>应用场景：</p>
-<ul>
-<li>文档问答</li>
-<li>个人助理</li>
-<li>查询数据表格（CSV、SQL、DataFrame等）</li>
-<li>与API交互</li>
-<li>信息提取</li>
-<li>文档总结</li>
-</ul>
-<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
-<ul>
-<li>Prompts 提示词</li>
-<li>Chat Models 聊天模型<ul>
-<li>擅长对话</li>
-</ul>
-</li>
-<li>LLMs 纯文本模型<ul>
-<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
-</ul>
-</li>
-<li>Output parsers 输出转换器</li>
-</ul>
-<blockquote>
-<p>📌Chat Models 和 LLMs 的区别：</p>
-<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
-</blockquote>
-<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
-<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
-</blockquote>
-<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
-<hr>
-<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
-<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
-<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
-<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
-<ul>
-<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
-<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
-<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
-</ul>
-</li>
-<li><code>AgentFinish</code>  Agents返回的最终结果</li>
-<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
-</ul>
-<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
-<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
-<li>required：<code>intermediate_steps</code></li>
-</ul>
-</li>
-<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
-<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
-</ul>
-</li>
-</ul>
-<p>demo：</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
-
-<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
-<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
-<li>封装了各种错误处理、日志等</li>
-</ul>
-</li>
-</ul>
-<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
-<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
-<ul>
-<li>schema</li>
-<li>function</li>
-</ul>
-<p>设计Agents的关键：</p>
-<ul>
-<li>让Agents正确的使用tools</li>
-<li>以对代理最有帮助的方式描述工具</li>
-</ul>
-<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
-<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
-<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
-<ul>
-<li><p>微调</p>
-<ul>
-<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
-<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
-</ul>
-</li>
-<li><p>提示词工程</p>
-<ul>
-<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
-<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
-</ul>
-</li>
-</ul>
-<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
-<p>四种主要储存模块：</p>
-<ul>
-<li><code>ConversationBufferMemory</code>对话缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
-<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
-</ul>
-<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
-<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
-<p><img src="/../images/image_96cXegtOz-.png"></p>
-<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
-<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
-
-<p><a href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
-<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
-<p>下面举一些简单的栗子：</p>
-<p>模型调用：</p>
-<p><img src="/../images/image_tamQ_03vHR.png"></p>
-<p>Stream流：</p>
-<p><img src="/../images/image_UPmDNoWd_p.png"></p>
-<p>Batch批处理：</p>
-<p><img src="/../images/image_JliK3KA3oM.png"></p>
-<p>异步调用：</p>
-<p><img src="/../images/image_Gf01np9mh3.png"></p>
-<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
-<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
-<p>核心组件：</p>
-<ul>
-<li><strong>Document loaders</strong>文档加载器</li>
-<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
-<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
-<li>text2vector</li>
-<li>llm</li>
-</ul>
-</li>
-<li>Retrievers检索器，用于在数据源中检索相关信息</li>
-<li>Indexing数据库索引，用于检索</li>
-</ul>
-<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
-<ul>
-<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
-</li>
-<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
-</li>
-<li><p>过滤元数据</p>
-</li>
-<li><p>LLM辅助检索 SelfQueryRetriever</p>
-</li>
-<li><p>压缩 ContextualCompressionRetriever</p>
-<ul>
-<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
-</ul>
-</li>
-</ul>
-<p>其他类型的检索：</p>
-<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
-<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
-<ul>
-<li>llm大语言模型</li>
-<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
-<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
-<li>API：create_stuff_documents_chain</li>
-</ul>
-</li>
-<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
-<li>MapReduceDocumentsChain</li>
-</ul>
-</li>
-<li><strong>Refine</strong><ul>
-<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
-<p><img src="/../images/image_kuqREZwJrr.png"></p>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
-]]></content>
       <categories>
-        <category>LLM</category>
+        <category>Go</category>
       </categories>
       <tags>
-        <tag>langchain</tag>
+        <tag>Java VS Go</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Go GC VS Java GC</title>
+    <url>/2024/01/03/Go-GC-Vs-Java-GC/</url>
+    <content><![CDATA[<p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
+<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
+<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
+<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
+<ul>
+<li>JDK 8：Parallel Scavenge</li>
+<li>JDK 9 ~ JDK20: G1</li>
+</ul>
+<p><strong>特点：</strong></p>
+<ul>
+<li>都会造成STW，这是影响性能最主要的因素</li>
+<li>部分算法还会产生大量空间碎片</li>
+</ul>
+<p>介绍一下Java中比较经典的垃圾回收器：</p>
+<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
+<ul>
+<li>主要优点：<strong>并发收集、低停顿</strong></li>
+<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
+</ul>
+<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
+<p>G1使用<strong>标记-整理</strong>算法</p>
+<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
+<ul>
+<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
+<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
+<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Go</category>
+      </categories>
+      <tags>
+        <tag>Java VS Go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java中的四大函数式接口</title>
+    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
+<ul>
+<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
+<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
+</ul>
+<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>JUC基础</title>
+    <url>/2023/09/03/JUC%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="线程的状态"><a href="#线程的状态" class="headerlink" title="线程的状态"></a>线程的状态</h2><p>线程的生命周期分为五种状态：</p>
+<ul>
+<li>新生 <code>NEW</code></li>
+<li>运行 <code>RUNNABLE</code></li>
+<li>阻塞 <code>BLOCKED</code></li>
+<li>等待 <code>WAITING</code></li>
+<li>超时等待<code>TIME_WAITING</code></li>
+<li>终止 <code>TERMINATED</code></li>
+</ul>
+<p>在操作系统层面，线程有 READY 和 RUNNING 状态；而在 JVM 层面，只能看到 RUNNABLE 状态</p>
+<p><strong>为什么 JVM 没有区分这两种状态呢？</strong> </p>
+<p> 现在的时分多任务操作系统架构通常都是用所谓的“时间分片”方式进行抢占式轮转调度。这个时间分片通常是很小的，一个线程一次最多只能在 CPU 上运行比如 10-20ms 的时间（此时处于 running 状态），也即大概只有 0.01 秒这一量级，时间片用后就要被切换下来放入调度队列的末尾等待再次调度。（也即回到 ready 状态）。<em>线程切换的如此之快，区分这两种状态就没什么意义了。</em></p>
+<h2 id="wait-sleep"><a href="#wait-sleep" class="headerlink" title="wait/sleep"></a>wait/sleep</h2><p><strong>区别</strong>：</p>
+<ul>
+<li><p><strong><code>sleep()</code></strong>** 方法没有释放锁，而 <strong><strong><code>wait()</code></strong></strong> 方法释放了锁** 。这是因为<code>sleep()</code> 是 <code>Thread</code> 类的静态本地方法，不会操作对象锁，而<code>wait()</code> 则是 <code>Object</code> 类的本地方法，让获得对象锁的线程实现等待</p>
+</li>
+<li><p><code>wait()</code> 方法被调用后，<em>线程不会自动苏醒</em>，需要别的线程调用同一个对象上的 <code>notify()</code>或者 <code>notifyAll()</code> 方法。<code>sleep()</code>方法执行完成后，线程会自动苏醒，或者也可以使用 <code>wait(long timeout)</code> 超时后线程会自动苏醒。</p>
+</li>
+</ul>
+<p>因此，<code>wait()</code> 通常被用于线程间交互/通信，<code>sleep()</code>通常被用于暂停当前线程的执行。</p>
+<p><strong>为什么 wait() 方法不定义在 Thread 中？</strong></p>
+<p><code>wait()</code> 是让获得对象锁的线程实现等待，会自动释放当前线程占有的对象锁。每个对象都拥有对象锁，既然要释放当前线程占有的对象锁并让其进入等待状态，自然是要操作对应的对象而非当前的线程。</p>
+<h2 id="Synchronized"><a href="#Synchronized" class="headerlink" title="Synchronized"></a>Synchronized</h2><p><strong>公平锁：</strong> 十分公平，必须先来后到；</p>
+<p><strong>非公平锁：</strong> 十分不公平，可以插队；**(默认)**</p>
+<h2 id="Lock锁"><a href="#Lock锁" class="headerlink" title="Lock锁"></a>Lock锁</h2><p>lock三部曲</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> Lock lock=<span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> lock.lock() 加锁</span><br><span class="line"></span><br><span class="line"><span class="number">3.</span> <span class="keyword">finally</span>=&gt; 解锁：lock.unlock();</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Synchronized锁-与Lock锁-的区别"><a href="#Synchronized锁-与Lock锁-的区别" class="headerlink" title="Synchronized锁 与Lock锁 的区别"></a>Synchronized锁 与Lock锁 的区别</h2><ul>
+<li>Synchronized 无法判断获取<strong>锁的状态</strong>，Lock可以判断</li>
+<li>Synchronized 会<strong>自动释放锁</strong>，lock必须要手动加锁和手动释放锁！可能会遇到死锁</li>
+<li>Synchronized 线程1(获得锁-&gt;阻塞)、线程2(等待)；lock就不一定会一直等待下去，lock会有一个<strong>trylock</strong>去尝试获取锁，不会造成长久的等待。</li>
+<li>Synchronized <strong>是可重入锁</strong>，不可以中断的，<strong>非公平的</strong>；Lock是可重入的，可以判断锁，可以自己设置公平锁和非公平锁；</li>
+<li>Synchronized 适合锁少量的代码同步问题，Lock适合锁大量的同步代码；</li>
+</ul>
+<h2 id="Callable接口"><a href="#Callable接口" class="headerlink" title="Callable接口"></a>Callable接口</h2><p>实现类：<code>FutureTask</code>，可以获取到线程执行完毕的结果</p>
+<p><code>Callable</code>与<code>Runable</code>的区别：</p>
+<ul>
+<li><code>Callable</code>可以有返回值</li>
+<li><code>Callable</code>可以抛出异常，而<code>Runnable</code>不能抛出被检查的异常</li>
+<li>启动方法不同</li>
+</ul>
+<h2 id="线程安全类集合"><a href="#线程安全类集合" class="headerlink" title="线程安全类集合"></a>线程安全类集合</h2><h3 id="List类"><a href="#List类" class="headerlink" title="List类"></a>List类</h3><ul>
+<li><p><code>Vector</code></p>
+</li>
+<li><p><code>Collections.synchronizedList()</code></p>
+</li>
+<li><p><code>CopyOnWriteArrayList</code></p>
+<p>  适用于读多写少的场景</p>
+<p>  核心思想是：如果有多个调用者同时要求相同的资源，他们会共同获取相同的指针指向相同的资源，直到某个调用者视图修改资源内容时，系统才会真正复制一份专用副本给该调用者，而其他调用者所见到的最初的资源仍然保持不变。</p>
+<p>  读的时候不需要加锁，如果读的时候有多个线程正在向CopyOnWriteArrayList添加数据，读还是会读到旧的数据，因为写的时候不会锁住旧的CopyOnWriteArrayList。</p>
+</li>
+</ul>
+<p>**<code>CopyOnWriteArrayList</code><strong>比</strong><code>Vector</code>**区别？</p>
+<ul>
+<li>**<code>Vector</code><strong>底层是使用</strong><code>synchronized</code>**关键字来实现的，效率低下</li>
+<li>**<code>CopyOnWriteArrayList</code>**使用的是Lock锁，更加高效</li>
+</ul>
+<h3 id="Set类"><a href="#Set类" class="headerlink" title="Set类"></a>Set类</h3><ul>
+<li><code>Collections.synchronizedSet()</code></li>
+<li><code>CopyOnWriteArraySet</code></li>
+</ul>
+<h3 id="Map类"><a href="#Map类" class="headerlink" title="Map类"></a>Map类</h3><ul>
+<li><code>Collections.synchronizedMap()</code></li>
+<li><code>ConcurrentHashMap</code></li>
+<li><code>HashTable</code></li>
+</ul>
+<h1 id="线程通信"><a href="#线程通信" class="headerlink" title="线程通信"></a>线程通信</h1><h2 id="生产者和消费者问题"><a href="#生产者和消费者问题" class="headerlink" title="生产者和消费者问题"></a>生产者和消费者问题</h2><p>这是一个经典的线程通信问题。两组线程共享一个缓冲区。生产者将数据放入缓冲区，消费者将数据从缓冲区取出</p>
+<p>demo如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ProviderConsumer</span>{</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">num</span>  <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断等待、业务、通知</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">        <span class="keyword">if</span> (num &gt; <span class="number">0</span>) {</span><br><span class="line">            <span class="built_in">this</span>.wait();</span><br><span class="line">        }</span><br><span class="line">        num++;</span><br><span class="line">       System.out.println(Thread.currentThread().getName() + <span class="string">" increment num "</span> + num);</span><br><span class="line">        <span class="built_in">this</span>.notifyAll();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">decrement</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">        <span class="keyword">if</span> (num == <span class="number">0</span>) {</span><br><span class="line">            <span class="built_in">this</span>.wait();</span><br><span class="line">        }</span><br><span class="line">        num--;</span><br><span class="line">       System.out.println(Thread.currentThread().getName() + <span class="string">" decrement num "</span> + num);</span><br><span class="line">        <span class="built_in">this</span>.notifyAll();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        <span class="type">ProviderConsumer</span> <span class="variable">providerConsumer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProviderConsumer</span>();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; {</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) {</span><br><span class="line">                <span class="keyword">try</span> {</span><br><span class="line">                    providerConsumer.increment();</span><br><span class="line">                } <span class="keyword">catch</span> (InterruptedException e) {</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }, <span class="string">"A"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; {</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) {</span><br><span class="line">                <span class="keyword">try</span> {</span><br><span class="line">                    providerConsumer.decrement();</span><br><span class="line">                } <span class="keyword">catch</span> (InterruptedException e) {</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }, <span class="string">"B"</span>).start();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>虚假唤醒问题</strong></p>
+<blockquote>
+<p>当一定的条件触发时会唤醒很多在阻塞态的线程，但只有部分的线程唤醒是有用的，其余线程的唤醒是多余的。  </p>
+</blockquote>
+<p>  <a href="https://blog.csdn.net/weixin_45668482/article/details/117373700?ydreferer=aHR0cHM6Ly9jbi5iaW5nLmNvbS8=">https://blog.csdn.net/weixin_45668482/article/details/117373700?ydreferer=aHR0cHM6Ly9jbi5iaW5nLmNvbS8%3D</a></p>
+<p>解决虚假唤醒问题：应该将唤醒放在循环中，不满足条件需要继续等待</p>
+<p>换句话说：将if替换成while。当使用<code>notifyAll()</code>时，所有的线程都将被唤醒，如果使用的是if，不会再次进行条件判断，因此被唤醒的可能是消费者，也可能是生产者。而使用while的时候，会再次进行等待判断，从而避免虚假唤醒问题。</p>
+<h3 id="Lock-Condition实现"><a href="#Lock-Condition实现" class="headerlink" title="Lock + Condition实现"></a>Lock + Condition实现</h3><p>Lock锁的Condition可以精准通知唤醒的线程，从而<strong>控制多个线程的执行顺序</strong></p>
+<p>demo：多个线程轮流输出A B C</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TestCondition</span> {</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Lock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Condition</span> <span class="variable">condition1</span> <span class="operator">=</span> lock.newCondition();</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Condition</span> <span class="variable">condition2</span> <span class="operator">=</span> lock.newCondition();</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Condition</span> <span class="variable">condition3</span> <span class="operator">=</span> lock.newCondition();</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">num</span> <span class="operator">=</span> <span class="number">1</span>; <span class="comment">// 1A 2B 3C</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">printA</span><span class="params">()</span> {</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            <span class="comment">// 业务代码 判断 -&gt; 执行 -&gt; 通知</span></span><br><span class="line">            <span class="keyword">while</span> (num != <span class="number">1</span>) {</span><br><span class="line">                condition1.await();</span><br><span class="line">            }</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"==&gt; AAAA"</span> );</span><br><span class="line">            num = <span class="number">2</span>;</span><br><span class="line">            condition2.signal();</span><br><span class="line">        }<span class="keyword">catch</span> (Exception e) {</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        }<span class="keyword">finally</span> {</span><br><span class="line">            lock.unlock();</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">printB</span><span class="params">()</span> {</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            <span class="keyword">while</span> (num != <span class="number">2</span>) {</span><br><span class="line">                condition2.await();</span><br><span class="line">            }</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"==&gt; BBBB"</span> );</span><br><span class="line">            num = <span class="number">3</span>;</span><br><span class="line">            condition3.signal();</span><br><span class="line">        }<span class="keyword">catch</span> (Exception e) {</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        }<span class="keyword">finally</span> {</span><br><span class="line">            lock.unlock();</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">printC</span><span class="params">()</span> {</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            <span class="keyword">while</span> (num != <span class="number">3</span>) {</span><br><span class="line">                condition3.await();</span><br><span class="line">            }</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"==&gt; CCCC"</span> );</span><br><span class="line">            num = <span class="number">1</span>;</span><br><span class="line">            condition1.signal();</span><br><span class="line">        }<span class="keyword">catch</span> (Exception e) {</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        }<span class="keyword">finally</span> {</span><br><span class="line">            lock.unlock();</span><br><span class="line">        }</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="BlockingQueue实现生产者消费者问题"><a href="#BlockingQueue实现生产者消费者问题" class="headerlink" title="BlockingQueue实现生产者消费者问题"></a>BlockingQueue实现生产者消费者问题</h3><p>BlockingQueue是Java自带的阻塞队列，内部的原理也是使用了ReentrantLock + Condition实现</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">    BlockingQueue&lt;Object&gt; queue = <span class="keyword">new</span> <span class="title class_">ArrayBlockingQueue</span>&lt;&gt;(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">Runnable</span> <span class="variable">producer</span> <span class="operator">=</span> () -&gt; {</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) {</span><br><span class="line">            <span class="keyword">try</span> {</span><br><span class="line">                queue.put(<span class="keyword">new</span> <span class="title class_">Object</span>());</span><br><span class="line">            } <span class="keyword">catch</span> (InterruptedException e) {</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    };</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(producer).start();</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(producer).start();</span><br><span class="line">    </span><br><span class="line">    <span class="type">Runnable</span> <span class="variable">consumer</span> <span class="operator">=</span> () -&gt; {</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) {</span><br><span class="line">            <span class="keyword">try</span> {</span><br><span class="line">                queue.take();</span><br><span class="line">            } <span class="keyword">catch</span> (InterruptedException e) {</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    };</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(consumer).start();</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(consumer).start();</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="Java中的线程协作"><a href="#Java中的线程协作" class="headerlink" title="Java中的线程协作"></a>Java中的线程协作</h1><h3 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h3><p>倒计数锁存器，可以用作一个<strong>简单的开/关锁存器，或者门</strong>：所有线程调用<code>await()</code>在门口等待，直到被调用<code>countDown()</code>的线程打开。</p>
+<p>CountDownLatch一个有用的属性是，它不要求调用countDown线程等待计数到达零之前相互等待，它只是阻止任何线程通过await，直到所有线程可以通过。</p>
+<p>常用方法：</p>
+<ul>
+<li>**<code>countDown()</code>**减一操作；</li>
+<li><strong><code>await()</code></strong> 等待计数器归零</li>
+</ul>
+<h3 id="CyclickBarrier"><a href="#CyclickBarrier" class="headerlink" title="CyclickBarrier"></a>CyclickBarrier</h3><p>循环屏障，它允许一组线程全部等待彼此达到共同屏障点的同步辅助。循环阻塞在涉及固定大小的线程方的程序中很有用，这些线程必须偶尔等待彼此。屏障被称为循环，因为它可以在等待的线程被释放之后重新使用。</p>
+<p>常用方法包括：</p>
+<ul>
+<li><strong><code>await()</code></strong>: 调用该方法的线程到达屏障点，并等待其他线程到达。如果是最后一个到达的线程，将执行可选的任务。</li>
+<li><code>await(long timeout, TimeUnit unit)</code>: 调用该方法的线程到达屏障点，并等待其他线程到达，但最多等待指定的时间。</li>
+<li><code>getParties()</code>: 返回需要到达屏障点的总线程数。</li>
+<li><code>isBroken()</code>: 检查屏障是否被破坏（是否有线程等待超时）。</li>
+</ul>
+<p>**<code>CyclicBarrier </code>****与 ****<code>CountDownLatch </code>**<strong>区别</strong></p>
+<ul>
+<li><code>CountDownLatch</code>是一次性的，<code>CyclicBarrier</code> 是可以重用的</li>
+<li><code>CountDownLatch</code>中有两个关键，一个是<code>countDown()</code>，一个是<code>awit()</code>，调用<code>awit()</code>的线程需要等待，调用<code>countDown()</code>的线程会将倒计时-1，不同的线程职责可能是不同的，被管理的是调用了<code>awit()</code>的线程，计数器可以是单独的逻辑。</li>
+</ul>
+<h3 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h3><p>信号量，用于控制同时访问某个资源的线程数量。它可以用来限制并发访问的线程数，或者用于线程间的信号通知。</p>
+<p><code>Semaphore</code> 维护了一组许可（permits），线程在访问资源之前必须先获得许可，如果许可数不足，则线程必须等待，直到有可用的许可为止。每个 <code>Semaphore</code> 对象都有一个初始许可数，表示可同时访问该资源的线程数。</p>
+<p>假设信号量初始数量为sem：</p>
+<p>  P 操作：申请一个许可，将 sem 减 1，相减后，如果 <code>sem &lt; 0</code>，则进程/线程进入阻塞等待，否则继续，表明 P 操作可能会阻塞；</p>
+<p>  V 操作：释放一个许可，将 sem 加 1，相加后，如果<code> sem &lt;= 0</code>，唤醒一个等待中的进程/线程，表明 V 操作不会阻塞；</p>
+<p>常用方法：</p>
+<ul>
+<li><strong><code>acquire()</code></strong>: 获取一个许可，如果没有可用许可，则线程会被阻塞，直到有可用许可。</li>
+<li><strong><code>release()</code></strong>: 释放一个许可，将其返回给 <code>Semaphore</code>。</li>
+<li><code>tryAcquire()</code>: 尝试获取一个许可，如果获取成功则返回 true，否则返回 false。</li>
+<li><code>availablePermits()</code>: 返回当前可用的许可数。</li>
+</ul>
+<h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>读写锁，控制对共享资源访问的同步机制。它允许多个线程同时读取资源，但只允许一个线程独占写入资源。</p>
+<p>ReadWriteLock的目的是在资源被读取的频率高于写入的情况下优化性能。通过允许并发读取，多个线程可以同时访问资源，这可以提高吞吐量并减少线程之间的竞争。然而，当一个线程希望修改资源时，它需要独占访问以确保一致性。</p>
+<h2 id="Fork-Join"><a href="#Fork-Join" class="headerlink" title="Fork/Join"></a>Fork/Join</h2><p>核心思想：<strong>分而治之</strong></p>
+<p>Fork-Join模型的核心思想是关键概念是”fork”（分叉）和”join”（合并），即将一个大任务划分为若干个小任务，然后并行地执行这些小任务，最后将它们的结果组合起来得到最终的结果。这个过程可以递归地进行，即每个小任务也可以再次划分成更小的子任务，直到任务的规模足够小以至于可以被直接执行。</p>
+<p>两个实现类：</p>
+<ul>
+<li><code>RecursiveTask</code>有返回值</li>
+<li><code>RecursiveAction</code>没有返回值</li>
+</ul>
+<p>Fork/Join框架的优势在于它能够自动地将任务划分成合适的大小，并利用多核处理器上的并行性提高程序的性能。它也提供了一些优化技术，如<em><strong>工作窃取（work stealing）</strong></em>，可以确保各个线程在执行任务时能够充分利用系统资源。</p>
+<h3 id="工作窃取原理"><a href="#工作窃取原理" class="headerlink" title="工作窃取原理"></a>工作窃取原理</h3><ol>
+<li>每个工作线程都有一个本地的工作队列（<em>双端队列</em>），用于存储待执行的任务。使用双端队列作为本地工作队列的好处在于，工作线程可以高效地从队列的头部或尾部执行插入和删除操作。当工作线程执行任务时，它会从队列的头部获取任务并执行；而当工作线程尝试窃取任务时，它会从队列的尾部插入窃取到的任务。</li>
+<li>当一个工作线程的本地工作队列为空时，它会尝试从其他工作线程的工作队列中窃取任务。这个窃取的目标通常是选择一个相对较繁忙的工作线程，即其工作队列中有更多任务等待执行。</li>
+<li>工作线程可以从目标工作线程的工作队列的顶部（头部）或者底部（尾部）窃取任务。选择窃取的位置可以根据具体的实现策略来确定，不同的实现方式可能有所不同。</li>
+<li>窃取任务的过程通常是通过线程间的原子操作来实现的，以确保并发的正确性。例如，可以使用CAS（Compare and Swap）操作来保证任务的窃取是原子的。</li>
+<li>当一个工作线程成功地窃取到任务后，它会将任务添加到自己的本地工作队列中，并继续执行窃取到的任务。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Java多线程</category>
+      </categories>
+      <tags>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JMM</title>
+    <url>/2023/06/03/JMM/</url>
+    <content><![CDATA[<p>JMM 实际上是 Java 定义的并发编程相关的一组规范</p>
+<h3 id="JMM-是如何抽象线程和主内存之间的关系？"><a href="#JMM-是如何抽象线程和主内存之间的关系？" class="headerlink" title="JMM 是如何抽象线程和主内存之间的关系？"></a>JMM 是如何抽象线程和主内存之间的关系？</h3><p><img src="/../images/image.png" alt="img"></p>
+<p><strong>什么是主内存？什么是本地内存？</strong></p>
+<ul>
+<li><strong>主内存</strong>：所有线程创建的实例对象都存放在主内存中，不管该实例对象是成员变量，还是局部变量，类信息、常量、静态变量都是放在主内存中。为了获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中。</li>
+<li><strong>本地内存</strong>：每个线程都有一个私有的本地内存，本地内存存储了该线程以读 / 写共享变量的副本。每个线程只能操作自己本地内存中的变量，无法直接访问其他线程的本地内存。如果线程间需要通信，必须通过主内存来进行。本地内存是 JMM 抽象出来的一个概念，并不真实存在，它涵盖了缓存、写缓冲区、寄存器以及其他的硬件和编译器优化。</li>
+</ul>
+<p><strong>关于JMM的一些同步的约定：</strong></p>
+<p>1、线程解锁前，必须把共享变量<strong>立刻</strong>刷回主存；</p>
+<p>2、线程加锁前，必须<strong>读取主存</strong>中的最新值到工作内存中；</p>
+<h3 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h3><p>内存交互操作有8种，虚拟机实现必须保证每一个操作都是<strong>原子的</strong>，不可在分的（对于double和long类型的变量来说，load、store、read和write操作在某些平台上允许例外）</p>
+<ul>
+<li><strong>Read（读取）</strong>：作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便随后的load动作使用；</li>
+<li><strong>load（载入）</strong>：作用于工作内存的变量，它把read操作从主存中变量放入工作内存中；</li>
+<li><strong>Use（使用）</strong>：作用于工作内存中的变量，它把工作内存中的变量传输给执行引擎，每当虚拟机遇到一个需要使用到变量的值，就会使用到这个指令；</li>
+<li><strong>assign（赋值）</strong>：作用于工作内存中的变量，它把一个从执行引擎中接受到的值放入工作内存的变量副本中；</li>
+<li><strong>store（存储）</strong>：作用于主内存中的变量，它把一个从工作内存中一个变量的值传送到主内存中，以便后续的write使用；</li>
+<li><strong>write（写入）</strong>：作用于主内存中的变量，它把store操作从工作内存中得到的变量的值放入主内存的变量中；</li>
+<li><strong>lock（锁定）</strong>：作用于主内存的变量，把一个变量标识为线程独占状态；</li>
+<li><strong>unlock（解锁）</strong>：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定；</li>
+</ul>
+<p>即**<code>读-&gt;加载-&gt;使用-&gt;赋值（assign）-&gt;写-&gt;存储</code>**</p>
+<p><strong>JMM对这八种指令的使用，制定了如下规则：</strong></p>
+<ul>
+<li><p>不允许read和load、store和write操作之一单独出现，必须成对使用。即使用了read必须load，使用了store必须write</p>
+</li>
+<li><p>不允许线程丢弃他最近的assign操作，即工作变量的数据改变了之后，必须告知主存</p>
+</li>
+<li><p>不允许一个线程将没有assign的数据从工作内存同步回主内存  </p>
+</li>
+<li><p>一个新的变量必须在主内存中诞生，不允许工作内存直接使用一个未被初始化的变量。就是怼变量实施use、store操作之前，必须经过assign和load操作</p>
+</li>
+<li><p>一个变量同一时间只有一个线程能对其进行lock。多次lock后，必须执行相同次数的unlock才能解锁</p>
+</li>
+<li><p>如果对一个变量进行lock操作，会清空所有工作内存中此变量的值，在执行引擎使用这个变量前，必须重新load或assign操作初始化变量的值</p>
+</li>
+<li><p>如果一个变量没有被lock，就不能对其进行unlock操作。也不能unlock一个被其他线程锁住的变量对一个变量进行unlock操作之前，必须把此变量同步回主内存</p>
+</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
+    <title>🐛 LangChain4j-Spring Bug修复记录</title>
+    <url>/2024/08/20/LangChain4j-Spring%20Bug/</url>
+    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
+<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
+<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
+<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
+<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
+</ul>
+<blockquote>
+<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
+</blockquote>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
+<ol>
+<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
+<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
+</ol>
+<p>关键代码如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>针对以上问题，我在PR中做的主要改动如下：</p>
+<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
+<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="./Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F.md">Mybatis实现动态注册bean的两种方式</a></p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>langchain4j</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java线程池</title>
+    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
+    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
+<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<blockquote>
+<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
+</blockquote>
+<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
+<ol>
+<li><p><code>corePoolSize</code>（核心线程数）：</p>
+<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
+</li>
+<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
+<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
+</li>
+<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
+<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
+</li>
+<li><p><code>unit</code>（空闲超时时间的单位）：</p>
+<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
+</li>
+<li><p><code>workQueue</code>（工作队列）：</p>
+<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
+</li>
+<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
+<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
+</li>
+<li><p><code>handler</code>（拒绝策略，可选）：</p>
+<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
+</li>
+</ol>
+<p>我们可以这样类比：</p>
+<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
+<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
+<ol>
+<li><code>SynchronousQueue</code> 同步队列</li>
+<li><code>LinkedBlockingQueue</code></li>
+<li><code>ArrayBlockingQueue</code></li>
+</ol>
+<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
+<p>BlockQueue有四组API：</p>
+<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
+<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
+<ol>
+<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
+<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
+<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
+<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
+<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
+<li>使用lock锁保证线程安全的</li>
+</ol>
+</li>
+<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
+</ol>
+<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
+<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
+<ul>
+<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
+<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
+</ul>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
+<ul>
+<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
+<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
+<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
+<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
+</ul>
+<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
+<ul>
+<li><code>SingleThreadExecutor</code>单线程线程池<ul>
+<li>特点：线程池只有一个线程</li>
+<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+</ul>
+</li>
+<li><code>FixedThreadPool</code>固定线程池<ul>
+<li>特点：最大线程数就是核心线程数</li>
+<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
+<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+<li>适用于需要并发控制的场景</li>
+</ul>
+</li>
+<li><code>CachedThreadPool</code>缓存线程池<ul>
+<li>没有核心线程，普通线程数量无限</li>
+<li>线程闲置60s后回收</li>
+<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
+<li>适用用于任务量大但耗时低的场景</li>
+</ul>
+</li>
+<li><code>ScheduledThreadPool</code>定时线程池<ul>
+<li>指定核心线程数量，普通线程数量无限</li>
+<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
+<li>适用用于执行定时或周期性的任务</li>
+</ul>
+</li>
+</ul>
+<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
+<ul>
+<li><strong>CPU 密集型任务</strong><ul>
+<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
+<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
+<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
+</ul>
+</li>
+<li><strong>I/O 密集型任务</strong><ul>
+<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
+<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
+</ul>
+</li>
+</ul>
+<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
+]]></content>
   </entry>
   <entry>
     <title>Go语言基础</title>
@@ -670,6 +871,222 @@
       </categories>
   </entry>
   <entry>
+    <title>LangChain入门笔记</title>
+    <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>基本架构</p>
+<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
+<span id="more"></span>
+
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
+<p>主要功能：</p>
+<ul>
+<li><p>调用语言模型</p>
+</li>
+<li><p>将不同数据源接入到语言模型的交互中</p>
+</li>
+<li><p>允许语言模型与运行环境交互</p>
+</li>
+</ul>
+<p>LangChain中提供的模块</p>
+<ul>
+<li><p>Modules：支持的模型类型和集成。</p>
+</li>
+<li><p>Prompt：提示词管理、优化和序列化。</p>
+</li>
+<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
+</li>
+<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
+</li>
+<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
+</li>
+<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
+</li>
+<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
+</li>
+</ul>
+</blockquote>
+<p>应用场景：</p>
+<ul>
+<li>文档问答</li>
+<li>个人助理</li>
+<li>查询数据表格（CSV、SQL、DataFrame等）</li>
+<li>与API交互</li>
+<li>信息提取</li>
+<li>文档总结</li>
+</ul>
+<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
+<ul>
+<li>Prompts 提示词</li>
+<li>Chat Models 聊天模型<ul>
+<li>擅长对话</li>
+</ul>
+</li>
+<li>LLMs 纯文本模型<ul>
+<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
+</ul>
+</li>
+<li>Output parsers 输出转换器</li>
+</ul>
+<blockquote>
+<p>📌Chat Models 和 LLMs 的区别：</p>
+<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
+</blockquote>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
+<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
+</blockquote>
+<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
+<hr>
+<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
+<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
+<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
+<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
+<ul>
+<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
+<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
+<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
+</ul>
+</li>
+<li><code>AgentFinish</code>  Agents返回的最终结果</li>
+<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
+</ul>
+<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
+<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
+<li>required：<code>intermediate_steps</code></li>
+</ul>
+</li>
+<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
+<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
+</ul>
+</li>
+</ul>
+<p>demo：</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
+<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
+<li>封装了各种错误处理、日志等</li>
+</ul>
+</li>
+</ul>
+<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
+<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
+<ul>
+<li>schema</li>
+<li>function</li>
+</ul>
+<p>设计Agents的关键：</p>
+<ul>
+<li>让Agents正确的使用tools</li>
+<li>以对代理最有帮助的方式描述工具</li>
+</ul>
+<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
+<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
+<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
+<ul>
+<li><p>微调</p>
+<ul>
+<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
+<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
+</ul>
+</li>
+<li><p>提示词工程</p>
+<ul>
+<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
+<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
+</ul>
+</li>
+</ul>
+<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
+<p>四种主要储存模块：</p>
+<ul>
+<li><code>ConversationBufferMemory</code>对话缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
+<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
+</ul>
+<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
+<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
+<p><img src="/../images/image_96cXegtOz-.png"></p>
+<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
+<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
+
+<p><a href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
+<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
+<p>下面举一些简单的栗子：</p>
+<p>模型调用：</p>
+<p><img src="/../images/image_tamQ_03vHR.png"></p>
+<p>Stream流：</p>
+<p><img src="/../images/image_UPmDNoWd_p.png"></p>
+<p>Batch批处理：</p>
+<p><img src="/../images/image_JliK3KA3oM.png"></p>
+<p>异步调用：</p>
+<p><img src="/../images/image_Gf01np9mh3.png"></p>
+<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
+<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
+<p>核心组件：</p>
+<ul>
+<li><strong>Document loaders</strong>文档加载器</li>
+<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
+<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
+<li>text2vector</li>
+<li>llm</li>
+</ul>
+</li>
+<li>Retrievers检索器，用于在数据源中检索相关信息</li>
+<li>Indexing数据库索引，用于检索</li>
+</ul>
+<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
+<ul>
+<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
+</li>
+<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
+</li>
+<li><p>过滤元数据</p>
+</li>
+<li><p>LLM辅助检索 SelfQueryRetriever</p>
+</li>
+<li><p>压缩 ContextualCompressionRetriever</p>
+<ul>
+<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
+</ul>
+</li>
+</ul>
+<p>其他类型的检索：</p>
+<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
+<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
+<ul>
+<li>llm大语言模型</li>
+<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
+<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
+<li>API：create_stuff_documents_chain</li>
+</ul>
+</li>
+<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
+<li>MapReduceDocumentsChain</li>
+</ul>
+</li>
+<li><strong>Refine</strong><ul>
+<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
+<p><img src="/../images/image_kuqREZwJrr.png"></p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>LLM</category>
+      </categories>
+      <tags>
+        <tag>langchain</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spingboot3.0 升级记录</title>
     <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<blockquote>
@@ -703,47 +1120,6 @@
       </categories>
   </entry>
   <entry>
-    <title>MyBatis实现动态注册bean的两种方式</title>
-    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
-    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
-<ul>
-<li><code>MapperScannerConfigurer</code>核心配置类<ul>
-<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
-</ul>
-</li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
-<ul>
-<li><code>@MapperScan</code><ul>
-<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
-<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
-</ul>
-</li>
-<li><code>@Mapper</code><ul>
-<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
-<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>MyBatis</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Spring中几个关键的后置处理器以及执行顺序</title>
     <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
     <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
@@ -756,6 +1132,56 @@
       <categories>
         <category>Spring</category>
       </categories>
+  </entry>
+  <entry>
+    <title>SpringBoot实现GitHub第三方登录</title>
+    <url>/2023/05/14/SpringBoot%20%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
+<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
+<p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
+<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
+<p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
+<p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
+<p>下面是Demo：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<p>相关文档：</p>
+<ul>
+<li><a href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
+<li><a href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>oauth</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring Lazy-init 踩坑记录</title>
+    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
+<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
+<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>bug</tag>
+      </tags>
   </entry>
   <entry>
     <title>Spring Environment体系</title>
@@ -815,71 +1241,6 @@
       </tags>
   </entry>
   <entry>
-    <title>🐛 LangChain4j-Spring Bug修复记录</title>
-    <url>/2024/08/20/LangChain4j-Spring%20Bug/</url>
-    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
-<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
-<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
-<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
-<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
-</ul>
-<blockquote>
-<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
-</blockquote>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
-<ol>
-<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
-<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
-</ol>
-<p>关键代码如下：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-<p>针对以上问题，我在PR中做的主要改动如下：</p>
-<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
-<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="./Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F.md">Mybatis实现动态注册bean的两种方式</a></p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>langchain4j</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spring Lazy-init 踩坑记录</title>
-    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
-</blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>bug</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>📌 Spring实现自定义配置注入&amp;动态更新</title>
     <url>/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，openai_key可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
@@ -927,5 +1288,46 @@
       <tags>
         <tag>Spring Environment</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>MyBatis实现动态注册bean的两种方式</title>
+    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
+    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
+<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<ul>
+<li><code>MapperScannerConfigurer</code>核心配置类<ul>
+<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
+</ul>
+</li>
+<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
+<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
+<ul>
+<li><code>@MapperScan</code><ul>
+<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
+<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
+</ul>
+</li>
+<li><code>@Mapper</code><ul>
+<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
+<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MyBatis</category>
+      </categories>
   </entry>
 </search>

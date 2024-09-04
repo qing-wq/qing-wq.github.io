@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+
+
+<title>Java线程池 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Java线程池</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">二月 3, 2023</a>
+                        </span>
+                    
+                    <br/>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">2k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">7min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
+<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<blockquote>
+<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
+</blockquote>
+<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
+<ol>
+<li><p><code>corePoolSize</code>（核心线程数）：</p>
+<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
+</li>
+<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
+<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
+</li>
+<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
+<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
+</li>
+<li><p><code>unit</code>（空闲超时时间的单位）：</p>
+<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
+</li>
+<li><p><code>workQueue</code>（工作队列）：</p>
+<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
+</li>
+<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
+<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
+</li>
+<li><p><code>handler</code>（拒绝策略，可选）：</p>
+<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
+</li>
+</ol>
+<p>我们可以这样类比：</p>
+<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
+<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
+<ol>
+<li><code>SynchronousQueue</code> 同步队列</li>
+<li><code>LinkedBlockingQueue</code></li>
+<li><code>ArrayBlockingQueue</code></li>
+</ol>
+<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
+<p>BlockQueue有四组API：</p>
+<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
+<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
+<ol>
+<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
+<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
+<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
+<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
+<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
+<li>使用lock锁保证线程安全的</li>
+</ol>
+</li>
+<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
+</ol>
+<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
+<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
+<ul>
+<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
+<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
+</ul>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
+<ul>
+<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
+<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
+<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
+<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
+</ul>
+<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
+<ul>
+<li><code>SingleThreadExecutor</code>单线程线程池<ul>
+<li>特点：线程池只有一个线程</li>
+<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+</ul>
+</li>
+<li><code>FixedThreadPool</code>固定线程池<ul>
+<li>特点：最大线程数就是核心线程数</li>
+<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
+<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+<li>适用于需要并发控制的场景</li>
+</ul>
+</li>
+<li><code>CachedThreadPool</code>缓存线程池<ul>
+<li>没有核心线程，普通线程数量无限</li>
+<li>线程闲置60s后回收</li>
+<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
+<li>适用用于任务量大但耗时低的场景</li>
+</ul>
+</li>
+<li><code>ScheduledThreadPool</code>定时线程池<ul>
+<li>指定核心线程数量，普通线程数量无限</li>
+<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
+<li>适用用于执行定时或周期性的任务</li>
+</ul>
+</li>
+</ul>
+<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
+<ul>
+<li><strong>CPU 密集型任务</strong><ul>
+<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
+<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
+<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
+</ul>
+</li>
+<li><strong>I/O 密集型任务</strong><ul>
+<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
+<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
+</ul>
+</li>
+</ul>
+<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/">https://qing-wq.github.io/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/">Java中的四大函数式接口</a>
+            
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
