@@ -116,6 +116,8 @@
 <li>JDK 8：Parallel Scavenge</li>
 <li>JDK 9 ~ JDK20: G1</li>
 </ul>
+<span id="more"></span>
+
 <p><strong>特点：</strong></p>
 <ul>
 <li>都会造成STW，这是影响性能最主要的因素</li>
@@ -156,6 +158,8 @@
 <p><strong>关于JMM的一些同步的约定：</strong></p>
 <p>1、线程解锁前，必须把共享变量<strong>立刻</strong>刷回主存；</p>
 <p>2、线程加锁前，必须<strong>读取主存</strong>中的最新值到工作内存中；</p>
+<span id="more"></span>
+
 <h3 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h3><p>内存交互操作有8种，虚拟机实现必须保证每一个操作都是<strong>原子的</strong>，不可在分的（对于double和long类型的变量来说，load、store、read和write操作在某些平台上允许例外）</p>
 <ul>
 <li><strong>Read（读取）</strong>：作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便随后的load动作使用；</li>
@@ -542,27 +546,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Java中的四大函数式接口</title>
-    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
-    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
-<ul>
-<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
-<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
-</ul>
-<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
     <title>JUC基础</title>
     <url>/2023/09/03/JUC%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="线程的状态"><a href="#线程的状态" class="headerlink" title="线程的状态"></a>线程的状态</h2><p>线程的生命周期分为五种状态：</p>
@@ -575,6 +558,8 @@
 <li>终止 <code>TERMINATED</code></li>
 </ul>
 <p>在操作系统层面，线程有 READY 和 RUNNING 状态；而在 JVM 层面，只能看到 RUNNABLE 状态</p>
+<span id="more"></span>
+
 <p><strong>为什么 JVM 没有区分这两种状态呢？</strong> </p>
 <p> 现在的时分多任务操作系统架构通常都是用所谓的“时间分片”方式进行抢占式轮转调度。这个时间分片通常是很小的，一个线程一次最多只能在 CPU 上运行比如 10-20ms 的时间（此时处于 running 状态），也即大概只有 0.01 秒这一量级，时间片用后就要被切换下来放入调度队列的末尾等待再次调度。（也即回到 ready 状态）。<em>线程切换的如此之快，区分这两种状态就没什么意义了。</em></p>
 <h2 id="wait-sleep"><a href="#wait-sleep" class="headerlink" title="wait/sleep"></a>wait/sleep</h2><p><strong>区别</strong>：</p>
@@ -707,379 +692,26 @@
       </tags>
   </entry>
   <entry>
-    <title>Java线程池</title>
-    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
-    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
-<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
-<blockquote>
-<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
-</blockquote>
-<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
-<ol>
-<li><p><code>corePoolSize</code>（核心线程数）：</p>
-<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
-</li>
-<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
-<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
-</li>
-<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
-<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
-</li>
-<li><p><code>unit</code>（空闲超时时间的单位）：</p>
-<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
-</li>
-<li><p><code>workQueue</code>（工作队列）：</p>
-<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
-</li>
-<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
-<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
-</li>
-<li><p><code>handler</code>（拒绝策略，可选）：</p>
-<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
-</li>
-</ol>
-<p>我们可以这样类比：</p>
-<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
-<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
-<ol>
-<li><code>SynchronousQueue</code> 同步队列</li>
-<li><code>LinkedBlockingQueue</code></li>
-<li><code>ArrayBlockingQueue</code></li>
-</ol>
-<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
-<p>BlockQueue有四组API：</p>
-<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
-<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
-<ol>
-<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
-<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
-<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
-<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
-<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
-<li>使用lock锁保证线程安全的</li>
-</ol>
-</li>
-<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
-</ol>
-<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
-<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
+    <title>Java中的四大函数式接口</title>
+    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
 <ul>
-<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
-<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
-</ul>
-<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
-<ul>
-<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
-<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
-<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
-<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
-</ul>
-<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
-<ul>
-<li><code>SingleThreadExecutor</code>单线程线程池<ul>
-<li>特点：线程池只有一个线程</li>
-<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-</ul>
-</li>
-<li><code>FixedThreadPool</code>固定线程池<ul>
-<li>特点：最大线程数就是核心线程数</li>
-<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
-<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-<li>适用于需要并发控制的场景</li>
-</ul>
-</li>
-<li><code>CachedThreadPool</code>缓存线程池<ul>
-<li>没有核心线程，普通线程数量无限</li>
-<li>线程闲置60s后回收</li>
-<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
-<li>适用用于任务量大但耗时低的场景</li>
-</ul>
-</li>
-<li><code>ScheduledThreadPool</code>定时线程池<ul>
-<li>指定核心线程数量，普通线程数量无限</li>
-<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
-<li>适用用于执行定时或周期性的任务</li>
-</ul>
-</li>
-</ul>
-<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
-<ul>
-<li><strong>CPU 密集型任务</strong><ul>
-<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
-<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
-<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
-</ul>
-</li>
-<li><strong>I/O 密集型任务</strong><ul>
-<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
-<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
-</ul>
-</li>
-</ul>
-<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>LangChain入门笔记</title>
-    <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<p>基本架构</p>
-<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
-<span id="more"></span>
-
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
-<p>主要功能：</p>
-<ul>
-<li><p>调用语言模型</p>
-</li>
-<li><p>将不同数据源接入到语言模型的交互中</p>
-</li>
-<li><p>允许语言模型与运行环境交互</p>
-</li>
-</ul>
-<p>LangChain中提供的模块</p>
-<ul>
-<li><p>Modules：支持的模型类型和集成。</p>
-</li>
-<li><p>Prompt：提示词管理、优化和序列化。</p>
-</li>
-<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
-</li>
-<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
-</li>
-<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
-</li>
-<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
-</li>
-<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
-</li>
-</ul>
-</blockquote>
-<p>应用场景：</p>
-<ul>
-<li>文档问答</li>
-<li>个人助理</li>
-<li>查询数据表格（CSV、SQL、DataFrame等）</li>
-<li>与API交互</li>
-<li>信息提取</li>
-<li>文档总结</li>
-</ul>
-<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
-<ul>
-<li>Prompts 提示词</li>
-<li>Chat Models 聊天模型<ul>
-<li>擅长对话</li>
-</ul>
-</li>
-<li>LLMs 纯文本模型<ul>
-<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
-</ul>
-</li>
-<li>Output parsers 输出转换器</li>
-</ul>
-<blockquote>
-<p>📌Chat Models 和 LLMs 的区别：</p>
-<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
-</blockquote>
-<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
-<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
-</blockquote>
-<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
-<hr>
-<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
-<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
-<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
-<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
-<ul>
-<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
-<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
-<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
-</ul>
-</li>
-<li><code>AgentFinish</code>  Agents返回的最终结果</li>
-<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
-</ul>
-<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
-<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
-<li>required：<code>intermediate_steps</code></li>
-</ul>
-</li>
-<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
-<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
-</ul>
-</li>
-</ul>
-<p>demo：</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
-
-<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
-<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
-<li>封装了各种错误处理、日志等</li>
-</ul>
-</li>
-</ul>
-<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
-<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
-<ul>
-<li>schema</li>
-<li>function</li>
-</ul>
-<p>设计Agents的关键：</p>
-<ul>
-<li>让Agents正确的使用tools</li>
-<li>以对代理最有帮助的方式描述工具</li>
-</ul>
-<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
-<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
-<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
-<ul>
-<li><p>微调</p>
-<ul>
-<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
-<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
-</ul>
-</li>
-<li><p>提示词工程</p>
-<ul>
-<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
-<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
-</ul>
-</li>
-</ul>
-<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
-<p>四种主要储存模块：</p>
-<ul>
-<li><code>ConversationBufferMemory</code>对话缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
-<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
-</ul>
-<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
-<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
-<p><img src="/../images/image_96cXegtOz-.png"></p>
-<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
-<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
-
-<p><a href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
-<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
-<p>下面举一些简单的栗子：</p>
-<p>模型调用：</p>
-<p><img src="/../images/image_tamQ_03vHR.png"></p>
-<p>Stream流：</p>
-<p><img src="/../images/image_UPmDNoWd_p.png"></p>
-<p>Batch批处理：</p>
-<p><img src="/../images/image_JliK3KA3oM.png"></p>
-<p>异步调用：</p>
-<p><img src="/../images/image_Gf01np9mh3.png"></p>
-<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
-<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
-<p>核心组件：</p>
-<ul>
-<li><strong>Document loaders</strong>文档加载器</li>
-<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
-<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
-<li>text2vector</li>
-<li>llm</li>
-</ul>
-</li>
-<li>Retrievers检索器，用于在数据源中检索相关信息</li>
-<li>Indexing数据库索引，用于检索</li>
-</ul>
-<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
-<ul>
-<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
-</li>
-<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
-</li>
-<li><p>过滤元数据</p>
-</li>
-<li><p>LLM辅助检索 SelfQueryRetriever</p>
-</li>
-<li><p>压缩 ContextualCompressionRetriever</p>
-<ul>
-<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
-</ul>
-</li>
-</ul>
-<p>其他类型的检索：</p>
-<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
-<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
-<ul>
-<li>llm大语言模型</li>
-<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
-<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
-<li>API：create_stuff_documents_chain</li>
-</ul>
-</li>
-<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
-<li>MapReduceDocumentsChain</li>
-</ul>
-</li>
-<li><strong>Refine</strong><ul>
-<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
-<p><img src="/../images/image_kuqREZwJrr.png"></p>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
-]]></content>
-      <categories>
-        <category>LLM</category>
-      </categories>
-      <tags>
-        <tag>langchain</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MyBatis实现动态注册bean的两种方式</title>
-    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
-    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
-<ul>
-<li><code>MapperScannerConfigurer</code>核心配置类<ul>
-<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
-</ul>
-</li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
+<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
+<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
 </ul>
 <span id="more"></span>
 
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
-<ul>
-<li><code>@MapperScan</code><ul>
-<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
-<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
-</ul>
-</li>
-<li><code>@Mapper</code><ul>
-<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
-<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
-</ul>
+<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
 ]]></content>
       <categories>
-        <category>MyBatis</category>
+        <category>Java</category>
       </categories>
   </entry>
   <entry>
@@ -1133,6 +765,8 @@
     <content><![CDATA[<p>MyBatis，原名 iBatis，Java常用ORM矿建，原来是Apache下的一个开源项目，2010 年迁移到 Google code，改名 MyBatis。2013 年迁移到 Github。</p>
 <p><strong>官方文档</strong>： <a href="https://mybatis.org/mybatis-3/zh" title="mybatis – MyBatis 3 | Introduction">mybatis – MyBatis 3 | Introduction</a></p>
 <h2 id="1-MyBatis使用步骤"><a href="#1-MyBatis使用步骤" class="headerlink" title="1 MyBatis使用步骤"></a>1 MyBatis使用步骤</h2><h3 id="1-1-导入依赖"><a href="#1-1-导入依赖" class="headerlink" title="1.1 导入依赖"></a>1.1 导入依赖</h3><figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.26<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.mybatis/mybatis --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<span id="more"></span>
 
 <h3 id="1-2-创建SqlSession"><a href="#1-2-创建SqlSession" class="headerlink" title="1.2 创建SqlSession"></a>1.2 创建SqlSession</h3><p>SqlSession是MyBatis用于执行Sql的关键API</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// MyBatis工具类：用于获取sqlSessionFactory -&gt; sqlSession</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyBatisUtil</span> {</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SqlSessionFactory sqlSessionFactory;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> {</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            <span class="comment">// 1.获取sqlSessionFactory对象</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">            <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">            sqlSessionFactory = <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        } <span class="keyword">catch</span> (IOException e) {</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取sqlSession对象</span></span><br><span class="line">    <span class="comment">// sqlSession中完全包含了面向数据库执行sql命令所需的所有方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> SqlSession <span class="title function_">getSqlSession</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> sqlSessionFactory.openSession(<span class="literal">true</span>);   <span class="comment">// 设置为true表示默认开启事务</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -1465,6 +1099,221 @@
       </categories>
   </entry>
   <entry>
+    <title>Java线程池</title>
+    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
+    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
+<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<span id="more"></span>
+
+<blockquote>
+<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
+</blockquote>
+<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
+<ol>
+<li><p><code>corePoolSize</code>（核心线程数）：</p>
+<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
+</li>
+<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
+<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
+</li>
+<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
+<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
+</li>
+<li><p><code>unit</code>（空闲超时时间的单位）：</p>
+<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
+</li>
+<li><p><code>workQueue</code>（工作队列）：</p>
+<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
+</li>
+<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
+<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
+</li>
+<li><p><code>handler</code>（拒绝策略，可选）：</p>
+<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
+</li>
+</ol>
+<p>我们可以这样类比：</p>
+<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
+<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
+<ol>
+<li><code>SynchronousQueue</code> 同步队列</li>
+<li><code>LinkedBlockingQueue</code></li>
+<li><code>ArrayBlockingQueue</code></li>
+</ol>
+<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
+<p>BlockQueue有四组API：</p>
+<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
+<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
+<ol>
+<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
+<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
+<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
+<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
+<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
+<li>使用lock锁保证线程安全的</li>
+</ol>
+</li>
+<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
+</ol>
+<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
+<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
+<ul>
+<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
+<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
+</ul>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
+<ul>
+<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
+<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
+<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
+<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
+</ul>
+<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
+<ul>
+<li><code>SingleThreadExecutor</code>单线程线程池<ul>
+<li>特点：线程池只有一个线程</li>
+<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+</ul>
+</li>
+<li><code>FixedThreadPool</code>固定线程池<ul>
+<li>特点：最大线程数就是核心线程数</li>
+<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
+<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+<li>适用于需要并发控制的场景</li>
+</ul>
+</li>
+<li><code>CachedThreadPool</code>缓存线程池<ul>
+<li>没有核心线程，普通线程数量无限</li>
+<li>线程闲置60s后回收</li>
+<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
+<li>适用用于任务量大但耗时低的场景</li>
+</ul>
+</li>
+<li><code>ScheduledThreadPool</code>定时线程池<ul>
+<li>指定核心线程数量，普通线程数量无限</li>
+<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
+<li>适用用于执行定时或周期性的任务</li>
+</ul>
+</li>
+</ul>
+<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
+<ul>
+<li><strong>CPU 密集型任务</strong><ul>
+<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
+<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
+<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
+</ul>
+</li>
+<li><strong>I/O 密集型任务</strong><ul>
+<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
+<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
+</ul>
+</li>
+</ul>
+<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>MyBatis实现动态注册bean的两种方式</title>
+    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
+    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
+<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<ul>
+<li><code>MapperScannerConfigurer</code>核心配置类<ul>
+<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
+</ul>
+</li>
+<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
+<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
+<ul>
+<li><code>@MapperScan</code><ul>
+<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
+<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
+</ul>
+</li>
+<li><code>@Mapper</code><ul>
+<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
+<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MyBatis</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spingboot3.0 升级记录</title>
+    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
+</blockquote>
+<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
+<ul>
+<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
+<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
+</ul>
+<span id="more"></span>
+
+<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
+
+<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
+<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
+<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spring Lazy-init 踩坑记录</title>
+    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
+<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
+<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>bug</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring Environment体系</title>
     <url>/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/</url>
     <content><![CDATA[<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
@@ -1522,59 +1371,14 @@
       </tags>
   </entry>
   <entry>
-    <title>Spingboot3.0 升级记录</title>
-    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
-</blockquote>
-<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
-<ul>
-<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
-<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
-</ul>
-<span id="more"></span>
-
-<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
-
-<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spring中几个关键的后置处理器以及执行顺序</title>
-    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
-<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
-<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
-<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
-<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
-<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-  </entry>
-  <entry>
     <title>SpringBoot实现GitHub第三方登录</title>
-    <url>/2023/05/14/SpringBoot%20%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
+    <url>/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
     <content><![CDATA[<h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
 <p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
 <p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
 <p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
+<span id="more"></span>
+
 <p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
 <h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
 <p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
@@ -1596,6 +1400,239 @@
       </categories>
       <tags>
         <tag>oauth</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring中几个关键的后置处理器以及执行顺序</title>
+    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
+    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
+<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
+<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
+<span id="more"></span>
+
+<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
+<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
+<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
+<p>…待补充</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>LangChain入门笔记</title>
+    <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>基本架构</p>
+<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
+<span id="more"></span>
+
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
+<p>主要功能：</p>
+<ul>
+<li><p>调用语言模型</p>
+</li>
+<li><p>将不同数据源接入到语言模型的交互中</p>
+</li>
+<li><p>允许语言模型与运行环境交互</p>
+</li>
+</ul>
+<p>LangChain中提供的模块</p>
+<ul>
+<li><p>Modules：支持的模型类型和集成。</p>
+</li>
+<li><p>Prompt：提示词管理、优化和序列化。</p>
+</li>
+<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
+</li>
+<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
+</li>
+<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
+</li>
+<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
+</li>
+<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
+</li>
+</ul>
+</blockquote>
+<p>应用场景：</p>
+<ul>
+<li>文档问答</li>
+<li>个人助理</li>
+<li>查询数据表格（CSV、SQL、DataFrame等）</li>
+<li>与API交互</li>
+<li>信息提取</li>
+<li>文档总结</li>
+</ul>
+<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
+<ul>
+<li>Prompts 提示词</li>
+<li>Chat Models 聊天模型<ul>
+<li>擅长对话</li>
+</ul>
+</li>
+<li>LLMs 纯文本模型<ul>
+<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
+</ul>
+</li>
+<li>Output parsers 输出转换器</li>
+</ul>
+<blockquote>
+<p>📌Chat Models 和 LLMs 的区别：</p>
+<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
+</blockquote>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
+<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
+</blockquote>
+<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
+<hr>
+<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
+<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
+<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
+<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
+<ul>
+<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
+<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
+<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
+</ul>
+</li>
+<li><code>AgentFinish</code>  Agents返回的最终结果</li>
+<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
+</ul>
+<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
+<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
+<li>required：<code>intermediate_steps</code></li>
+</ul>
+</li>
+<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
+<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
+</ul>
+</li>
+</ul>
+<p>demo：</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
+<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
+<li>封装了各种错误处理、日志等</li>
+</ul>
+</li>
+</ul>
+<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
+<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
+<ul>
+<li>schema</li>
+<li>function</li>
+</ul>
+<p>设计Agents的关键：</p>
+<ul>
+<li>让Agents正确的使用tools</li>
+<li>以对代理最有帮助的方式描述工具</li>
+</ul>
+<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
+<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
+<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
+<ul>
+<li><p>微调</p>
+<ul>
+<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
+<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
+</ul>
+</li>
+<li><p>提示词工程</p>
+<ul>
+<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
+<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
+</ul>
+</li>
+</ul>
+<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
+<p>四种主要储存模块：</p>
+<ul>
+<li><code>ConversationBufferMemory</code>对话缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
+<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
+</ul>
+<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
+<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
+<p><img src="/../images/image_96cXegtOz-.png"></p>
+<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
+<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
+
+<p><a href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
+<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
+<p>下面举一些简单的栗子：</p>
+<p>模型调用：</p>
+<p><img src="/../images/image_tamQ_03vHR.png"></p>
+<p>Stream流：</p>
+<p><img src="/../images/image_UPmDNoWd_p.png"></p>
+<p>Batch批处理：</p>
+<p><img src="/../images/image_JliK3KA3oM.png"></p>
+<p>异步调用：</p>
+<p><img src="/../images/image_Gf01np9mh3.png"></p>
+<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
+<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
+<p>核心组件：</p>
+<ul>
+<li><strong>Document loaders</strong>文档加载器</li>
+<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
+<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
+<li>text2vector</li>
+<li>llm</li>
+</ul>
+</li>
+<li>Retrievers检索器，用于在数据源中检索相关信息</li>
+<li>Indexing数据库索引，用于检索</li>
+</ul>
+<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
+<ul>
+<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
+</li>
+<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
+</li>
+<li><p>过滤元数据</p>
+</li>
+<li><p>LLM辅助检索 SelfQueryRetriever</p>
+</li>
+<li><p>压缩 ContextualCompressionRetriever</p>
+<ul>
+<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
+</ul>
+</li>
+</ul>
+<p>其他类型的检索：</p>
+<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
+<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
+<ul>
+<li>llm大语言模型</li>
+<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
+<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
+<li>API：create_stuff_documents_chain</li>
+</ul>
+</li>
+<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
+<li>MapReduceDocumentsChain</li>
+</ul>
+</li>
+<li><strong>Refine</strong><ul>
+<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
+<p><img src="/../images/image_kuqREZwJrr.png"></p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>LLM</category>
+      </categories>
+      <tags>
+        <tag>langchain</tag>
       </tags>
   </entry>
   <entry>
@@ -1648,23 +1685,193 @@
       </tags>
   </entry>
   <entry>
-    <title>Spring Lazy-init 踩坑记录</title>
-    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <title>📌 Spring源码阅读</title>
+    <url>/2024/05/31/Spring%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</url>
     <content><![CDATA[<blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+<p>标记的表示已读</p>
 </blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+<h1 id="Spring-Core"><a href="#Spring-Core" class="headerlink" title="Spring Core"></a>Spring Core</h1><h2 id="资源加载与访问"><a href="#资源加载与访问" class="headerlink" title="资源加载与访问"></a>资源加载与访问</h2><ul>
+<li>Resource：抽象接口，表示文件、类路径等，用于访问不同来源的资源。</li>
+<li>ResourceLoader：资源获取核心接口，实现统一加载不同位置资源的策略。</li>
+<li>ResourcePatternResolver：资源模式解析接口，用于灵活加载应用中的多种资源。</li>
+<li>DocumentLoader：XML文档加载解析核心接口，支持后台自动配置Spring应用。</li>
+</ul>
+<h2 id="元数据与过滤"><a href="#元数据与过滤" class="headerlink" title="元数据与过滤"></a>元数据与过滤</h2><ul>
+<li>MetadataReader：类元数据获取核心，支持组件扫描、条件化注解、AOP等高级功能。</li>
+<li>AnnotationMetadata：动态获取和操作运行时类注解信息。</li>
+<li>TypeFilter：组件扫描时自定义类筛选，支持复杂条件和精确过滤。</li>
+<li>Condition：条件判断，决定Bean创建和配置的灵活机制。</li>
+</ul>
+<h2 id="验证、数据绑定和类型转换"><a href="#验证、数据绑定和类型转换" class="headerlink" title="验证、数据绑定和类型转换"></a>验证、数据绑定和类型转换</h2><ul>
+<li>Validator：提供自定义数据验证逻辑，确保模型对象满足业务规则。</li>
+<li>PropertyEditor：自定义JavaBean属性的转换逻辑，处理属性类型转换。</li>
+<li>Converter：用于不同类型间的转换，定义简单的源至目标类型转换规则。</li>
+<li>ConverterFactory：创建针对特定源类型的转换器，用于类型转换。</li>
+<li>GenericConverter：更复杂的转换器，支持多种源和目标类型转换。</li>
+<li>ConditionalConverter：根据条件选择是否执行转换的转换器。</li>
+<li>ConversionService：提供统一的类型转换服务接口，管理转换器。</li>
+<li>Printer：用于将对象格式化为文本，专注于格式化输出。</li>
+<li>Parser：用于将文本解析为对象，专注于解析逻辑。</li>
+</ul>
+<h2 id="Spring-表达式语言（SpEL）"><a href="#Spring-表达式语言（SpEL）" class="headerlink" title="Spring 表达式语言（SpEL）"></a>Spring 表达式语言（SpEL）</h2><ul>
+<li>ExpressionParser: 解析字符串形式的 SpEL 表达式，创建并返回 Expression 实例。</li>
+<li>Expression: 对表达式字符串进行求值的功能，支持类型转换、获取原始字符串等操作。</li>
+<li>EvaluationContext: 管理SpEL表达式的上下文信息。</li>
+<li>PropertyAccessor: 用于读取和写入对象的属性，可用于实现自定义的属性访问逻辑。</li>
+<li>ConstructorResolver: 解析构造函数确定bean的实例化方式。</li>
+<li>MethodResolver: 解析类方法，确保正确调用，处理重载和参数匹配。</li>
+<li>BeanResolver: 解析bean定义，包括依赖、属性设置，实例化并返回。</li>
+<li>TypeLocator: 动态查找类，返回Class对象，在表达式解析、类型转换等。</li>
+<li>TypeConverter: 类型转换功能，将表达式中的数据从一种类型转换为另一种类型。</li>
+<li>TypeComparator: 类型比较功能，定义了比较两个对象是否相等的方法。</li>
+<li>OperatorOverloader: 运算符重载功能，对表达式中的运算符进行自定义操作的方法。</li>
+</ul>
+<h2 id="Bean定义与注册"><a href="#Bean定义与注册" class="headerlink" title="Bean定义与注册"></a>Bean定义与注册</h2><ul>
+<li><u>BeanDefinition</u>：详细描述Bean，支持依赖注入、AOP、作用域控制等核心功能。</li>
+<li>BeanDefinitionHolder：管理和操作BeanDefinition的关键类。</li>
+<li><u>BeanDefinitionRegistry</u>：Bean定义注册管理关键接口，处理Bean元数据。</li>
+</ul>
+<h2 id="Bean定义读取与扫描"><a href="#Bean定义读取与扫描" class="headerlink" title="Bean定义读取与扫描"></a>Bean定义读取与扫描</h2><ul>
+<li>XmlBeanDefinitionReader：加载解析XML配置，构建IOC容器，注册Bean定义。</li>
+<li>PropertiesBeanDefinitionReader：属性文件加载，解析为Bean定义。</li>
+<li>GroovyBeanDefinitionReader：Groovy脚本解析为Bean定义。</li>
+<li>AnnotatedBeanDefinitionReader：注解配置，自动扫描注册Spring组件，简化Bean定义配置。</li>
+<li><u>ClassPathBeanDefinitionScanner</u>：类路径扫描注册Spring Bean，支持自动装配。</li>
+</ul>
+<h2 id="Bean工厂"><a href="#Bean工厂" class="headerlink" title="Bean工厂"></a>Bean工厂</h2><ul>
+<li>BeanFactory：Spring的核心接口，提供对Bean的配置、创建、管理的基本功能。</li>
+<li>ListableBeanFactory：支持按类型获取Bean的集合。</li>
+<li>HierarchicalBeanFactory：支持父子容器关系，实现Bean定义的层次结构。</li>
+<li>ConfigurableBeanFactory：提供对BeanFactory配置的扩展，如属性编辑器、作用域等。</li>
+<li>AutowireCapableBeanFactory：Bean创建、初始化、注入、销毁的核心功能接口。</li>
+<li><u>ConfigurableListableBeanFactory</u>：支持配置和列表操作的可配置Bean工厂接口。</li>
+</ul>
+<h2 id="容器上下文"><a href="#容器上下文" class="headerlink" title="容器上下文"></a>容器上下文</h2><ul>
+<li>ClassPathXmlApplicationContext：类路径（classpath）加载 XML 配置文件的上下文。</li>
+<li>AnnotationConfigApplicationContext：注解配置类中加载配置信息的上下文。</li>
+<li>GenericApplicationContext：支持多种配置方式，XML、注解、手动注册的上下文。</li>
+</ul>
+<h2 id="Bean定义导入与组合"><a href="#Bean定义导入与组合" class="headerlink" title="Bean定义导入与组合"></a>Bean定义导入与组合</h2><ul>
+<li><u>ImportBeanDefinitionRegistrar</u>：运行时动态注册 Bean，实现灵活配置，扩展配置类功能。</li>
+<li>ImportSelector：运行时动态导入配置类，实现条件选择和灵活配置。</li>
+<li>DeferredImportSelector：运行时动态导入配置，支持条件选择和按组别延迟加载。</li>
+</ul>
+<h2 id="Bean生命周期"><a href="#Bean生命周期" class="headerlink" title="Bean生命周期"></a>Bean生命周期</h2><ul>
+<li><u>Bean的定义注册过程</u>：加载与解析配置文件，注册解析Bean定义，类名、作用域、属性等。</li>
+<li><u>Bean的初始化过程</u>：实例化、属性注入、Aware回调、后置处理器、初始化方法调用。</li>
+<li><u>Bean的依赖解析过程</u>：声明依赖，查找依赖，注入依赖，处理循环依赖，延迟依赖解析。</li>
+<li><u>Bean的销毁过程</u>：销毁方法调用，接口回调，后处理清理，通知触发，GC回收资源。</li>
+</ul>
+<h2 id="属性解析和环境配置"><a href="#属性解析和环境配置" class="headerlink" title="属性解析和环境配置"></a>属性解析和环境配置</h2><ul>
+<li><u>PropertySource</u>：管理各种配置源的抽象类，支持灵活地加载和访问应用配置。</li>
+<li><u>PropertySources</u>：用于统一管理和访问多个 PropertySource 实例，简化配置数据的处理。</li>
+<li><u>PropertyResolver</u>：通用属性解析，获取配置值，处理属性缺失，简便灵活。</li>
+<li><u>ConfigurablePropertyResolver</u>：属性解析配置，占位符设置，适应不同配置需求。</li>
+<li><u>Environment</u>：应用环境表示，提供属性访问，支持配置文件，实现动态配置。</li>
+<li><u>ConfigurableEnvironment</u>：动态配置应用环境，激活、默认配置，提升应用灵活性。</li>
+</ul>
+<h2 id="Bean初始化与扩展点"><a href="#Bean初始化与扩展点" class="headerlink" title="Bean初始化与扩展点"></a>Bean初始化与扩展点</h2><ul>
+<li><u>InitializingBean</u>：提供Bean初始化时执行自定义逻辑的接口。</li>
+<li>DisposableBean：定义Bean销毁前执行清理操作的接口。</li>
+<li><u>BeanDefinitionRegistryPostProcessor</u>：在容器启动时，对BeanDefinition动态修改或添加。</li>
+<li><u>BeanFactoryPostProcessor</u>：在Bean实例化前，对BeanFactory进行全局修改或配置。</li>
+<li><u>BeanPostProcessor</u>：在Bean初始化前后，进行自定义处理，可影响所有Bean。</li>
+<li>InstantiationAwareBeanPostProcessor：提供更深层次的实例化和属性注入控制。</li>
+<li>DestructionAwareBeanPostProcessor： 允许在Bean销毁前进行额外的清理操作。</li>
+<li>MergedBeanDefinitionPostProcessor：在合并Bean定义时对BeanDefinition进行处理。</li>
+<li>SmartInstantiationAwareBeanPostProcessor：提供更智能的实例化控制。</li>
+<li>SmartInitializingSingleton：在所有单例Bean初始化完成后，执行自定义逻辑。</li>
+</ul>
+<h2 id="Aware接口系列"><a href="#Aware接口系列" class="headerlink" title="Aware接口系列"></a>Aware接口系列</h2><ul>
+<li>BeanNameAware：让Bean获取自身在容器中的名字。</li>
+<li>BeanClassLoaderAware：允许Bean获取其类加载器。</li>
+<li>BeanFactoryAware：提供Bean获取所属的BeanFactory。</li>
+<li><u>EnvironmentAware</u>：允许Bean获取应用程序环境配置。</li>
+<li>EmbeddedValueResolverAware：允许Bean解析嵌入式值占位符。</li>
+<li>ResourceLoaderAware：允许Bean获取资源加载器。</li>
+<li>ApplicationEventPublisherAware：允许Bean发布应用程序事件。</li>
+<li>MessageSourceAware：允许Bean获取消息源。</li>
+<li><u>ApplicationContextAware</u>：允许Bean获取应用程序上下文。</li>
+<li>ImportAware：允许被导入的配置类获取导入它的类的信息。</li>
+</ul>
+<h2 id="核心注解"><a href="#核心注解" class="headerlink" title="核心注解"></a>核心注解</h2><ul>
+<li><u>@Configuration</u>：声明类为配置类，定义Bean和Bean之间的依赖关系。</li>
+<li><u>@ComponentScan</u>：启用组件扫描，自动发现并注册标记为组件的类。</li>
+<li>@Bean：在配置类中声明方法，返回Bean实例。</li>
+<li>@Import：引入其他配置类，将其Bean定义合并到当前容器。</li>
+<li>@PropertySource：指定属性文件，加载外部配置到环境中。</li>
+<li>@DependsOn：指定Bean的依赖顺序，确保特定Bean在其他Bean之前初始化。</li>
+<li>@Conditional：根据条件决定是否创建Bean。</li>
+<li>@Lazy：指定Bean的延迟初始化，只有在首次使用时才创建。</li>
+<li>@Value：注入简单值或表达式到Bean的字段或方法参数。</li>
+<li>@Autowired：自动装配Bean依赖。</li>
+<li>@Primary：指定在多个候选Bean中优先选择的首选Bean。</li>
+<li>@Description：为Bean提供描述性信息。</li>
+<li>@Role：为Bean提供角色提示，用于区分相似类型的Bean。</li>
+<li>@Indexed： 标记Bean用于索引。</li>
+<li>@Order：指定Bean的加载顺序。</li>
+</ul>
+<h2 id="JSR规范"><a href="#JSR规范" class="headerlink" title="JSR规范"></a>JSR规范</h2><ul>
+<li>@Inject：JSR-330标准的依赖注入注解。</li>
+<li>@Named：JSR-330标准的命名注解。</li>
+<li>@Resource：Java EE标准的资源注入注解。</li>
+<li>@Qualifier：用于限定注入的Bean。</li>
+<li>@Scope：指定Bean的作用域。</li>
+<li>@Singleton：指定Bean为单例。</li>
+<li>@PostConstruct：指定初始化方法。</li>
+<li>@PreDestroy：指定销毁方法。</li>
+<li>Provider：Java标准库提供的通用Bean工厂接口。</li>
+</ul>
+<h2 id="Spring-AOP"><a href="#Spring-AOP" class="headerlink" title="Spring AOP"></a>Spring AOP</h2><ul>
+<li>JDK动态代理：接口实现，动态生成代理类，处理方法调用，统一横切关注点。</li>
+<li>Cglib动态代理：基于字节码生成的库，无需接口，可拦截类方法并进行增强。</li>
+<li>ClassFilter：确定类是否匹配拦截条件。</li>
+<li>MethodMatcher：确定方法是否匹配拦截条件。</li>
+<li>Pointcut：定义切入点，匹配被拦截的方法。</li>
+<li>Advice：AOP中定义各种通知类型行为的核心接口。</li>
+<li>MethodInterceptor：拦截方法执行，允许在前后添加额外逻辑。</li>
+<li>MethodBeforeAdvice：允许在方法调用之前插入自定义逻辑。</li>
+<li>AfterReturningAdvice：允许在方法调用之后插入自定义逻辑。&lt;</li>
+<li>ThrowsAdvice：异常通知，捕获方法抛出的异常，执行额外逻辑。</li>
+<li>IntroductionInterceptor：动态地向目标对象引入新的功能或属性。</li>
+<li>Advisor：用于将通知和切点结合，实现切面编程的横切关注点。</li>
+<li>Advised：配置AOP代理的通知、通知器、目标等。</li>
+<li>ProxyFactory：一种便捷的方式来创建代理对象。</li>
+<li>AopProxyFactory：创建AOP代理工厂，支持JDK和CGLIB。</li>
+<li>AopProxy：创建和管理AOP代理对象。</li>
+<li>AdvisorChainFactory：创建Advisor链的工厂接口。</li>
+<li>AdvisorAdapterRegistry：适配各种Advice到AOP拦截器，注册和管理Advisor适配器。</li>
+<li>AdvisorAdapter：适配不同类型通知到拦截器链。</li>
+<li>ProxyMethodInvocation：AOP方法调用代理，处理拦截器链和方法调用。</li>
+<li>@EnableAspectJAutoProxy：启用AspectJ切面自动代理。</li>
+<li>AnnotationAwareAspectJAutoProxyCreator：创建AOP代理以应用AspectJ风格的切面。</li>
+<li>BeanFactoryAdvisorRetrievalHelper：帮助检索并管理Spring AOP 中的 Advisor Beans。</li>
+<li>BeanFactoryAspectJAdvisorsBuilder：构建@AspectJ注解切面，生成Spring AOP Advisors。</li>
+<li>AspectInstanceFactory：创建切面实例，支持多种实现方式。</li>
+<li>MetadataAwareAspectInstanceFactory：管理切面实例和元数据，支持多种实例化策略。</li>
+<li>AspectJAdvisorFactory：创建AspectJ通知器实例，管理切面通知的创建和配置。</li>
+<li>TargetSource：管理AOP代理对象的获取与释放。</li>
+<li>TargetSourceCreator：创建特殊的目标源，定制代理对象的创建和管理。</li>
+<li>AopContext：获取Spring AOP代理对象的工具。</li>
+<li>ExposeInvocationInterceptor：暴露Spring AOP方法调用上下文的拦截器。</li>
+<li>@EnableLoadTimeWeaving：启用Spring加载时编织。</li>
+</ul>
+<h2 id="Spring-事务"><a href="#Spring-事务" class="headerlink" title="Spring 事务"></a>Spring 事务</h2><ul>
+<li>Connection：管理数据库连接，执行SQL，处理事务。</li>
+<li>DataSource：提供高效管理数据库连接的接口。</li>
+<li>DriverManager：管理和建立数据库连接的核心类。</li>
+<li>JdbcTemplate：简化了JDBC操作，提供了方便的数据库访问抽象。</li>
+<li>TransactionDefinition：定义事务的传播行为和隔离级别。</li>
+<li>TransactionAttributeSource：用于获取事务属性的策略接口。</li>
+<li>PlatformTransactionManager：用于管理和协调事务的生命周期和执行。</li>
+<li>TransactionTemplate：简化事务管理，支持编程式事务控制与异常处理。</li>
+<li>SpringTransactionAnnotationParser：解析 @Transactional注解并转换为事务配置。</li>
+<li>TransactionInterceptor：事务拦截器，用于管理方法级别的事务处理。</li>
+<li>EnableTransactionManagement：启用Spring的注解驱动事务管理。</li>
+</ul>
 ]]></content>
       <categories>
         <category>Spring</category>
       </categories>
-      <tags>
-        <tag>bug</tag>
-      </tags>
   </entry>
 </search>

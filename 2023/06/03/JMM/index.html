@@ -242,6 +242,8 @@
 <p><strong>关于JMM的一些同步的约定：</strong></p>
 <p>1、线程解锁前，必须把共享变量<strong>立刻</strong>刷回主存；</p>
 <p>2、线程加锁前，必须<strong>读取主存</strong>中的最新值到工作内存中；</p>
+<span id="more"></span>
+
 <h3 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h3><p>内存交互操作有8种，虚拟机实现必须保证每一个操作都是<strong>原子的</strong>，不可在分的（对于double和long类型的变量来说，load、store、read和write操作在某些平台上允许例外）</p>
 <ul>
 <li><strong>Read（读取）</strong>：作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便随后的load动作使用；</li>
@@ -316,7 +318,7 @@
                 <a class="prev" rel="prev" href="/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">Go语言基础</a>
             
             
-            <a class="next" rel="next" href="/2023/05/14/SpringBoot%20%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/">SpringBoot实现GitHub第三方登录</a>
+            <a class="next" rel="next" href="/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/">SpringBoot实现GitHub第三方登录</a>
             
         </section>
 

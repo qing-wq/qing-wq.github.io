@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>📌 Spring源码阅读 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">📌 Spring源码阅读</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">五月 31, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/Spring/">Spring</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">2.7k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">9min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>标记的表示已读</p>
+</blockquote>
+<h1 id="Spring-Core"><a href="#Spring-Core" class="headerlink" title="Spring Core"></a>Spring Core</h1><h2 id="资源加载与访问"><a href="#资源加载与访问" class="headerlink" title="资源加载与访问"></a>资源加载与访问</h2><ul>
+<li>Resource：抽象接口，表示文件、类路径等，用于访问不同来源的资源。</li>
+<li>ResourceLoader：资源获取核心接口，实现统一加载不同位置资源的策略。</li>
+<li>ResourcePatternResolver：资源模式解析接口，用于灵活加载应用中的多种资源。</li>
+<li>DocumentLoader：XML文档加载解析核心接口，支持后台自动配置Spring应用。</li>
+</ul>
+<h2 id="元数据与过滤"><a href="#元数据与过滤" class="headerlink" title="元数据与过滤"></a>元数据与过滤</h2><ul>
+<li>MetadataReader：类元数据获取核心，支持组件扫描、条件化注解、AOP等高级功能。</li>
+<li>AnnotationMetadata：动态获取和操作运行时类注解信息。</li>
+<li>TypeFilter：组件扫描时自定义类筛选，支持复杂条件和精确过滤。</li>
+<li>Condition：条件判断，决定Bean创建和配置的灵活机制。</li>
+</ul>
+<h2 id="验证、数据绑定和类型转换"><a href="#验证、数据绑定和类型转换" class="headerlink" title="验证、数据绑定和类型转换"></a>验证、数据绑定和类型转换</h2><ul>
+<li>Validator：提供自定义数据验证逻辑，确保模型对象满足业务规则。</li>
+<li>PropertyEditor：自定义JavaBean属性的转换逻辑，处理属性类型转换。</li>
+<li>Converter：用于不同类型间的转换，定义简单的源至目标类型转换规则。</li>
+<li>ConverterFactory：创建针对特定源类型的转换器，用于类型转换。</li>
+<li>GenericConverter：更复杂的转换器，支持多种源和目标类型转换。</li>
+<li>ConditionalConverter：根据条件选择是否执行转换的转换器。</li>
+<li>ConversionService：提供统一的类型转换服务接口，管理转换器。</li>
+<li>Printer：用于将对象格式化为文本，专注于格式化输出。</li>
+<li>Parser：用于将文本解析为对象，专注于解析逻辑。</li>
+</ul>
+<h2 id="Spring-表达式语言（SpEL）"><a href="#Spring-表达式语言（SpEL）" class="headerlink" title="Spring 表达式语言（SpEL）"></a>Spring 表达式语言（SpEL）</h2><ul>
+<li>ExpressionParser: 解析字符串形式的 SpEL 表达式，创建并返回 Expression 实例。</li>
+<li>Expression: 对表达式字符串进行求值的功能，支持类型转换、获取原始字符串等操作。</li>
+<li>EvaluationContext: 管理SpEL表达式的上下文信息。</li>
+<li>PropertyAccessor: 用于读取和写入对象的属性，可用于实现自定义的属性访问逻辑。</li>
+<li>ConstructorResolver: 解析构造函数确定bean的实例化方式。</li>
+<li>MethodResolver: 解析类方法，确保正确调用，处理重载和参数匹配。</li>
+<li>BeanResolver: 解析bean定义，包括依赖、属性设置，实例化并返回。</li>
+<li>TypeLocator: 动态查找类，返回Class对象，在表达式解析、类型转换等。</li>
+<li>TypeConverter: 类型转换功能，将表达式中的数据从一种类型转换为另一种类型。</li>
+<li>TypeComparator: 类型比较功能，定义了比较两个对象是否相等的方法。</li>
+<li>OperatorOverloader: 运算符重载功能，对表达式中的运算符进行自定义操作的方法。</li>
+</ul>
+<h2 id="Bean定义与注册"><a href="#Bean定义与注册" class="headerlink" title="Bean定义与注册"></a>Bean定义与注册</h2><ul>
+<li><u>BeanDefinition</u>：详细描述Bean，支持依赖注入、AOP、作用域控制等核心功能。</li>
+<li>BeanDefinitionHolder：管理和操作BeanDefinition的关键类。</li>
+<li><u>BeanDefinitionRegistry</u>：Bean定义注册管理关键接口，处理Bean元数据。</li>
+</ul>
+<h2 id="Bean定义读取与扫描"><a href="#Bean定义读取与扫描" class="headerlink" title="Bean定义读取与扫描"></a>Bean定义读取与扫描</h2><ul>
+<li>XmlBeanDefinitionReader：加载解析XML配置，构建IOC容器，注册Bean定义。</li>
+<li>PropertiesBeanDefinitionReader：属性文件加载，解析为Bean定义。</li>
+<li>GroovyBeanDefinitionReader：Groovy脚本解析为Bean定义。</li>
+<li>AnnotatedBeanDefinitionReader：注解配置，自动扫描注册Spring组件，简化Bean定义配置。</li>
+<li><u>ClassPathBeanDefinitionScanner</u>：类路径扫描注册Spring Bean，支持自动装配。</li>
+</ul>
+<h2 id="Bean工厂"><a href="#Bean工厂" class="headerlink" title="Bean工厂"></a>Bean工厂</h2><ul>
+<li>BeanFactory：Spring的核心接口，提供对Bean的配置、创建、管理的基本功能。</li>
+<li>ListableBeanFactory：支持按类型获取Bean的集合。</li>
+<li>HierarchicalBeanFactory：支持父子容器关系，实现Bean定义的层次结构。</li>
+<li>ConfigurableBeanFactory：提供对BeanFactory配置的扩展，如属性编辑器、作用域等。</li>
+<li>AutowireCapableBeanFactory：Bean创建、初始化、注入、销毁的核心功能接口。</li>
+<li><u>ConfigurableListableBeanFactory</u>：支持配置和列表操作的可配置Bean工厂接口。</li>
+</ul>
+<h2 id="容器上下文"><a href="#容器上下文" class="headerlink" title="容器上下文"></a>容器上下文</h2><ul>
+<li>ClassPathXmlApplicationContext：类路径（classpath）加载 XML 配置文件的上下文。</li>
+<li>AnnotationConfigApplicationContext：注解配置类中加载配置信息的上下文。</li>
+<li>GenericApplicationContext：支持多种配置方式，XML、注解、手动注册的上下文。</li>
+</ul>
+<h2 id="Bean定义导入与组合"><a href="#Bean定义导入与组合" class="headerlink" title="Bean定义导入与组合"></a>Bean定义导入与组合</h2><ul>
+<li><u>ImportBeanDefinitionRegistrar</u>：运行时动态注册 Bean，实现灵活配置，扩展配置类功能。</li>
+<li>ImportSelector：运行时动态导入配置类，实现条件选择和灵活配置。</li>
+<li>DeferredImportSelector：运行时动态导入配置，支持条件选择和按组别延迟加载。</li>
+</ul>
+<h2 id="Bean生命周期"><a href="#Bean生命周期" class="headerlink" title="Bean生命周期"></a>Bean生命周期</h2><ul>
+<li><u>Bean的定义注册过程</u>：加载与解析配置文件，注册解析Bean定义，类名、作用域、属性等。</li>
+<li><u>Bean的初始化过程</u>：实例化、属性注入、Aware回调、后置处理器、初始化方法调用。</li>
+<li><u>Bean的依赖解析过程</u>：声明依赖，查找依赖，注入依赖，处理循环依赖，延迟依赖解析。</li>
+<li><u>Bean的销毁过程</u>：销毁方法调用，接口回调，后处理清理，通知触发，GC回收资源。</li>
+</ul>
+<h2 id="属性解析和环境配置"><a href="#属性解析和环境配置" class="headerlink" title="属性解析和环境配置"></a>属性解析和环境配置</h2><ul>
+<li><u>PropertySource</u>：管理各种配置源的抽象类，支持灵活地加载和访问应用配置。</li>
+<li><u>PropertySources</u>：用于统一管理和访问多个 PropertySource 实例，简化配置数据的处理。</li>
+<li><u>PropertyResolver</u>：通用属性解析，获取配置值，处理属性缺失，简便灵活。</li>
+<li><u>ConfigurablePropertyResolver</u>：属性解析配置，占位符设置，适应不同配置需求。</li>
+<li><u>Environment</u>：应用环境表示，提供属性访问，支持配置文件，实现动态配置。</li>
+<li><u>ConfigurableEnvironment</u>：动态配置应用环境，激活、默认配置，提升应用灵活性。</li>
+</ul>
+<h2 id="Bean初始化与扩展点"><a href="#Bean初始化与扩展点" class="headerlink" title="Bean初始化与扩展点"></a>Bean初始化与扩展点</h2><ul>
+<li><u>InitializingBean</u>：提供Bean初始化时执行自定义逻辑的接口。</li>
+<li>DisposableBean：定义Bean销毁前执行清理操作的接口。</li>
+<li><u>BeanDefinitionRegistryPostProcessor</u>：在容器启动时，对BeanDefinition动态修改或添加。</li>
+<li><u>BeanFactoryPostProcessor</u>：在Bean实例化前，对BeanFactory进行全局修改或配置。</li>
+<li><u>BeanPostProcessor</u>：在Bean初始化前后，进行自定义处理，可影响所有Bean。</li>
+<li>InstantiationAwareBeanPostProcessor：提供更深层次的实例化和属性注入控制。</li>
+<li>DestructionAwareBeanPostProcessor： 允许在Bean销毁前进行额外的清理操作。</li>
+<li>MergedBeanDefinitionPostProcessor：在合并Bean定义时对BeanDefinition进行处理。</li>
+<li>SmartInstantiationAwareBeanPostProcessor：提供更智能的实例化控制。</li>
+<li>SmartInitializingSingleton：在所有单例Bean初始化完成后，执行自定义逻辑。</li>
+</ul>
+<h2 id="Aware接口系列"><a href="#Aware接口系列" class="headerlink" title="Aware接口系列"></a>Aware接口系列</h2><ul>
+<li>BeanNameAware：让Bean获取自身在容器中的名字。</li>
+<li>BeanClassLoaderAware：允许Bean获取其类加载器。</li>
+<li>BeanFactoryAware：提供Bean获取所属的BeanFactory。</li>
+<li><u>EnvironmentAware</u>：允许Bean获取应用程序环境配置。</li>
+<li>EmbeddedValueResolverAware：允许Bean解析嵌入式值占位符。</li>
+<li>ResourceLoaderAware：允许Bean获取资源加载器。</li>
+<li>ApplicationEventPublisherAware：允许Bean发布应用程序事件。</li>
+<li>MessageSourceAware：允许Bean获取消息源。</li>
+<li><u>ApplicationContextAware</u>：允许Bean获取应用程序上下文。</li>
+<li>ImportAware：允许被导入的配置类获取导入它的类的信息。</li>
+</ul>
+<h2 id="核心注解"><a href="#核心注解" class="headerlink" title="核心注解"></a>核心注解</h2><ul>
+<li><u>@Configuration</u>：声明类为配置类，定义Bean和Bean之间的依赖关系。</li>
+<li><u>@ComponentScan</u>：启用组件扫描，自动发现并注册标记为组件的类。</li>
+<li>@Bean：在配置类中声明方法，返回Bean实例。</li>
+<li>@Import：引入其他配置类，将其Bean定义合并到当前容器。</li>
+<li>@PropertySource：指定属性文件，加载外部配置到环境中。</li>
+<li>@DependsOn：指定Bean的依赖顺序，确保特定Bean在其他Bean之前初始化。</li>
+<li>@Conditional：根据条件决定是否创建Bean。</li>
+<li>@Lazy：指定Bean的延迟初始化，只有在首次使用时才创建。</li>
+<li>@Value：注入简单值或表达式到Bean的字段或方法参数。</li>
+<li>@Autowired：自动装配Bean依赖。</li>
+<li>@Primary：指定在多个候选Bean中优先选择的首选Bean。</li>
+<li>@Description：为Bean提供描述性信息。</li>
+<li>@Role：为Bean提供角色提示，用于区分相似类型的Bean。</li>
+<li>@Indexed： 标记Bean用于索引。</li>
+<li>@Order：指定Bean的加载顺序。</li>
+</ul>
+<h2 id="JSR规范"><a href="#JSR规范" class="headerlink" title="JSR规范"></a>JSR规范</h2><ul>
+<li>@Inject：JSR-330标准的依赖注入注解。</li>
+<li>@Named：JSR-330标准的命名注解。</li>
+<li>@Resource：Java EE标准的资源注入注解。</li>
+<li>@Qualifier：用于限定注入的Bean。</li>
+<li>@Scope：指定Bean的作用域。</li>
+<li>@Singleton：指定Bean为单例。</li>
+<li>@PostConstruct：指定初始化方法。</li>
+<li>@PreDestroy：指定销毁方法。</li>
+<li>Provider：Java标准库提供的通用Bean工厂接口。</li>
+</ul>
+<h2 id="Spring-AOP"><a href="#Spring-AOP" class="headerlink" title="Spring AOP"></a>Spring AOP</h2><ul>
+<li>JDK动态代理：接口实现，动态生成代理类，处理方法调用，统一横切关注点。</li>
+<li>Cglib动态代理：基于字节码生成的库，无需接口，可拦截类方法并进行增强。</li>
+<li>ClassFilter：确定类是否匹配拦截条件。</li>
+<li>MethodMatcher：确定方法是否匹配拦截条件。</li>
+<li>Pointcut：定义切入点，匹配被拦截的方法。</li>
+<li>Advice：AOP中定义各种通知类型行为的核心接口。</li>
+<li>MethodInterceptor：拦截方法执行，允许在前后添加额外逻辑。</li>
+<li>MethodBeforeAdvice：允许在方法调用之前插入自定义逻辑。</li>
+<li>AfterReturningAdvice：允许在方法调用之后插入自定义逻辑。&lt;</li>
+<li>ThrowsAdvice：异常通知，捕获方法抛出的异常，执行额外逻辑。</li>
+<li>IntroductionInterceptor：动态地向目标对象引入新的功能或属性。</li>
+<li>Advisor：用于将通知和切点结合，实现切面编程的横切关注点。</li>
+<li>Advised：配置AOP代理的通知、通知器、目标等。</li>
+<li>ProxyFactory：一种便捷的方式来创建代理对象。</li>
+<li>AopProxyFactory：创建AOP代理工厂，支持JDK和CGLIB。</li>
+<li>AopProxy：创建和管理AOP代理对象。</li>
+<li>AdvisorChainFactory：创建Advisor链的工厂接口。</li>
+<li>AdvisorAdapterRegistry：适配各种Advice到AOP拦截器，注册和管理Advisor适配器。</li>
+<li>AdvisorAdapter：适配不同类型通知到拦截器链。</li>
+<li>ProxyMethodInvocation：AOP方法调用代理，处理拦截器链和方法调用。</li>
+<li>@EnableAspectJAutoProxy：启用AspectJ切面自动代理。</li>
+<li>AnnotationAwareAspectJAutoProxyCreator：创建AOP代理以应用AspectJ风格的切面。</li>
+<li>BeanFactoryAdvisorRetrievalHelper：帮助检索并管理Spring AOP 中的 Advisor Beans。</li>
+<li>BeanFactoryAspectJAdvisorsBuilder：构建@AspectJ注解切面，生成Spring AOP Advisors。</li>
+<li>AspectInstanceFactory：创建切面实例，支持多种实现方式。</li>
+<li>MetadataAwareAspectInstanceFactory：管理切面实例和元数据，支持多种实例化策略。</li>
+<li>AspectJAdvisorFactory：创建AspectJ通知器实例，管理切面通知的创建和配置。</li>
+<li>TargetSource：管理AOP代理对象的获取与释放。</li>
+<li>TargetSourceCreator：创建特殊的目标源，定制代理对象的创建和管理。</li>
+<li>AopContext：获取Spring AOP代理对象的工具。</li>
+<li>ExposeInvocationInterceptor：暴露Spring AOP方法调用上下文的拦截器。</li>
+<li>@EnableLoadTimeWeaving：启用Spring加载时编织。</li>
+</ul>
+<h2 id="Spring-事务"><a href="#Spring-事务" class="headerlink" title="Spring 事务"></a>Spring 事务</h2><ul>
+<li>Connection：管理数据库连接，执行SQL，处理事务。</li>
+<li>DataSource：提供高效管理数据库连接的接口。</li>
+<li>DriverManager：管理和建立数据库连接的核心类。</li>
+<li>JdbcTemplate：简化了JDBC操作，提供了方便的数据库访问抽象。</li>
+<li>TransactionDefinition：定义事务的传播行为和隔离级别。</li>
+<li>TransactionAttributeSource：用于获取事务属性的策略接口。</li>
+<li>PlatformTransactionManager：用于管理和协调事务的生命周期和执行。</li>
+<li>TransactionTemplate：简化事务管理，支持编程式事务控制与异常处理。</li>
+<li>SpringTransactionAnnotationParser：解析 @Transactional注解并转换为事务配置。</li>
+<li>TransactionInterceptor：事务拦截器，用于管理方法级别的事务处理。</li>
+<li>EnableTransactionManagement：启用Spring的注解驱动事务管理。</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/05/31/Spring%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">https://qing-wq.github.io/2024/05/31/Spring%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/">Spingboot3.0 升级记录</a>
+            
+            
+            <a class="next" rel="next" href="/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">Spring中几个关键的后置处理器以及执行顺序</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

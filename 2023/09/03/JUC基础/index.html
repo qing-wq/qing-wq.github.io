@@ -249,6 +249,8 @@
 <li>终止 <code>TERMINATED</code></li>
 </ul>
 <p>在操作系统层面，线程有 READY 和 RUNNING 状态；而在 JVM 层面，只能看到 RUNNABLE 状态</p>
+<span id="more"></span>
+
 <p><strong>为什么 JVM 没有区分这两种状态呢？</strong> </p>
 <p> 现在的时分多任务操作系统架构通常都是用所谓的“时间分片”方式进行抢占式轮转调度。这个时间分片通常是很小的，一个线程一次最多只能在 CPU 上运行比如 10-20ms 的时间（此时处于 running 状态），也即大概只有 0.01 秒这一量级，时间片用后就要被切换下来放入调度队列的末尾等待再次调度。（也即回到 ready 状态）。<em>线程切换的如此之快，区分这两种状态就没什么意义了。</em></p>
 <h2 id="wait-sleep"><a href="#wait-sleep" class="headerlink" title="wait/sleep"></a>wait/sleep</h2><p><strong>区别</strong>：</p>

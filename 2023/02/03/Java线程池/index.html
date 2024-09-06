@@ -237,6 +237,8 @@
 
 <p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
 <p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<span id="more"></span>
+
 <blockquote>
 <p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
 </blockquote>
