@@ -1,6 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>📌 Bean的生命周期</title>
+    <url>/2024/03/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</url>
+    <content><![CDATA[<p><img src="/../images/bean.svg"></p>
+<p><em><strong><u>大致过程：实例化→属性注入→初始化→销毁</u></strong></em></p>
+<h1 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h1><ol>
+<li>Spring扫描所有的Bean（通过xml配置文件或者注解）得到BeanDefinition</li>
+<li>根据得到的BeanDefinition去生成bean<ol>
+<li>首先根据class推断构造方法</li>
+<li>根据推断出来的构造方法，反射，得到一个对象（暂时叫做<strong>原始对象</strong>）</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>总结：扫描Bean，获取构造方法并生成原始对象，分配内存空间</p>
+</blockquote>
+<h1 id="属性注入"><a href="#属性注入" class="headerlink" title="属性注入"></a>属性注入</h1><p>填充原始对象中的属性（即依赖注入）</p>
+<span id="more"></span>
+
+<h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><ol>
+<li><p><strong>实现了<code>ApplicationContextAware</code>接口</strong>  </p>
+<p> 使用ApplicationContext来生成并管理Bean的话，才有此步；否则，没有。  </p>
+<p> 如果这个Bean已经实现了ApplicationContextAware接口，会调用<code>setApplicationContext()</code>方法，传入Spring上下文（同样这个方式也可以实现上一步的内容，但比上一步更好，因为ApplicationContext是BeanFactory的子接口，有更多的实现方法）；</p>
+</li>
+<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessBeforeInitialization()</code></strong></p>
+<p> 如果有BeanPostProcessors和Bean关联，那么其<code>postProcessBeforeInitialization()</code>方法将被将被调用。</p>
+</li>
+<li><p><strong><code>@PostConstruct</code></strong></p>
+<p> 这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。它在执行依赖项注入后被执行，即<strong>构造函数之后，<code>init()</code>方法之前执行</strong></p>
+</li>
+<li><p><strong><code>initializingBean</code>的<code>afterPropertiesSet()</code></strong></p>
+<p> 如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
+</li>
+<li><p>Bean的<code>init-method</code>  </p>
+</li>
+<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessaAfterInitialization()</code></strong></p>
+<p> 容器中如果有实现BeanPostProcessors接口的实例，则Bean在初始化之前都会执行这个实例的<code>processAfterInitialization()</code>方法。</p>
+</li>
+<li><p>如果原始对象中的某个方法被AOP了，那么则需要根据原始对象生成一个代理对象</p>
+</li>
+<li><p>把最终生成的代理对象放入单例池（源码中叫做<code>singletonObjects</code>）中，下次getBean时就直接从单例池拿即可</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>Spring源码系列</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Go generic VS Java generic</title>
+    <url>/2024/02/14/Go%20generic%20VS%20Java%20generic/</url>
+    <content><![CDATA[<p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
+<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
+<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
+<span id="more"></span>
+
+<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
+<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T {}</code>。</p>
+<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
+<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
+<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
+<li>不支持泛型方法。</li>
+</ul>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
+<ul>
+<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
+<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
+</ul>
+<figure class="highlight go"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 {</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> {</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T {</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> {</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
+<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
+<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
+<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
+<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
+</ul>
+<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
+<li>Java泛型支持泛型方法。</li>
+<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
+</ul>
+<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
+<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
+<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
+</ul>
+<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
+<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
+<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
+</ul>
+<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
+<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
+<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
+</ul>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
+<li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Go</category>
+      </categories>
+      <tags>
+        <tag>Java VS Go</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Go语言基础</title>
     <url>/2023/09/01/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><ul>
@@ -353,54 +461,9 @@
       <categories>
         <category>Go</category>
       </categories>
-  </entry>
-  <entry>
-    <title>📌 Bean的生命周期</title>
-    <url>/2024/03/31/Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</url>
-    <content><![CDATA[<p><img src="/../images/bean.svg"></p>
-<p><em><strong><u>大致过程：实例化→属性注入→初始化→销毁</u></strong></em></p>
-<h1 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h1><ol>
-<li>Spring扫描所有的Bean（通过xml配置文件或者注解）得到BeanDefinition</li>
-<li>根据得到的BeanDefinition去生成bean<ol>
-<li>首先根据class推断构造方法</li>
-<li>根据推断出来的构造方法，反射，得到一个对象（暂时叫做<strong>原始对象</strong>）</li>
-</ol>
-</li>
-</ol>
-<blockquote>
-<p>总结：扫描Bean，获取构造方法并生成原始对象，分配内存空间</p>
-</blockquote>
-<h1 id="属性注入"><a href="#属性注入" class="headerlink" title="属性注入"></a>属性注入</h1><p>填充原始对象中的属性（即依赖注入）</p>
-<span id="more"></span>
-
-<h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><ol>
-<li><p><strong>实现了<code>ApplicationContextAware</code>接口</strong>  </p>
-<p> 使用ApplicationContext来生成并管理Bean的话，才有此步；否则，没有。  </p>
-<p> 如果这个Bean已经实现了ApplicationContextAware接口，会调用<code>setApplicationContext()</code>方法，传入Spring上下文（同样这个方式也可以实现上一步的内容，但比上一步更好，因为ApplicationContext是BeanFactory的子接口，有更多的实现方法）；</p>
-</li>
-<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessBeforeInitialization()</code></strong></p>
-<p> 如果有BeanPostProcessors和Bean关联，那么其<code>postProcessBeforeInitialization()</code>方法将被将被调用。</p>
-</li>
-<li><p><strong><code>@PostConstruct</code></strong></p>
-<p> 这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。它在执行依赖项注入后被执行，即<strong>构造函数之后，<code>init()</code>方法之前执行</strong></p>
-</li>
-<li><p><strong><code>initializingBean</code>的<code>afterPropertiesSet()</code></strong></p>
-<p> 如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
-</li>
-<li><p>Bean的<code>init-method</code>  </p>
-</li>
-<li><p><strong><code>BeanPostProcessors</code>的<code>ProcessaAfterInitialization()</code></strong></p>
-<p> 容器中如果有实现BeanPostProcessors接口的实例，则Bean在初始化之前都会执行这个实例的<code>processAfterInitialization()</code>方法。</p>
-</li>
-<li><p>如果原始对象中的某个方法被AOP了，那么则需要根据原始对象生成一个代理对象</p>
-</li>
-<li><p>把最终生成的代理对象放入单例池（源码中叫做<code>singletonObjects</code>）中，下次getBean时就直接从单例池拿即可</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
   </entry>
   <entry>
     <title>JMM</title>
@@ -447,6 +510,12 @@
 </li>
 </ul>
 ]]></content>
+      <categories>
+        <category>Java多线程</category>
+      </categories>
+      <tags>
+        <tag>JMM</tag>
+      </tags>
   </entry>
   <entry>
     <title>JUC基础</title>
@@ -591,7 +660,7 @@
         <category>Java多线程</category>
       </categories>
       <tags>
-        <tag>JUC</tag>
+        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -618,53 +687,36 @@
       </categories>
   </entry>
   <entry>
-    <title>Go generic VS Java generic</title>
-    <url>/2024/02/14/Go%20generic%20VS%20Java%20generic/</url>
-    <content><![CDATA[<p>随着Go 1.18版本的发布，Go语言正式引入了泛型这一重要特性。本文将对Go泛型与Java泛型进行对比分析，探讨它们之间的异同。</p>
-<h2 id="Go泛型概述"><a href="#Go泛型概述" class="headerlink" title="Go泛型概述"></a>Go泛型概述</h2><h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="类型参数"><a href="#类型参数" class="headerlink" title="类型参数"></a>类型参数</h4><p>类型参数是泛型函数或类型中的占位符，表示一个未知的具体类型。类型参数使用方括号<code>[]</code>括起来，并放在函数名或类型名之后。例如，在<code>func MyFunc[T any](a T) {}</code>中，<code>T</code>就是一个类型参数。</p>
-<h4 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h4><p>约束是用来限制类型参数的方式，指定了类型参数必须满足的条件。约束可以是接口类型或其他带有类型参数的类型。例如，<code>func MyFunc[T io.Reader](a T) {}</code>中的<code>io.Reader</code>就是一个约束，表示类型参数<code>T</code>必须实现<code>io.Reader</code>接口。</p>
+    <title>Go GC VS Java GC</title>
+    <url>/2024/01/03/Go-GC-Vs-Java-GC/</url>
+    <content><![CDATA[<p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
+<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
+<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
+<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
+<ul>
+<li>JDK 8：Parallel Scavenge</li>
+<li>JDK 9 ~ JDK20: G1</li>
+</ul>
 <span id="more"></span>
 
-<h4 id="预定义约束"><a href="#预定义约束" class="headerlink" title="预定义约束"></a>预定义约束</h4><p>Go 1.18提供了一些预定义的约束，用于表示常见的类型集合。例如，<code>any</code>约束表示任何类型，而<code>comparable</code>约束表示可比较的类型（支持<code>==</code>和<code>!=</code>操作符）。</p>
-<h4 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h4><p>泛型函数是一种使用类型参数的函数，可以处理不同类型的参数。泛型函数的定义类似于普通函数，只是在函数名后面添加了类型参数列表。例如，<code>func MyFunc[T any](a, b T) T {}</code>。</p>
-<h4 id="泛型类型"><a href="#泛型类型" class="headerlink" title="泛型类型"></a>泛型类型</h4><p>泛型类型是一种使用类型参数的类型，可以表示不同类型的数据结构。泛型类型的定义类似于普通类型，只是在类型名后面添加了类型参数列表。例如，<code>type MySlice[T any] []T</code>。</p>
-<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>匿名函数不支持泛型，但可以使用别处定义好的类型作为实参。</li>
-<li>不支持泛型方法。</li>
-</ul>
-<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>Go的泛型使用<code>interface</code>实现</p>
+<p><strong>特点：</strong></p>
 <ul>
-<li>an approximation element <code>~T</code> restricts to all types whose underlying type is T: 代表底层类型是<code>T</code></li>
-<li>a union element <code>T1 | T2 | ...</code> restricts to any of the listed elements: 代表<code>或</code>,类型列表之一。</li>
+<li>都会造成STW，这是影响性能最主要的因素</li>
+<li>部分算法还会产生大量空间碎片</li>
 </ul>
-<figure class="highlight go"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 任意类型 any</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span>[<span class="title">T1</span>, <span class="title">T2</span> <span class="title">any</span>]<span class="params">(x <span class="type">int</span>, y T1)</span></span> T2 {</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Integer <span class="keyword">interface</span> {</span><br><span class="line">  Signed | Unsigned</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Signed <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">int</span> | ~<span class="type">int8</span> | ~<span class="type">int16</span> | ~<span class="type">int32</span> | ~<span class="type">int64</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Unsigned <span class="keyword">interface</span> {</span><br><span class="line">  ~<span class="type">uint</span> | ~<span class="type">uint8</span> | ~<span class="type">uint16</span> | ~<span class="type">uint32</span> | ~<span class="type">uint64</span> | ~<span class="type">uintptr</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 泛型抽象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Abs</span>[<span class="title">T</span> <span class="title">Integer</span>]<span class="params">(input T)</span></span> T {</span><br><span class="line">  <span class="keyword">if</span> input &lt; <span class="number">0</span> {</span><br><span class="line">    <span class="keyword">return</span> -input</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> input</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Java泛型概述"><a href="#Java泛型概述" class="headerlink" title="Java泛型概述"></a>Java泛型概述</h2><p>Java的泛型是在JDK 5中引入的，它的设计目标是为了提高类型安全性和代码重用性。</p>
-<h3 id="关键概念-1"><a href="#关键概念-1" class="headerlink" title="关键概念"></a>关键概念</h3><ul>
-<li><strong>泛型类型</strong>：定义了一个类型参数，如<code>List&lt;T&gt;</code>。</li>
-<li><strong>泛型方法</strong>：可以在方法级别使用类型参数，如<code>public &lt;T&gt; void method(T t)</code>。</li>
-<li><strong>类型擦除</strong>：Java编译器会在编译阶段消除类型参数，替换为实际类型，这保证了向后兼容性。</li>
+<p>介绍一下Java中比较经典的垃圾回收器：</p>
+<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
+<ul>
+<li>主要优点：<strong>并发收集、低停顿</strong></li>
+<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
 </ul>
-<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><ul>
-<li>Java泛型支持泛型方法。</li>
-<li>Java泛型有类型擦除的概念，这意味着在运行时无法获取类型参数的实际类型。</li>
-</ul>
-<h2 id="对比分析"><a href="#对比分析" class="headerlink" title="对比分析"></a>对比分析</h2><h3 id="泛型定义"><a href="#泛型定义" class="headerlink" title="泛型定义"></a>泛型定义</h3><ul>
-<li><strong>Go</strong>：类型参数、约束和预定义约束提供了明确的类型约束机制。</li>
-<li><strong>Java</strong>：类型参数和泛型方法提供了灵活的类型抽象。</li>
-</ul>
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><ul>
-<li><strong>Go</strong>：没有类型擦除，泛型类型在运行时保留类型信息。</li>
-<li><strong>Java</strong>：存在类型擦除，编译后的字节码不包含类型参数信息。</li>
-</ul>
-<h3 id="其他特点"><a href="#其他特点" class="headerlink" title="其他特点"></a>其他特点</h3><ul>
-<li><strong>Go</strong>：不支持泛型方法，匿名函数不支持泛型。</li>
-<li><strong>Java</strong>：支持泛型方法，匿名内部类可以使用泛型。</li>
-</ul>
-<hr>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a href="https://www.kunkkawu.com/archives/shen-ru-li-jie-golang-de-fan-xing">深入理解Go的泛型</a></li>
-<li><a href="https://tonybai.com/2022/03/25/intro-generics/">Go 1.18 泛型入门</a></li>
+<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
+<p>G1使用<strong>标记-整理</strong>算法</p>
+<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
+<ul>
+<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
+<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
+<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
 </ul>
 ]]></content>
       <categories>
@@ -672,172 +724,6 @@
       </categories>
       <tags>
         <tag>Java VS Go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java线程池</title>
-    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
-    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
-<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
-<span id="more"></span>
-
-<blockquote>
-<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
-</blockquote>
-<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
-<ol>
-<li><p><code>corePoolSize</code>（核心线程数）：</p>
-<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
-</li>
-<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
-<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
-</li>
-<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
-<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
-</li>
-<li><p><code>unit</code>（空闲超时时间的单位）：</p>
-<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
-</li>
-<li><p><code>workQueue</code>（工作队列）：</p>
-<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
-</li>
-<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
-<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
-</li>
-<li><p><code>handler</code>（拒绝策略，可选）：</p>
-<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
-</li>
-</ol>
-<p>我们可以这样类比：</p>
-<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
-<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
-<ol>
-<li><code>SynchronousQueue</code> 同步队列</li>
-<li><code>LinkedBlockingQueue</code></li>
-<li><code>ArrayBlockingQueue</code></li>
-</ol>
-<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
-<p>BlockQueue有四组API：</p>
-<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
-<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
-<ol>
-<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
-<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
-<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
-<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
-<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
-<li>使用lock锁保证线程安全的</li>
-</ol>
-</li>
-<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
-</ol>
-<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
-<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
-<ul>
-<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
-<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
-</ul>
-<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
-<ul>
-<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
-<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
-<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
-<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
-</ul>
-<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
-<ul>
-<li><code>SingleThreadExecutor</code>单线程线程池<ul>
-<li>特点：线程池只有一个线程</li>
-<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-</ul>
-</li>
-<li><code>FixedThreadPool</code>固定线程池<ul>
-<li>特点：最大线程数就是核心线程数</li>
-<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
-<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-<li>适用于需要并发控制的场景</li>
-</ul>
-</li>
-<li><code>CachedThreadPool</code>缓存线程池<ul>
-<li>没有核心线程，普通线程数量无限</li>
-<li>线程闲置60s后回收</li>
-<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
-<li>适用用于任务量大但耗时低的场景</li>
-</ul>
-</li>
-<li><code>ScheduledThreadPool</code>定时线程池<ul>
-<li>指定核心线程数量，普通线程数量无限</li>
-<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
-<li>适用用于执行定时或周期性的任务</li>
-</ul>
-</li>
-</ul>
-<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
-<ul>
-<li><strong>CPU 密集型任务</strong><ul>
-<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
-<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
-<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
-</ul>
-</li>
-<li><strong>I/O 密集型任务</strong><ul>
-<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
-<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
-</ul>
-</li>
-</ul>
-<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>🐛 LangChain4j-Spring Bug修复记录</title>
-    <url>/2024/08/20/LangChain4j-Spring%20Bug/</url>
-    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
-<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
-<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
-<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
-<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
-</ul>
-<blockquote>
-<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
-</blockquote>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
-<ol>
-<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
-<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
-</ol>
-<p>关键代码如下：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-<p>针对以上问题，我在PR中做的主要改动如下：</p>
-<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
-<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="./Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F.md">Mybatis实现动态注册bean的两种方式</a></p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>langchain4j</tag>
       </tags>
   </entry>
   <entry>
@@ -1053,6 +939,7 @@
         <category>LLM</category>
       </categories>
       <tags>
+        <tag>学习笔记</tag>
         <tag>langchain</tag>
       </tags>
   </entry>
@@ -1435,6 +1322,9 @@
       <categories>
         <category>MyBatis</category>
       </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
   </entry>
   <entry>
     <title>Spingboot3.0 升级记录</title>
@@ -1523,11 +1413,31 @@
         <category>Spring</category>
       </categories>
       <tags>
-        <tag>Spring Environment</tag>
+        <tag>Spring源码系列</tag>
       </tags>
   </entry>
   <entry>
-    <title>Spring 事务体系</title>
+    <title>Spring Lazy-init 踩坑记录</title>
+    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
+<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
+<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>Bug</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>📌 Spring 事务体系</title>
     <url>/2024/09/08/Spring-%E4%BA%8B%E5%8A%A1%E4%BD%93%E7%B3%BB/</url>
     <content><![CDATA[<p>最近了解到，Spring中的事务是由AOP实现的（当然这里说的是声明式事务），至于里面具体的逻辑是怎么样的，今天花了一天的时间看代码，总算弄是明白了大概流程😎，至于里面很多技术细节还没去深挖，先这样吧╮(╯_╰)╭</p>
 <h2 id="Spring-事务相关的API"><a href="#Spring-事务相关的API" class="headerlink" title="Spring 事务相关的API"></a>Spring 事务相关的API</h2><p>先看看概念：</p>
@@ -1569,7 +1479,7 @@
 
 <hr>
 <h2 id="其他的一些知识点"><a href="#其他的一些知识点" class="headerlink" title="其他的一些知识点"></a>其他的一些知识点</h2><h3 id="Spring中事务的传播行为"><a href="#Spring中事务的传播行为" class="headerlink" title="Spring中事务的传播行为"></a>Spring中事务的传播行为</h3><p>Spring中事务的传播模式有以下几种：</p>
-<p><img src="https://secure2.wostatic.cn/static/61zGW88xH5tJp295rNnPZK/image.png?auth_key=1725729579-qRD23BugtXZMZyh2zXT4X5-0-89b62df33d491f188b7e4a2ae5843ac0"></p>
+<p><img src="/../images/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F.png"></p>
 <p>事务分为逻辑事务和物理事务：</p>
 <ul>
 <li>逻辑事务是指代码中事务的操作，即表面的业务逻辑</li>
@@ -1577,9 +1487,9 @@
 </ul>
 <h3 id="事务失效的几种场景"><a href="#事务失效的几种场景" class="headerlink" title="事务失效的几种场景"></a>事务失效的几种场景</h3><p>这个部分也是根据网上的博客总结出来的😎</p>
 <ol>
-<li>方法为<code>private</code>：事务代理类要求被代理方法必须是<code>public</code>的，否则不进行代理<ol>
+<li>方法为<code>private</code>：事务代理类要求被代理方法必须是<code>public</code>的，否则不进行代理<ul>
 <li>从 Spring 6.0 开始，<code>protected</code>方法可以被 CGLIB 代理</li>
-</ol>
+</ul>
 </li>
 <li>方法用<code>final</code>修饰：Spring事务底层是基于AOP的，被final修饰的方法无法被代理类重写</li>
 <li>方法内部调用：同理，代理类根据<code>@Transactional</code>代理方法，方法内部调用会绕过代理</li>
@@ -1594,6 +1504,12 @@
 <li><a href="https://cloud.tencent.com/developer/article/1808649">从 AbstractPointcutAdvisor 开始： Spring AOP 之 Advisor、PointcutAdvisor 介绍</a></li>
 </ul>
 ]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>Spring源码系列</tag>
+      </tags>
   </entry>
   <entry>
     <title>SpringBoot实现GitHub第三方登录</title>
@@ -1625,6 +1541,150 @@
       </categories>
       <tags>
         <tag>oauth</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring中几个关键的后置处理器以及执行顺序</title>
+    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
+    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
+<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
+<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
+<span id="more"></span>
+
+<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
+<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
+<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
+<p>…待补充</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java线程池</title>
+    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
+    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
+<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<span id="more"></span>
+
+<blockquote>
+<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
+</blockquote>
+<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
+<ol>
+<li><p><code>corePoolSize</code>（核心线程数）：</p>
+<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
+</li>
+<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
+<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
+</li>
+<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
+<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
+</li>
+<li><p><code>unit</code>（空闲超时时间的单位）：</p>
+<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
+</li>
+<li><p><code>workQueue</code>（工作队列）：</p>
+<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
+</li>
+<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
+<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
+</li>
+<li><p><code>handler</code>（拒绝策略，可选）：</p>
+<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
+</li>
+</ol>
+<p>我们可以这样类比：</p>
+<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
+<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
+<ol>
+<li><code>SynchronousQueue</code> 同步队列</li>
+<li><code>LinkedBlockingQueue</code></li>
+<li><code>ArrayBlockingQueue</code></li>
+</ol>
+<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
+<p>BlockQueue有四组API：</p>
+<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
+<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
+<ol>
+<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
+<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
+<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
+<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
+<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
+<li>使用lock锁保证线程安全的</li>
+</ol>
+</li>
+<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
+</ol>
+<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
+<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
+<ul>
+<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
+<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
+</ul>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
+<ul>
+<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
+<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
+<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
+<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
+</ul>
+<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
+<ul>
+<li><code>SingleThreadExecutor</code>单线程线程池<ul>
+<li>特点：线程池只有一个线程</li>
+<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+</ul>
+</li>
+<li><code>FixedThreadPool</code>固定线程池<ul>
+<li>特点：最大线程数就是核心线程数</li>
+<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
+<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+<li>适用于需要并发控制的场景</li>
+</ul>
+</li>
+<li><code>CachedThreadPool</code>缓存线程池<ul>
+<li>没有核心线程，普通线程数量无限</li>
+<li>线程闲置60s后回收</li>
+<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
+<li>适用用于任务量大但耗时低的场景</li>
+</ul>
+</li>
+<li><code>ScheduledThreadPool</code>定时线程池<ul>
+<li>指定核心线程数量，普通线程数量无限</li>
+<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
+<li>适用用于执行定时或周期性的任务</li>
+</ul>
+</li>
+</ul>
+<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
+<ul>
+<li><strong>CPU 密集型任务</strong><ul>
+<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
+<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
+<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
+</ul>
+</li>
+<li><strong>I/O 密集型任务</strong><ul>
+<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
+<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
+</ul>
+</li>
+</ul>
+<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
+]]></content>
+      <categories>
+        <category>Java多线程</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -1822,25 +1882,108 @@
       <categories>
         <category>Spring</category>
       </categories>
+      <tags>
+        <tag>Spring源码系列</tag>
+      </tags>
   </entry>
   <entry>
-    <title>Spring Lazy-init 踩坑记录</title>
-    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+    <title>RabbitMQ学习笔记</title>
+    <url>/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="1-AMQP协议中的关键概念"><a href="#1-AMQP协议中的关键概念" class="headerlink" title="1 AMQP协议中的关键概念"></a>1 AMQP协议中的关键概念</h1><ul>
+<li><code>Connection</code>socket连接，它封装了socket协议相关部分逻辑。你可以认为一个Connection就是一个Tcp连接。</li>
+<li><code>Channel</code>生产者与Broker通信的通道，可以把通道理解成共享一个 TCP 连接的多个轻量化连接（通常每个thread创建单独的channel进行通讯）。</li>
+</ul>
+<blockquote>
+<p><code>Connection</code>就是一个TCP连接对象，而<code>Channel</code>相当于连接池</p>
 </blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+<ul>
+<li><code>Exchange</code>交换器，接收消息，按照路由规则将消息路由到一个或者多个队列</li>
+<li><code>Queue</code>消息队列，用来保存消息，供消费者消费</li>
+<li><code>Produce/Consumer</code>消息生产者和消费者</li>
+<li><code>Binding</code>绑定，交换器和消息队列之间的虚拟连接，绑定中可以包含一个或者多个 RoutingKey。</li>
+<li><code>RoutingKey</code>路由键，生产者将消息发送给交换器的时候，会指定一个 RoutingKey，用来指定路由规则，交换器根据路由键把消息发送到指定队列</li>
+</ul>
+<h1 id="2-消息队列模式"><a href="#2-消息队列模式" class="headerlink" title="2 消息队列模式"></a>2 消息队列模式</h1><h2 id="2-1-点对点模式"><a href="#2-1-点对点模式" class="headerlink" title="2.1 点对点模式"></a>2.1 点对点模式</h2><p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/e6053e18-99d6-4914-b06a-4dc65d258a30_1koS-yViN2.png"></p>
+<p>点对点模式特点：<strong>一个具体的消息只能由一个消费者消费</strong>，多个生产者可以向同一个消息队列发送消息，但是一个消息在被一个消息者处理的时候，这个消息在队列上会被锁住或者被移除并且其他消费者无法处理该消息。</p>
+<h2 id="2-2-发布-订阅模式"><a href="#2-2-发布-订阅模式" class="headerlink" title="2.2 发布/订阅模式"></a>2.2 发布/订阅模式</h2><p><strong>单个消息可以被多个订阅者并发的获取和处理</strong>。一般来说，订阅有两种类型：</p>
+<ul>
+<li>临时订阅：这种订阅只有在消费者启动并且运行的时候才存在。一旦消费者退出，相应的订阅以及尚未处理的消息就会丢失。</li>
+<li>持久订阅：这种订阅会一直存在，除非主动去删除。消费者退出后，消息系统会继续维护该订阅，并且后续消息可以被继续处理。</li>
+</ul>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_TSARw_VzVJ.png"></p>
+<h1 id="3-RabbitMQ原理"><a href="#3-RabbitMQ原理" class="headerlink" title="3 RabbitMQ原理"></a>3 RabbitMQ原理</h1><p>RabbbitMQ使用Erlang语言开发，基于AMQP协议实现。AMQP协议由三部分组成，分别是消费者，生产者和服务端。执行流程如下：</p>
+<ol>
+<li><p>生产者连接到Server，建立一个连接，开启一个通道。</p>
+</li>
+<li><p>生产者声明交换器和队列，设置相关属性，并通过路由键将交换器和队列进行绑定。</p>
+</li>
+<li><p>消费者也需要进行建立连接，开启信道等操作，便于接收消息。</p>
+</li>
+<li><p>生产者发送消息，发送到服务端中的虚拟主机。</p>
+</li>
+<li><p>虚拟主机中的交换器根据路由键选择路由规则，发送到不同的消息队列中。</p>
+</li>
+<li><p>订阅了消息队列的消费者就可以获取到消息，进行消费。</p>
+</li>
+</ol>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/82ff9d01-1ac7-4463-9733-a7372c642d35_wBUrxx8cW8.png"></p>
+<blockquote>
+<p>📌RabbitMQ 消息传递模型的核心思想是生产者从不直接向队列发送任何消息。实际上，生产者通常根本不知道消息是否会被传递到任何队列。</p>
+<p>相反，生产者只能将消息发送到交换器。交换是一件非常简单的事情。一方面，它接收来自生产者的消息，另一方面，它将消息推送到队列。</p>
+<p>交换机绑定多个队列，一个队列绑定一个键</p>
+</blockquote>
+<h2 id="3-1-交换机"><a href="#3-1-交换机" class="headerlink" title="3.1 交换机"></a>3.1 交换机</h2><p>Rabbitmq队列和交换机是绑定的，每个队列都有一个***<code>routingKey</code><em><strong>，发布者每次发布的消息也有一个</strong></em><code>routingKey</code>***，交换机会根据不同的匹配规则将消息匹配到与自己绑定的队列中</p>
+<p>RabbitMQ常用交换机有四种：</p>
+<h3 id="3-1-1-Direct"><a href="#3-1-1-Direct" class="headerlink" title="3.1.1 Direct"></a>3.1.1 Direct</h3><p>Direct exchange背后的路由算法很简单 - 消息进入其绑定键与消息的路由键完全匹配的队列。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_gOLw0gI3JR.png"></p>
+<blockquote>
+<p>多重绑定</p>
+<p>使用相同的绑定键绑定多个队列是完全合法的。在我们的示例中，我们可以使用绑定键black在X和Q1之间添加绑定。在这种情况下，直接交换的行为将类似于扇出，并将消息广播到所有匹配的队列。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_ILV-y7PI8A.png"></p>
+</blockquote>
+<h3 id="3-1-2-Topic-exchange"><a href="#3-1-2-Topic-exchange" class="headerlink" title="3.1.2 Topic exchange"></a>3.1.2 Topic exchange</h3><p>**<code>topic</code>**：将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。符号“#”匹配一个或多个词，符号“*”只能匹配一个词</p>
+<p>发送到Topic exchange的 <code>routing_key</code>它必须是一个由点分隔的单词列表。这些单词可以是任何内容，但通常它们指定与消息相关的一些功能。一些有效的路由键示例： <code>stock.usd.nyse</code> 、 <code>nyse.vmw</code> 、<code>quick.orange.rabbit</code> 。路由密钥中可以有任意多个单词，最多 255 个字节。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_WeBDd2GgZO.png"></p>
+<ul>
+<li><code>*</code>可以恰好替代一个单词。</li>
+<li><code>#</code>可以替代零个或多个单词。</li>
+</ul>
+<p>当队列与<code>#</code>绑定键绑定时 - 它将接收所有消息，无论路由键如何 - 就像在扇区交换器中一样。</p>
+<h3 id="3-1-3-Fanout"><a href="#3-1-3-Fanout" class="headerlink" title="3.1.3 Fanout"></a>3.1.3 Fanout</h3><p>Fanout 不处理路由键，而是广播。你只需要简单的将队列绑定到交换机上。一个发送到该类型交换机的消息都会被广播到与该交换机绑定的所有队列上</p>
+<h3 id="Headers"><a href="#Headers" class="headerlink" title="Headers"></a><strong>Headers</strong></h3><p>不处理路由键，而是根据发送的消息内容中的headers属性进行匹配。</p>
+<h2 id="3-2-队列"><a href="#3-2-队列" class="headerlink" title="3.2 队列"></a>3.2 队列</h2><h3 id="3-2-1-死信队列"><a href="#3-2-1-死信队列" class="headerlink" title="3.2.1 死信队列"></a>3.2.1 死信队列</h3><p>来自队列的消息可能是“<strong>死信的</strong>”；也就是说，当发生以下任何事件时，重新发布到交换机：</p>
+<ul>
+<li>消费者使用<code>basic.reject</code>或 <code>basic.nack</code>否定确认消息，并将requeue参数设置为false。</li>
+<li>由于每条消息 TTL（最大存活时间） 的原因，该消息过期；</li>
+<li>由于队列超出长度限制，消息被丢弃</li>
+</ul>
+<blockquote>
+<p>应用场景</p>
+</blockquote>
+<p>一般用在较为重要的业务队列中，为了确保未被正确消费的消息不被丢弃，当发生异常时，通过死信队列，可以让未正确处理的消息暂存到另一个队列中。待后续排查清楚问题后，编写相应的处理代码来处理死信消息，这样比手工恢复数据要好太多了 。</p>
+<h3 id="3-2-2-延时队列"><a href="#3-2-2-延时队列" class="headerlink" title="3.2.2 延时队列"></a>3.2.2 延时队列</h3><p>​ 延迟队列存储的对象肯定是对应的延时消息，所谓”延时消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。</p>
+<p><a href="https://www.wolai.com/57hkFrHvCbQvHVKQW5Z4jk" title="官方文档">官方文档</a></p>
+<h2 id="3-3-ACK机制"><a href="#3-3-ACK机制" class="headerlink" title="3.3 ACK机制"></a>3.3 ACK机制</h2><p>ACK机制是消费者从RabbitMQ收到消息并处理完成后，反馈给RabbitMQ，RabbitMQ收到反馈后才将次消息从队列中删除。如果消费者处理消息时出现异常，RabbitMQ会认为消息未被正常消费，将消息重新放入队列中。可以在消费消息中try-catch或在Consumer的配置文件中配置重试机制来解决这个问题。</p>
+<h2 id="3-4-重试机制"><a href="#3-4-重试机制" class="headerlink" title="3.4 重试机制"></a>3.4 重试机制</h2><p>在消息<strong>消费失败</strong>的时候，Spring-AMQP 会通过<strong>消费重试</strong>机制，重新投递该消息给 Consumer ，让 Consumer 有机会重新消费消息，实现消费成功。</p>
+<p>当然，Spring-AMQP 并不会无限重新投递消息给 Consumer 重新消费，而是在默认情况下，达到 N 次重试次数时，Consumer 还是消费失败时，该消息就会进入到<strong>死信队列</strong>。后续，我们可以通过对死信队列中的消息进行重发，来使得消费者实例再次进行消费。</p>
+<p>为了效率和节省资源，我们一般会选择<code>CONNECTION</code>模式</p>
+<h1 id="4-衡量标准"><a href="#4-衡量标准" class="headerlink" title="4 衡量标准"></a>4 衡量标准</h1><p>市面上的</p>
+<ul>
+<li><strong>消息顺序</strong>：发送到队列的消息，消费时是否可以保证消费的顺序，比如 A 先下单，B 后下单，应该是 A 先去扣库存，B 再去扣，顺序不能反。</li>
+<li><strong>消息路由</strong>：根据路由规则，只订阅匹配路由规则的消息，比如有 A/B 两者规则的消息，消费者可以只订阅 A 消息，B 消息不会消费。</li>
+<li>消息可靠性：是否会存在丢消息的情况，比如有 A/B 两个消息，最后只有 B 消息能消费，A 消息丢失。</li>
+<li><strong>消息时序</strong>：主要包括 “消息存活时间” 和“延迟 / 预定的消息”，“消息存活时间”表示生产者可以对消息设置 TTL，如果超过该 TTL，消息会自动消失；“延迟 / 预定的消息”指的是可以延迟或者预订消费消息，比如延时 5 分钟，那么消息会 5 分钟后才能让消费者消费，时间未到的话，是不能消费的。</li>
+<li><strong>消息留存</strong>：消息消费成功后，是否还会继续保留在消息队列。</li>
+<li><strong>容错性</strong>：当一条消息消费失败后，是否有一些机制，保证这条消息是一种能成功，比如异步第三方退款消息，需要保证这条消息消费掉，才能确定给用户退款成功，所以必须保证这条消息消费成功的准确性。</li>
+<li><strong>伸缩</strong>：当消息队列性能有问题，比如消费太慢，是否可以快速支持库容；当消费队列过多，浪费系统资源，是否可以支持缩容。</li>
+<li><strong>吞吐量</strong>：支持的最高并发数。</li>
+</ul>
 ]]></content>
       <categories>
-        <category>Spring</category>
+        <category>中间件</category>
       </categories>
       <tags>
-        <tag>bug</tag>
+        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -1889,64 +2032,53 @@
         <category>Spring</category>
       </categories>
       <tags>
-        <tag>Spring Environment</tag>
+        <tag>技术方案</tag>
       </tags>
   </entry>
   <entry>
-    <title>Go GC VS Java GC</title>
-    <url>/2024/01/03/Go-GC-Vs-Java-GC/</url>
-    <content><![CDATA[<p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
-<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
-<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
-<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
-<ul>
-<li>JDK 8：Parallel Scavenge</li>
-<li>JDK 9 ~ JDK20: G1</li>
+    <title>🐛 LangChain4j-Spring Bug修复记录</title>
+    <url>/2024/08/20/LangChain4j-Spring%20Bug/</url>
+    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
+<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
+<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
+<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
+<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
 </ul>
-<span id="more"></span>
+<blockquote>
+<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
+</blockquote>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
+<ol>
+<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
+<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
+</ol>
+<p>关键代码如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>针对以上问题，我在PR中做的主要改动如下：</p>
+<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<p><strong>特点：</strong></p>
-<ul>
-<li>都会造成STW，这是影响性能最主要的因素</li>
-<li>部分算法还会产生大量空间碎片</li>
-</ul>
-<p>介绍一下Java中比较经典的垃圾回收器：</p>
-<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
-<ul>
-<li>主要优点：<strong>并发收集、低停顿</strong></li>
-<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
-</ul>
-<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
-<p>G1使用<strong>标记-整理</strong>算法</p>
-<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
-<ul>
-<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
-<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
-<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Go</category>
-      </categories>
-      <tags>
-        <tag>Java VS Go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spring中几个关键的后置处理器以及执行顺序</title>
-    <url>/2024/05/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
-<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
-<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
-<span id="more"></span>
+<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
 
-<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
-<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
-<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
-<p>…待补充</p>
+<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
+<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="./Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F.md">Mybatis实现动态注册bean的两种方式</a></p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+</ul>
 ]]></content>
       <categories>
         <category>Spring</category>
       </categories>
+      <tags>
+        <tag>langchain</tag>
+        <tag>开源</tag>
+      </tags>
   </entry>
 </search>
