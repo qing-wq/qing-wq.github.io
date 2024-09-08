@@ -15,7 +15,7 @@
 
 
 
-<title>📌 Spring源码阅读 | Qing&#39;s Blog</title>
+<title>✍🏻 Spring源码阅读记录 | Qing&#39;s Blog</title>
 
 
 
@@ -200,7 +200,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">📌 Spring源码阅读</h1>
+            <h1 class="post-title">✍🏻 Spring源码阅读记录</h1>
             
                 <div class="post-meta">
                     
@@ -314,7 +314,10 @@
 <li><u>Bean的依赖解析过程</u>：声明依赖，查找依赖，注入依赖，处理循环依赖，延迟依赖解析。</li>
 <li><u>Bean的销毁过程</u>：销毁方法调用，接口回调，后处理清理，通知触发，GC回收资源。</li>
 </ul>
-<h2 id="属性解析和环境配置"><a href="#属性解析和环境配置" class="headerlink" title="属性解析和环境配置"></a>属性解析和环境配置</h2><ul>
+<h2 id="属性解析和环境配置"><a href="#属性解析和环境配置" class="headerlink" title="属性解析和环境配置"></a>属性解析和环境配置</h2><blockquote>
+<p><a href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">Spring Environment体系</a></p>
+</blockquote>
+<ul>
 <li><u>PropertySource</u>：管理各种配置源的抽象类，支持灵活地加载和访问应用配置。</li>
 <li><u>PropertySources</u>：用于统一管理和访问多个 PropertySource 实例，简化配置数据的处理。</li>
 <li><u>PropertyResolver</u>：通用属性解析，获取配置值，处理属性缺失，简便灵活。</li>
@@ -408,18 +411,21 @@
 <li>ExposeInvocationInterceptor：暴露Spring AOP方法调用上下文的拦截器。</li>
 <li>@EnableLoadTimeWeaving：启用Spring加载时编织。</li>
 </ul>
-<h2 id="Spring-事务"><a href="#Spring-事务" class="headerlink" title="Spring 事务"></a>Spring 事务</h2><ul>
+<h2 id="Spring-事务"><a href="#Spring-事务" class="headerlink" title="Spring 事务"></a>Spring 事务</h2><blockquote>
+<p><a href="/2024/09/08/Spring-%E4%BA%8B%E5%8A%A1%E4%BD%93%E7%B3%BB/">Spring 事务体系</a></p>
+</blockquote>
+<ul>
 <li>Connection：管理数据库连接，执行SQL，处理事务。</li>
 <li>DataSource：提供高效管理数据库连接的接口。</li>
 <li>DriverManager：管理和建立数据库连接的核心类。</li>
 <li>JdbcTemplate：简化了JDBC操作，提供了方便的数据库访问抽象。</li>
 <li>TransactionDefinition：定义事务的传播行为和隔离级别。</li>
-<li>TransactionAttributeSource：用于获取事务属性的策略接口。</li>
-<li>PlatformTransactionManager：用于管理和协调事务的生命周期和执行。</li>
+<li><u>TransactionAttributeSource</u>：用于获取事务属性的策略接口。</li>
+<li><u>PlatformTransactionManager</u>：用于管理和协调事务的生命周期和执行。</li>
 <li>TransactionTemplate：简化事务管理，支持编程式事务控制与异常处理。</li>
-<li>SpringTransactionAnnotationParser：解析 @Transactional注解并转换为事务配置。</li>
-<li>TransactionInterceptor：事务拦截器，用于管理方法级别的事务处理。</li>
-<li>EnableTransactionManagement：启用Spring的注解驱动事务管理。</li>
+<li><u>SpringTransactionAnnotationParser</u>：解析 @Transactional注解并转换为事务配置。</li>
+<li><u>TransactionInterceptor</u>：事务拦截器，用于管理方法级别的事务处理。</li>
+<li><u>EnableTransactionManagement</u>：启用Spring的注解驱动事务管理。</li>
 </ul>
 
         </div>
