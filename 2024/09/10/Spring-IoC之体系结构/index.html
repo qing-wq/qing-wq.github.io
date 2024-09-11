@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>📌 Spring IoC之体系结构 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">📌 Spring IoC之体系结构</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">九月 10, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/Spring%E6%BA%90%E7%A0%81%E7%B3%BB%E5%88%97/">Spring源码系列</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">1.6k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">6min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>Spring Bean 的创建是典型的工厂模式，在顶层的结构设计主要围绕着 BeanFactory 和 xxxRegistry 进行：</p>
+<ul>
+<li><strong>BeanFactory： 工厂模式定义了 IOC 容器的基本功能</strong></li>
+<li><strong>BeanRegistry： 提供手动注册 BeanDefinition到容器中的方法</strong></li>
+</ul>
+<p><img src="/../images/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/image_etoRGn8l6k.png"></p>
+<h2 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h2><p><strong>BeanFactory作为最顶层的一个接口类，它定义了IOC容器的基本功能</strong></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">BeanFactory</span> {    </span><br><span class="line">      </span><br><span class="line">    <span class="comment">//用于取消引用实例并将其与FactoryBean创建的bean区分开来。例如，如果命名的bean是FactoryBean，则获取将返回Factory，而不是Factory返回的实例。</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">FACTORY_BEAN_PREFIX</span> <span class="operator">=</span> <span class="string">"&amp;"</span>; </span><br><span class="line">        </span><br><span class="line">    <span class="comment">//根据bean的名字和Class类型等来得到bean实例    </span></span><br><span class="line">    Object <span class="title function_">getBean</span><span class="params">(String name)</span> <span class="keyword">throws</span> BeansException;    </span><br><span class="line">    Object <span class="title function_">getBean</span><span class="params">(String name, Class requiredType)</span> <span class="keyword">throws</span> BeansException;    </span><br><span class="line">    Object <span class="title function_">getBean</span><span class="params">(String name, Object... args)</span> <span class="keyword">throws</span> BeansException;</span><br><span class="line">    &lt;T&gt; T <span class="title function_">getBean</span><span class="params">(Class&lt;T&gt; requiredType)</span> <span class="keyword">throws</span> BeansException;</span><br><span class="line">    &lt;T&gt; T <span class="title function_">getBean</span><span class="params">(Class&lt;T&gt; requiredType, Object... args)</span> <span class="keyword">throws</span> BeansException;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回指定bean的Provider</span></span><br><span class="line">    &lt;T&gt; ObjectProvider&lt;T&gt; <span class="title function_">getBeanProvider</span><span class="params">(Class&lt;T&gt; requiredType)</span>;</span><br><span class="line">    &lt;T&gt; ObjectProvider&lt;T&gt; <span class="title function_">getBeanProvider</span><span class="params">(ResolvableType requiredType)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//检查工厂中是否包含给定name的bean，或者外部注册的bean</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">containsBean</span><span class="params">(String name)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//检查所给定name的bean是否为单例/原型</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isSingleton</span><span class="params">(String name)</span> <span class="keyword">throws</span> NoSuchBeanDefinitionException;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isPrototype</span><span class="params">(String name)</span> <span class="keyword">throws</span> NoSuchBeanDefinitionException;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断所给name的类型与type是否匹配</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isTypeMatch</span><span class="params">(String name, ResolvableType typeToMatch)</span> <span class="keyword">throws</span> NoSuchBeanDefinitionException;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isTypeMatch</span><span class="params">(String name, Class&lt;?&gt; typeToMatch)</span> <span class="keyword">throws</span> NoSuchBeanDefinitionException;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取给定name的bean的类型</span></span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    Class&lt;?&gt; getType(String name) <span class="keyword">throws</span> NoSuchBeanDefinitionException;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回给定name的bean的别名</span></span><br><span class="line">    String[] getAliases(String name);</span><br><span class="line">     </span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>BeanFactory 有三个子类：<code>ListableBeanFactory</code>、<code>HierarchicalBeanFactory</code> 和<code>AutowireCapableBeanFactory</code>。</p>
+<ul>
+<li>**<code>ListableBeanFactory</code>**：该接口定义了访问容器中 Bean 基本信息的若干方法，如查看 Bean 的个数、获取某一类型 Bean 的配置名、查看容器中是否包括某一 Bean 等方法；</li>
+<li>**<code>HierarchicalBeanFactory</code>**：父子级联 IoC 容器的接口，子容器可以通过接口方法访问父容器； 通过 HierarchicalBeanFactory 接口， Spring 的 IoC 容器可以建立父子层级关联的容器体系，子容器可以访问父容器中的 Bean，但父容器不能访问子容器的 Bean。Spring 使用父子容器实现了很多功能，比如在 Spring MVC 中，展现层 Bean 位于一个子容器中，而业务层和持久层的 Bean 位于父容器中。这样，展现层 Bean 就可以引用业务层和持久层的 Bean，而业务层和持久层的 Bean 则看不到展现层的 Bean。</li>
+<li>**<code>ConfigurableBeanFactory</code>**：是一个重要的接口，增强了 IoC 容器的可定制性，它定义了设置类装载器、属性编辑器、容器初始化后置处理器等方法；</li>
+<li><strong><code>ConfigurableListableBeanFactory</code></strong>: ListableBeanFactory 和 ConfigurableBeanFactory 的融合；</li>
+<li>**<code>AutowireCapableBeanFactory</code>**：定义了将容器中的 Bean 按某种规则（如按名字匹配、按类型匹配等）进行自动装配的方法</li>
+</ul>
+<h2 id="BeanRegistry"><a href="#BeanRegistry" class="headerlink" title="BeanRegistry"></a>BeanRegistry</h2><p> BeanDefinitionRegistry 接口提供了向容器手工注册 BeanDefinition 对象的方法</p>
+<h2 id="BeanDefinition"><a href="#BeanDefinition" class="headerlink" title="BeanDefinition"></a>BeanDefinition</h2><p>Bean 对象存在依赖嵌套等关系，所以设计者设计了 BeanDefinition，它用来对 Bean 对象及关系定义；我们在理解时只需要抓住如下三个要点：</p>
+<ul>
+<li><code>BeanDefinition</code> 定义了各种 Bean 对象及其相互的关系</li>
+<li><code>BeanDefinitionReader</code> 这是 BeanDefinition 的解析器</li>
+<li><code>BeanDefinitionHolder</code> 这是 BeanDefination 的包装类，用来存储 BeanDefinition，name 以及 aliases 等。</li>
+</ul>
+<p><img src="/../images/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/image_bZorDDTlue.png"></p>
+<h2 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h2><p>ApplicationContext是IoC容器的接口，除了继承了BeanFactory的能力，还拓展了配置资源的加载、应用事件、国际化等功能</p>
+<p><img src="/../images/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/image_LT5sne3EVd.png"></p>
+<ul>
+<li><strong>ApplicationEventPublisher</strong>：让容器拥有发布应用上下文事件的功能，包括容器启动事件、关闭事件等。</li>
+<li><strong>MessageSource</strong>：为应用提供 i18n 国际化消息访问的功能；</li>
+<li><strong>ResourcePatternResolver</strong> ：资源模式解析接口，可以通过带前缀的 Ant 风格的资源文件路径装载 Spring 的配置文件。</li>
+<li><strong>LifeCycle</strong>：提供了 <code>start()</code> 和 <code>stop()</code> 两个方法，主要用于控制异步处理过程。在具体使用时，该接口同时被 ApplicationContext 实现及具体 Bean 实现， ApplicationContext 会将 start/stop 的信息传递给容器中所有实现了该接口的 Bean，以达到管理和控制 JMX、任务调度等目的。</li>
+</ul>
+<h3 id="ApplicationContext体系"><a href="#ApplicationContext体系" class="headerlink" title="ApplicationContext体系"></a>ApplicationContext体系</h3><p><img src="/../images/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/image_-3W-afYUAj.png"></p>
+<blockquote>
+<p><strong>为什么设计这么多ApplicationContext？</strong></p>
+<p><strong>第一，从类结构设计上看， 围绕着是否需要 Refresh 容器衍生出两个抽象类</strong>：</p>
+<ul>
+<li><strong>GenericApplicationContext</strong>： 是初始化的时候就创建容器，往后的每次 refresh 都不会更改</li>
+<li><strong>AbstractRefreshableApplicationContext</strong>： AbstractRefreshableApplicationContext 及子类的每次 refresh 都是先清除已有 (如果不存在就创建) 的容器，然后再重新创建；AbstractRefreshableApplicationContext 及子类无法做到 GenericApplicationContext <strong>混合搭配从不同源头获取 bean 的定义信息</strong></li>
+</ul>
+<p><strong>第二， 从加载的源来看（比如 xml,groovy,annotation 等）， 衍生出众多类型的 ApplicationContext, 典型比如</strong>:</p>
+<ul>
+<li><strong>FileSystemXmlApplicationContext</strong>： 从文件系统下的一个或多个 xml 配置文件中加载上下文定义，也就是说系统盘符中加载 xml 配置文件。</li>
+<li><strong>ClassPathXmlApplicationContext</strong>： 从类路径下的一个或多个 xml 配置文件中加载上下文定义，适用于 xml 配置的方式。</li>
+<li><strong>AnnotationConfigApplicationContext</strong>： 从一个或多个基于 java 的配置类中加载上下文定义，适用于 java 注解的方式。</li>
+<li><strong>ConfigurableApplicationContext</strong>： 扩展于 ApplicationContext，它新增加了两个主要的方法： <code>refresh()</code> 和 <code>close()</code>，让 ApplicationContext 具有启动、刷新和关闭应用上下文的能力。在应用上下文关闭的情况下调用 <code>refresh()</code> 即可启动应用上下文，在已经启动的状态下，调用 refresh() 则清除缓存并重新装载配置信息，而调用 close() 则可关闭应用上下文。这些接口方法为容器的控制管理带来了便利，但作为开发者，我们并不需要过多关心这些方法。</li>
+</ul>
+<p><strong>第三， 更进一步理解</strong>：</p>
+<p><em><strong>设计者在设计时 AnnotationConfigApplicationContext 为什么是继承 GenericApplicationContext</strong></em>？ 因为基于注解的配置，是不太会被运行时修改的，这意味着不需要进行动态 Bean 配置和刷新容器，所以只需要 GenericApplicationContext。</p>
+<p>而基于 XML 这种配置文件，这种文件是容易修改的，需要动态性刷新 Bean 的支持，所以 XML 相关的配置必然继承 AbstractRefreshableApplicationContext； 且存在多种 xml 的加载方式（位置不同的设计），所以必然会设计出 AbstractXmlApplicationContext, 其中包含对 XML 配置解析成 BeanDefination 的过程。</p>
+<p>那么细心的你从上图可以发现 AnnotationWebConfigApplicationContext 却是继承了 AbstractRefreshableApplicationContext 而不是 GenericApplicationContext， <em><strong>为什么 AnnotationWebConfigApplicationContext 继承自 AbstractRefreshableApplicationContext 呢</strong></em> ？ 因为用户可以通过 ApplicationContextInitializer 来设置 contextInitializerClasses（context-param / init-param）， 在这种情况下用户倾向于刷新 Bean 的，所以设计者选择让 AnnotationWebConfigApplicationContext 继承了 AbstractRefreshableApplicationContext。</p>
+</blockquote>
+<p>这一段解释封神，我直接复制粘贴😆</p>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pdai.tech/md/spring/spring-x-framework-ioc-source-1.html" title="https://pdai.tech/md/spring/spring-x-framework-ioc-source-1.html">https://pdai.tech/md/spring/spring-x-framework-ioc-source-1.html</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/09/10/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/">https://qing-wq.github.io/2024/09/10/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/IoC/"># IoC</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2024/08/20/LangChain4j-Spring%20Bug/">🐛 LangChain4j-Spring Bug修复记录</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

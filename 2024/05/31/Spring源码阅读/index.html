@@ -280,7 +280,7 @@
 </ul>
 <h2 id="Bean定义与注册"><a href="#Bean定义与注册" class="headerlink" title="Bean定义与注册"></a>Bean定义与注册</h2><ul>
 <li><u>BeanDefinition</u>：详细描述Bean，支持依赖注入、AOP、作用域控制等核心功能。</li>
-<li>BeanDefinitionHolder：管理和操作BeanDefinition的关键类。</li>
+<li><u>BeanDefinitionHolder</u>：管理和操作BeanDefinition的关键类。</li>
 <li><u>BeanDefinitionRegistry</u>：Bean定义注册管理关键接口，处理Bean元数据。</li>
 </ul>
 <h2 id="Bean定义读取与扫描"><a href="#Bean定义读取与扫描" class="headerlink" title="Bean定义读取与扫描"></a>Bean定义读取与扫描</h2><ul>
@@ -291,7 +291,7 @@
 <li><u>ClassPathBeanDefinitionScanner</u>：类路径扫描注册Spring Bean，支持自动装配。</li>
 </ul>
 <h2 id="Bean工厂"><a href="#Bean工厂" class="headerlink" title="Bean工厂"></a>Bean工厂</h2><ul>
-<li>BeanFactory：Spring的核心接口，提供对Bean的配置、创建、管理的基本功能。</li>
+<li><u>BeanFactory</u>：Spring的核心接口，提供对Bean的配置、创建、管理的基本功能。</li>
 <li>ListableBeanFactory：支持按类型获取Bean的集合。</li>
 <li>HierarchicalBeanFactory：支持父子容器关系，实现Bean定义的层次结构。</li>
 <li>ConfigurableBeanFactory：提供对BeanFactory配置的扩展，如属性编辑器、作用域等。</li>
@@ -299,13 +299,13 @@
 <li><u>ConfigurableListableBeanFactory</u>：支持配置和列表操作的可配置Bean工厂接口。</li>
 </ul>
 <h2 id="容器上下文"><a href="#容器上下文" class="headerlink" title="容器上下文"></a>容器上下文</h2><ul>
-<li>ClassPathXmlApplicationContext：类路径（classpath）加载 XML 配置文件的上下文。</li>
-<li>AnnotationConfigApplicationContext：注解配置类中加载配置信息的上下文。</li>
-<li>GenericApplicationContext：支持多种配置方式，XML、注解、手动注册的上下文。</li>
+<li><u>ClassPathXmlApplicationContext</u>：类路径（classpath）加载 XML 配置文件的上下文。</li>
+<li><u>AnnotationConfigApplicationContext</u>：注解配置类中加载配置信息的上下文。</li>
+<li><u>GenericApplicationContext</u>：支持多种配置方式，XML、注解、手动注册的上下文。</li>
 </ul>
 <h2 id="Bean定义导入与组合"><a href="#Bean定义导入与组合" class="headerlink" title="Bean定义导入与组合"></a>Bean定义导入与组合</h2><ul>
 <li><u>ImportBeanDefinitionRegistrar</u>：运行时动态注册 Bean，实现灵活配置，扩展配置类功能。</li>
-<li>ImportSelector：运行时动态导入配置类，实现条件选择和灵活配置。</li>
+<li><u>ImportSelector</u>：运行时动态导入配置类，实现条件选择和灵活配置。</li>
 <li>DeferredImportSelector：运行时动态导入配置，支持条件选择和按组别延迟加载。</li>
 </ul>
 <h2 id="Bean生命周期"><a href="#Bean生命周期" class="headerlink" title="Bean生命周期"></a>Bean生命周期</h2><ul>
@@ -352,16 +352,15 @@
 <h2 id="核心注解"><a href="#核心注解" class="headerlink" title="核心注解"></a>核心注解</h2><ul>
 <li><u>@Configuration</u>：声明类为配置类，定义Bean和Bean之间的依赖关系。</li>
 <li><u>@ComponentScan</u>：启用组件扫描，自动发现并注册标记为组件的类。</li>
-<li>@Bean：在配置类中声明方法，返回Bean实例。</li>
-<li>@Import：引入其他配置类，将其Bean定义合并到当前容器。</li>
+<li><u>@Bean</u>：在配置类中声明方法，返回Bean实例。</li>
+<li><u>@Import</u>：引入其他配置类，将其Bean定义合并到当前容器。</li>
 <li>@PropertySource：指定属性文件，加载外部配置到环境中。</li>
 <li>@DependsOn：指定Bean的依赖顺序，确保特定Bean在其他Bean之前初始化。</li>
-<li>@Conditional：根据条件决定是否创建Bean。</li>
+<li><u>@Conditional</u>：根据条件决定是否创建Bean。</li>
 <li>@Lazy：指定Bean的延迟初始化，只有在首次使用时才创建。</li>
 <li>@Value：注入简单值或表达式到Bean的字段或方法参数。</li>
-<li>@Autowired：自动装配Bean依赖。</li>
+<li><u>@Autowired</u>：自动装配Bean依赖。</li>
 <li>@Primary：指定在多个候选Bean中优先选择的首选Bean。</li>
-<li>@Description：为Bean提供描述性信息。</li>
 <li>@Role：为Bean提供角色提示，用于区分相似类型的Bean。</li>
 <li>@Indexed： 标记Bean用于索引。</li>
 <li>@Order：指定Bean的加载顺序。</li>
@@ -419,10 +418,10 @@
 <li>DataSource：提供高效管理数据库连接的接口。</li>
 <li>DriverManager：管理和建立数据库连接的核心类。</li>
 <li>JdbcTemplate：简化了JDBC操作，提供了方便的数据库访问抽象。</li>
-<li>TransactionDefinition：定义事务的传播行为和隔离级别。</li>
+<li><u>TransactionDefinition</u>：定义事务的传播行为和隔离级别。</li>
 <li><u>TransactionAttributeSource</u>：用于获取事务属性的策略接口。</li>
 <li><u>PlatformTransactionManager</u>：用于管理和协调事务的生命周期和执行。</li>
-<li>TransactionTemplate：简化事务管理，支持编程式事务控制与异常处理。</li>
+<li><u>TransactionTemplate</u>：简化事务管理，支持编程式事务控制与异常处理。</li>
 <li><u>SpringTransactionAnnotationParser</u>：解析 @Transactional注解并转换为事务配置。</li>
 <li><u>TransactionInterceptor</u>：事务拦截器，用于管理方法级别的事务处理。</li>
 <li><u>EnableTransactionManagement</u>：启用Spring的注解驱动事务管理。</li>
