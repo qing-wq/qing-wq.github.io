@@ -109,6 +109,46 @@
       </tags>
   </entry>
   <entry>
+    <title>Go GC VS Java GC</title>
+    <url>/2024/01/03/Go-GC-Vs-Java-GC/</url>
+    <content><![CDATA[<p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
+<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
+<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
+<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
+<ul>
+<li>JDK 8：Parallel Scavenge</li>
+<li>JDK 9 ~ JDK20: G1</li>
+</ul>
+<span id="more"></span>
+
+<p><strong>特点：</strong></p>
+<ul>
+<li>都会造成STW，这是影响性能最主要的因素</li>
+<li>部分算法还会产生大量空间碎片</li>
+</ul>
+<p>介绍一下Java中比较经典的垃圾回收器：</p>
+<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
+<ul>
+<li>主要优点：<strong>并发收集、低停顿</strong></li>
+<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
+</ul>
+<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
+<p>G1使用<strong>标记-整理</strong>算法</p>
+<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
+<ul>
+<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
+<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
+<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Go</category>
+      </categories>
+      <tags>
+        <tag>Java VS Go</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JMM</title>
     <url>/2023/06/03/JMM/</url>
     <content><![CDATA[<p>JMM 实际上是 Java 定义的并发编程相关的一组规范</p>
@@ -304,6 +344,404 @@
       </categories>
       <tags>
         <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java中的四大函数式接口</title>
+    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
+<ul>
+<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
+<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java线程池</title>
+    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
+    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
+<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<span id="more"></span>
+
+<blockquote>
+<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
+</blockquote>
+<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
+<ol>
+<li><p><code>corePoolSize</code>（核心线程数）：</p>
+<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
+</li>
+<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
+<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
+</li>
+<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
+<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
+</li>
+<li><p><code>unit</code>（空闲超时时间的单位）：</p>
+<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
+</li>
+<li><p><code>workQueue</code>（工作队列）：</p>
+<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
+</li>
+<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
+<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
+</li>
+<li><p><code>handler</code>（拒绝策略，可选）：</p>
+<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
+</li>
+</ol>
+<p>我们可以这样类比：</p>
+<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
+<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
+<ol>
+<li><code>SynchronousQueue</code> 同步队列</li>
+<li><code>LinkedBlockingQueue</code></li>
+<li><code>ArrayBlockingQueue</code></li>
+</ol>
+<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
+<p>BlockQueue有四组API：</p>
+<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
+<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
+<ol>
+<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
+<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
+<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
+<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
+<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
+<li>使用lock锁保证线程安全的</li>
+</ol>
+</li>
+<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
+</ol>
+<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
+<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
+<ul>
+<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
+<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
+</ul>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
+<ul>
+<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
+<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
+<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
+<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
+</ul>
+<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
+<ul>
+<li><code>SingleThreadExecutor</code>单线程线程池<ul>
+<li>特点：线程池只有一个线程</li>
+<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+</ul>
+</li>
+<li><code>FixedThreadPool</code>固定线程池<ul>
+<li>特点：最大线程数就是核心线程数</li>
+<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
+<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
+<li>适用于需要并发控制的场景</li>
+</ul>
+</li>
+<li><code>CachedThreadPool</code>缓存线程池<ul>
+<li>没有核心线程，普通线程数量无限</li>
+<li>线程闲置60s后回收</li>
+<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
+<li>适用用于任务量大但耗时低的场景</li>
+</ul>
+</li>
+<li><code>ScheduledThreadPool</code>定时线程池<ul>
+<li>指定核心线程数量，普通线程数量无限</li>
+<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
+<li>适用用于执行定时或周期性的任务</li>
+</ul>
+</li>
+</ul>
+<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
+<ul>
+<li><strong>CPU 密集型任务</strong><ul>
+<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
+<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
+<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
+</ul>
+</li>
+<li><strong>I/O 密集型任务</strong><ul>
+<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
+<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
+</ul>
+</li>
+</ul>
+<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
+]]></content>
+      <categories>
+        <category>Java多线程</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mybatis Interceptor</title>
+    <url>/2023/01/08/Mybatis-Interceptor/</url>
+    <content><![CDATA[<p>我们先来看一下MyBatis的执行过程，这个也是网上的热图了：</p>
+<p><img src="/../images/image-20240908231217545.png" alt="image-20240908231217545"></p>
+<p>Mybatis的拦截器提供了非常强大的扩展能力。在sql最终执行之前，提供了四个拦截点，支持不同场景的功能扩展：</p>
+<ul>
+<li><code>Executor</code>：代表执行器，由它调度StatementHandler、ParameterHandler、ResultSetHandler等来执行对应的SQL，其中StatementHandler是最重要的。</li>
+<li><code>ParameterHandler</code>：处理SQL参数。</li>
+<li><code>ResultSetHandler</code>：进行结果集（ResultSet）的封装返回处理，它非常的复杂，好在不常用。</li>
+<li><code>StatementHandler</code>：作用是使用数据库的Statement（PreparedStatement）执行操作，它是四大对象的核心，起到承上启下的作用，许多重要的插件都是通过拦截它来实现的。</li>
+</ul>
+<p>每个拦截点提供了多个方法，拦截器是基于方法的</p>
+<ul>
+<li><code>Executor</code> (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</li>
+<li><code>ParameterHandler</code> (getParameterObject, setParameters)</li>
+<li><code>ResultSetHandler</code> (handleResultSets, handleOutputParameters)</li>
+<li><code>StatementHandler</code> (prepare, parameterize, batch, update, query)</li>
+</ul>
+<h2 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h2><p>自定义插件实现，重点两步</p>
+<ul>
+<li>实现接口<code>org.apache.ibatis.plugin.Interceptor</code></li>
+<li><code>@Intercepts</code>标志该类是一个拦截器；<code>@Signature</code>定义切点，可以指定多个</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Intercepts({</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {java.sql.Statement.class})</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = "sensitive", name = "enabled")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SensitiveInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SensitiveService sensitiveService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable {</span><br><span class="line">        List&lt;Object&gt; results = (List&lt;Object&gt;) invocation.proceed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (results.isEmpty()) {</span><br><span class="line">            <span class="keyword">return</span> results;</span><br><span class="line">        }</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// ResultSet</span></span><br><span class="line">        <span class="type">ResultSetHandler</span> <span class="variable">resultSetHandler</span> <span class="operator">=</span> (ResultSetHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">MetaObject</span> <span class="variable">metaObject</span> <span class="operator">=</span> SystemMetaObject.forObject(resultSetHandler);</span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) metaObject.getValue(<span class="string">"mappedStatement"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> {</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>Mybatis</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>LangChain入门笔记</title>
+    <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>基本架构</p>
+<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
+<span id="more"></span>
+
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
+<p>主要功能：</p>
+<ul>
+<li><p>调用语言模型</p>
+</li>
+<li><p>将不同数据源接入到语言模型的交互中</p>
+</li>
+<li><p>允许语言模型与运行环境交互</p>
+</li>
+</ul>
+<p>LangChain中提供的模块</p>
+<ul>
+<li><p>Modules：支持的模型类型和集成。</p>
+</li>
+<li><p>Prompt：提示词管理、优化和序列化。</p>
+</li>
+<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
+</li>
+<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
+</li>
+<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
+</li>
+<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
+</li>
+<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
+</li>
+</ul>
+</blockquote>
+<p>应用场景：</p>
+<ul>
+<li>文档问答</li>
+<li>个人助理</li>
+<li>查询数据表格（CSV、SQL、DataFrame等）</li>
+<li>与API交互</li>
+<li>信息提取</li>
+<li>文档总结</li>
+</ul>
+<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
+<ul>
+<li>Prompts 提示词</li>
+<li>Chat Models 聊天模型<ul>
+<li>擅长对话</li>
+</ul>
+</li>
+<li>LLMs 纯文本模型<ul>
+<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
+</ul>
+</li>
+<li>Output parsers 输出转换器</li>
+</ul>
+<blockquote>
+<p>📌Chat Models 和 LLMs 的区别：</p>
+<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
+</blockquote>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
+<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
+</blockquote>
+<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
+<hr>
+<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
+<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
+<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
+<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
+<ul>
+<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
+<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
+<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
+</ul>
+</li>
+<li><code>AgentFinish</code>  Agents返回的最终结果</li>
+<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
+</ul>
+<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
+<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
+<li>required：<code>intermediate_steps</code></li>
+</ul>
+</li>
+<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
+<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
+</ul>
+</li>
+</ul>
+<p>demo：</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
+<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
+<li>封装了各种错误处理、日志等</li>
+</ul>
+</li>
+</ul>
+<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
+<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
+<ul>
+<li>schema</li>
+<li>function</li>
+</ul>
+<p>设计Agents的关键：</p>
+<ul>
+<li>让Agents正确的使用tools</li>
+<li>以对代理最有帮助的方式描述工具</li>
+</ul>
+<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
+<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
+<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
+<ul>
+<li><p>微调</p>
+<ul>
+<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
+<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
+</ul>
+</li>
+<li><p>提示词工程</p>
+<ul>
+<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
+<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
+</ul>
+</li>
+</ul>
+<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
+<p>四种主要储存模块：</p>
+<ul>
+<li><code>ConversationBufferMemory</code>对话缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
+<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
+<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
+</ul>
+<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
+<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
+<p><img src="/../images/image_96cXegtOz-.png"></p>
+<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
+<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
+
+<p><a href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
+<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
+<p>下面举一些简单的栗子：</p>
+<p>模型调用：</p>
+<p><img src="/../images/image_tamQ_03vHR.png"></p>
+<p>Stream流：</p>
+<p><img src="/../images/image_UPmDNoWd_p.png"></p>
+<p>Batch批处理：</p>
+<p><img src="/../images/image_JliK3KA3oM.png"></p>
+<p>异步调用：</p>
+<p><img src="/../images/image_Gf01np9mh3.png"></p>
+<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
+<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
+<p>核心组件：</p>
+<ul>
+<li><strong>Document loaders</strong>文档加载器</li>
+<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
+<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
+<li>text2vector</li>
+<li>llm</li>
+</ul>
+</li>
+<li>Retrievers检索器，用于在数据源中检索相关信息</li>
+<li>Indexing数据库索引，用于检索</li>
+</ul>
+<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
+<ul>
+<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
+</li>
+<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
+</li>
+<li><p>过滤元数据</p>
+</li>
+<li><p>LLM辅助检索 SelfQueryRetriever</p>
+</li>
+<li><p>压缩 ContextualCompressionRetriever</p>
+<ul>
+<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
+</ul>
+</li>
+</ul>
+<p>其他类型的检索：</p>
+<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
+<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
+<ul>
+<li>llm大语言模型</li>
+<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
+<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
+<li>API：create_stuff_documents_chain</li>
+</ul>
+</li>
+<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
+<li>MapReduceDocumentsChain</li>
+</ul>
+</li>
+<li><strong>Refine</strong><ul>
+<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
+<p><img src="/../images/image_kuqREZwJrr.png"></p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+        <tag>langchain</tag>
+        <tag>LLM</tag>
       </tags>
   </entry>
   <entry>
@@ -664,196 +1102,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Java中的四大函数式接口</title>
-    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
-    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
-<ul>
-<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
-<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Go GC VS Java GC</title>
-    <url>/2024/01/03/Go-GC-Vs-Java-GC/</url>
-    <content><![CDATA[<p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
-<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
-<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
-<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
-<ul>
-<li>JDK 8：Parallel Scavenge</li>
-<li>JDK 9 ~ JDK20: G1</li>
-</ul>
-<span id="more"></span>
-
-<p><strong>特点：</strong></p>
-<ul>
-<li>都会造成STW，这是影响性能最主要的因素</li>
-<li>部分算法还会产生大量空间碎片</li>
-</ul>
-<p>介绍一下Java中比较经典的垃圾回收器：</p>
-<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
-<ul>
-<li>主要优点：<strong>并发收集、低停顿</strong></li>
-<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
-</ul>
-<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
-<p>G1使用<strong>标记-整理</strong>算法</p>
-<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
-<ul>
-<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
-<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
-<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Go</category>
-      </categories>
-      <tags>
-        <tag>Java VS Go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java线程池</title>
-    <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
-    <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
-<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
-<span id="more"></span>
-
-<blockquote>
-<p>使用<code>Executors</code>创建线程池的本质实际上也是调用了<code>ThreadPoolExecutor</code>创建线程池，但是创建的线程池默认配置不太合理？</p>
-</blockquote>
-<h2 id="TreadPoolExector"><a href="#TreadPoolExector" class="headerlink" title="TreadPoolExector"></a>TreadPoolExector</h2><p><code>ThreadPoolExecutor</code>的构造方法：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize, </span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime, </span></span><br><span class="line"><span class="params">                          TimeUnit unit, </span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, </span></span><br><span class="line"><span class="params">                          ThreadFactory threadFactory, </span></span><br><span class="line"><span class="params">                          RejectedExecutionHandler handler)</span> {</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p><code>ThreadPoolExecutor</code>的构造函数具有以下七个参数，它们分别是：</p>
-<ol>
-<li><p><code>corePoolSize</code>（核心线程数）：</p>
-<p> 它指定了线程池中保持活动状态的核心线程数量。核心线程是一直存活的线程，即使它们处于空闲状态也不会被回收。当有新任务提交时，核心线程会立即执行任务。如果使用的是无界队列，线程池中的线程数永远不会超过核心线程数。</p>
-</li>
-<li><p><code>maximumPoolSize</code>（最大线程数）：</p>
-<p> 它定义了线程池中允许创建的最大线程数量。当工作队列已满且当前线程数小于最大线程数时，线程池会创建新的线程来执行任务。如果使用的是有界队列，当队列已满且线程数达到最大值时，新的任务会触发拒绝策略。</p>
-</li>
-<li><p><code>keepAliveTime</code>（线程空闲超时时间）：</p>
-<p> 它表示非核心线程空闲的最大时间。当线程池中的线程数超过核心线程数，并且空闲时间超过该值时，多余的线程会被终止并从线程池中移除，以减少资源消耗。新任务到达时，如果线程池中的线程数小于核心线程数，可能会重新创建线程。</p>
-</li>
-<li><p><code>unit</code>（空闲超时时间的单位）：</p>
-<p> 用于指定<code>keepAliveTime</code>参数的单位，可以是<code>TimeUnit.SECONDS</code>、<code>TimeUnit.MILLISECONDS</code>等。</p>
-</li>
-<li><p><code>workQueue</code>（工作队列）：</p>
-<p> 它定义了用于保存待执行任务的阻塞队列。当任务提交到线程池时，如果线程数小于核心线程数，会创建新线程来执行任务。如果线程数达到核心线程数，而工作队列未满，则将任务放入队列中等待执行。工作队列可以是有界队列（如<code>ArrayBlockingQueue</code>）或无界队列（如<code>LinkedBlockingQueue</code>）。</p>
-</li>
-<li><p><code>threadFactory</code>（线程工厂，可选）：</p>
-<p> 线程工厂指定创建线程的方式，用于创建新线程的工厂对象。线程工厂可以根据需要对线程进行自定义配置，例如设置线程名字、设置线程优先级等。如果未指定，将使用默认的<code>DefaultThreadFactory</code></p>
-</li>
-<li><p><code>handler</code>（拒绝策略，可选）：</p>
-<p> 它定义了当线程池无法接受新任务时的处理方式。拒绝策略可以是预定义的几种策略，如抛出异常、丢弃任务、阻塞等。也可以根据需要自定义拒绝策略实现<code>RejectedExecutionHandler</code>接口。</p>
-</li>
-</ol>
-<p>我们可以这样类比：</p>
-<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
-<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
-<ol>
-<li><code>SynchronousQueue</code> 同步队列</li>
-<li><code>LinkedBlockingQueue</code></li>
-<li><code>ArrayBlockingQueue</code></li>
-</ol>
-<p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
-<p>BlockQueue有四组API：</p>
-<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
-<p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
-<ol>
-<li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>
-<li><code>LinkedBlockingQueue</code>：基于链表实现的可选有界或无界阻塞队列。如果构造时不指定容量，则队列大小默认为无限制。</li>
-<li><code>PriorityBlockingQueue</code>：基于优先级堆实现的无界阻塞队列。元素按照优先级进行排序，可以自定义比较器。</li>
-<li><code>SynchronousQueue</code>：同步队列。是一个没有容量的阻塞队列，任何一次插入操作的元素都要等待相对的删除/读取操作，否则进行行行插入操作的线程就要一直等待,反之亦然<ol>
-<li>进去一个元素，必须等待取出来之后，才能再往里面放入一个元素</li>
-<li>使用lock锁保证线程安全的</li>
-</ol>
-</li>
-<li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
-</ol>
-<p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
-<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
-<ul>
-<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
-<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
-</ul>
-<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
-<ul>
-<li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
-<li><code>CallerRunsPolicy</code>：直接运行这个任务的run方法，但并非是由线程池处理，而是交由任务的调用线程处理</li>
-<li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
-<li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
-</ul>
-<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
-<ul>
-<li><code>SingleThreadExecutor</code>单线程线程池<ul>
-<li>特点：线程池只有一个线程</li>
-<li>使用一个<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-</ul>
-</li>
-<li><code>FixedThreadPool</code>固定线程池<ul>
-<li>特点：最大线程数就是核心线程数</li>
-<li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
-<li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-<li>适用于需要并发控制的场景</li>
-</ul>
-</li>
-<li><code>CachedThreadPool</code>缓存线程池<ul>
-<li>没有核心线程，普通线程数量无限</li>
-<li>线程闲置60s后回收</li>
-<li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
-<li>适用用于任务量大但耗时低的场景</li>
-</ul>
-</li>
-<li><code>ScheduledThreadPool</code>定时线程池<ul>
-<li>指定核心线程数量，普通线程数量无限</li>
-<li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
-<li>适用用于执行定时或周期性的任务</li>
-</ul>
-</li>
-</ul>
-<h2 id="线程池调优"><a href="#线程池调优" class="headerlink" title="线程池调优"></a>线程池调优</h2><p>在设置线程池大小时，可以考虑任务类型和系统资源的特点，以确定适当的线程池大小。具体而言，对于 CPU 密集型任务和 I/O 密集型任务，可以采取以下建议：</p>
-<ul>
-<li><strong>CPU 密集型任务</strong><ul>
-<li>对于 CPU 密集型任务，线程数应与 CPU 核心数相近或稍多一些，以充分利用 CPU 资源，并避免过多的线程竞争和上下文切换开销。</li>
-<li>可以通过 <code>Runtime.getRuntime().availableProcessors()</code> 获取当前系统的 CPU 核心数，作为线程池的核心线程数。</li>
-<li>由于 CPU 密集型任务不涉及阻塞等待，可以选择较小的工作队列容量或使用 <code>SynchronousQueue</code>，使得任务提交后立即执行。</li>
-</ul>
-</li>
-<li><strong>I/O 密集型任务</strong><ul>
-<li>对于 I/O 密集型任务，一般建议将线程数设置为 CPU 核心数的几倍，例如 2 倍或 4 倍，以充分利用 I/O 操作的等待时间，提高系统的吞吐量。</li>
-<li>由于 I/O 操作会涉及到阻塞等待，可以设置较大的工作队列容量，以处理可能的任务积压。</li>
-</ul>
-</li>
-</ul>
-<p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
-]]></content>
-      <categories>
-        <category>Java多线程</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>🐛 LangChain4j-Spring Bug修复记录</title>
     <url>/2024/08/20/LangChain4j-Spring%20Bug/</url>
     <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
@@ -895,356 +1143,111 @@
         <category>Spring</category>
       </categories>
       <tags>
-        <tag>开源</tag>
         <tag>langchain</tag>
+        <tag>开源</tag>
       </tags>
   </entry>
   <entry>
-    <title>LangChain入门笔记</title>
-    <url>/2024/03/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<p>基本架构</p>
-<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
+    <title>Spingboot3.0 升级记录</title>
+    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
+</blockquote>
+<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
+<ul>
+<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
+<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
+</ul>
 <span id="more"></span>
 
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
-<p>主要功能：</p>
+<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
 <ul>
-<li><p>调用语言模型</p>
-</li>
-<li><p>将不同数据源接入到语言模型的交互中</p>
-</li>
-<li><p>允许语言模型与运行环境交互</p>
-</li>
+<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
 </ul>
-<p>LangChain中提供的模块</p>
-<ul>
-<li><p>Modules：支持的模型类型和集成。</p>
-</li>
-<li><p>Prompt：提示词管理、优化和序列化。</p>
-</li>
-<li><p>Memory：内存是指在链/代理调用之间持续存在的状态。</p>
-</li>
-<li><p>Indexes：当语言模型与特定于应用程序的数据相结合时，会变得更加强大-此模块包含用于加载、查询和更新外部数据的接口和集成。</p>
-</li>
-<li><p>Chain：链是结构化的调用序列（对LLM或其他实用程序）。</p>
-</li>
-<li><p>Agents：代理是一个链，其中LLM在给定高级指令和一组工具的情况下，反复决定操作，执行操作并观察结果，直到高级指令完成。</p>
-</li>
-<li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
-</li>
-</ul>
-</blockquote>
-<p>应用场景：</p>
-<ul>
-<li>文档问答</li>
-<li>个人助理</li>
-<li>查询数据表格（CSV、SQL、DataFrame等）</li>
-<li>与API交互</li>
-<li>信息提取</li>
-<li>文档总结</li>
-</ul>
-<h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
-<ul>
-<li>Prompts 提示词</li>
-<li>Chat Models 聊天模型<ul>
-<li>擅长对话</li>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
+
+<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
+<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
+<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Spring Environment体系</title>
+    <url>/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/</url>
+    <content><![CDATA[<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
+<li><code>PropertySource</code>：管理各种配置源的抽象类，即属性源</li>
+<li><code>PropertySources</code>：用于统一管理和访问多个 PropertySource 实例</li>
+<li><code>PropertyResolver</code>：通用属性解析<ul>
+<li><code>Environment</code>：应用环境表示，提供属性访问，支持profile。</li>
+<li><code>ConfigurablePropertyResolver</code>：属性解析配置，支持占位符解析。</li>
 </ul>
 </li>
-<li>LLMs 纯文本模型<ul>
-<li>擅长理解和合成文本方面，例如总结文档、PDF、概念页面等</li>
+<li><code>Binder</code>：配置绑定工具</li>
 </ul>
-</li>
-<li>Output parsers 输出转换器</li>
-</ul>
+<p>大致关系图：</p>
+<p><img src="/../images/image_98WWM6BQwA.png"></p>
+<span id="more"></span>
+
 <blockquote>
-<p>📌Chat Models 和 LLMs 的区别：</p>
-<p>Chat models和LLMs都是LangChain中的语言模型抽象，但是LLMs是纯语言模型，Chat models是针对对话做了优化的聊天模型</p>
+<p>图片来自<a href="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-%E5%92%8Cspring%E9%9B%86%E6%88%90%E7%9A%84%E5%8E%9F%E7%90%86" title="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理">https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理</a></p>
 </blockquote>
-<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><blockquote>
-<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取<br>最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷， LangChain 框<br>架提出了 “代理”(Agent) 的解决方案。</p>
-</blockquote>
-<p>Agent作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力。</p>
+<h2 id="PropertySource"><a href="#PropertySource" class="headerlink" title="PropertySource"></a>PropertySource</h2><p><img src="/../images/image_eZgD5dC_Ym.png"></p>
+<p>PropertySource是 Spring 框架中的一个关键抽象类，封装了一个属性源，属性源可以是一个<code>Map</code>、<code>Resource</code>对象、系统变量等等</p>
+<h2 id="PropertySources"><a href="#PropertySources" class="headerlink" title="PropertySources"></a>PropertySources</h2><p><code>PropertySources</code> 是一个Spring框架中的接口，用于表示和管理一组属性源（<code>PropertySource</code>），这些属性源包含了应用程序环境中的配置数据。该接口提供了一系列方法来检索、添加、替换和删除这些属性源，允许开发者以统一的方式访问不同来源的配置信息，如环境变量、系统属性、配置文件等。</p>
+<h2 id="PropertyResolver"><a href="#PropertyResolver" class="headerlink" title="PropertyResolver"></a>PropertyResolver</h2><p><code>PropertyResolver</code>是一个顶层接口，提供了一套灵活且强大的机制来处理应用程序配置属性。它定义了一些获取属性值，以及解析占位符的方法，用于访问和操纵来自各种源的属性值。</p>
+<p><img src="/../images/image_TL0vgbMjbo.png"></p>
+<h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p><code>Environment</code> 接口是 Spring 框架中的一个核心部分，它提供了一个统一的方式来访问各种外部化的配置数据（继承自<code>PropertyResolver</code>）；支持配置文件（Profiles）的概念，可以在不同环境下进行条件性的配置，管理多个属性源。</p>
+<p>可以看到<code>Environment</code>是继承了<code>PropertyResolver</code>接口的，<strong>只是增加了一些环境信息方法(profile)</strong></p>
+<p>其中<code>Environment</code>实例关于<code>PropertyResolver</code>接口的方法是通过组合模式实现的，内部持有一个<code>PropertySourcesPropertyResolver</code>实例。</p>
+<h3 id="ConfigurablePropertyResolver"><a href="#ConfigurablePropertyResolver" class="headerlink" title="ConfigurablePropertyResolver"></a>ConfigurablePropertyResolver</h3><p><code>ConfigurablePropertyResolver</code> 接口则增加了一些配置方法，在Spring中关键作用是提供灵活的配置属性解析。它支持<strong>占位符解析</strong>，并解析这些占位符为实际的配置值，提升配置的动态性和灵活性。</p>
+<h3 id="其他实现"><a href="#其他实现" class="headerlink" title="其他实现"></a>其他实现</h3><ul>
+<li><code>ConfigurableEnvironment</code>，增加了一些配置的方法，以及可以获取到内部的<code>PropertySource</code>列表。</li>
+<li><code>StandardEnvironment</code>，非web上下文使用的环境实例。</li>
+<li><code>StandardServletEnvironment</code>，web上下文使用的环境实例。</li>
+</ul>
+<h2 id="属性绑定"><a href="#属性绑定" class="headerlink" title="属性绑定"></a>属性绑定</h2><h3 id="ConfigurationPropertySource"><a href="#ConfigurationPropertySource" class="headerlink" title="ConfigurationPropertySource"></a>ConfigurationPropertySource</h3><p>这是一个新的接口，不过它的实现类也是借助了<code>PropertySource</code>来实现，尽管他们之间没有任何继承关系。</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ConfigurationPropertySource</span> {</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据属性名获取对应的值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    ConfigurationProperty <span class="title function_">getConfigurationProperty</span><span class="params">(ConfigurationPropertyName name)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断是否包含后代属性</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">default</span> ConfigurationPropertyState <span class="title function_">containsDescendantOf</span><span class="params">(ConfigurationPropertyName name)</span> {</span><br><span class="line">        <span class="keyword">return</span> ConfigurationPropertyState.UNKNOWN;</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注册别名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">default</span> ConfigurationPropertySource <span class="title function_">withAliases</span><span class="params">(ConfigurationPropertyNameAliases aliases)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliasedConfigurationPropertySource</span>(<span class="built_in">this</span>, aliases);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ConfigurationPropertySources</code>提供了从environment中获取属性源构建ConfigurationPropertySource的方法：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">Iterable&lt;ConfigurationPropertySource&gt; sources = ConfigurationPropertySources.get(environment);</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="Binder"><a href="#Binder" class="headerlink" title="Binder"></a>Binder</h3><p>Spring提供了一个很强大的工具类<code>Binder</code>，依赖<code>ConfigurationPropertySource</code></p>
+<p>作用：<em><strong>可以将<code>Environment</code>或者<code>ConfigurationPropertySource</code>中的属性绑定到一个Java对象中</strong></em>，且支持占位符，类型转换，宽松绑定。</p>
+<p><code>Binder</code>类还提供一个静态方法来构造<code>Binder</code>实例，可以从<code>Environment</code>实例获取<code>PropertySources</code></p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Binder <span class="title function_">get</span><span class="params">(Environment environment)</span> {  </span><br><span class="line">    <span class="keyword">return</span> get(environment, <span class="literal">null</span>);  </span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Binder <span class="title function_">get</span><span class="params">(Environment environment, BindHandler defaultBindHandler)</span> {</span><br><span class="line">    Iterable&lt;ConfigurationPropertySource&gt; sources = ConfigurationPropertySources.get(environment);</span><br><span class="line">    <span class="type">PropertySourcesPlaceholdersResolver</span> <span class="variable">placeholdersResolver</span> <span class="operator">=</span> </span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">PropertySourcesPlaceholdersResolver</span>(environment);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Binder</span>(sources, placeholdersResolver, <span class="literal">null</span>, <span class="literal">null</span>, defaultBindHandler);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>我们常用于配置注入的<code>@ConfigurationProperties</code>，实现原理也是通过Binder</p>
+<h3 id="ConfigurationProperties实现原理"><a href="#ConfigurationProperties实现原理" class="headerlink" title="@ConfigurationProperties实现原理"></a>@ConfigurationProperties实现原理</h3><p><code>@ConfigurationProperties</code>注解在Spring Boot中常用来绑定属性到Java Bean中，不难猜出内部原理便是使用上面所介绍的<code>Binder</code>类来实现的。</p>
+<p>使用该注解时常常搭配<code>@EnableConfigurationProperties</code>注解一起使用，<code>@EnableConfigurationProperties</code>的主要作用就是注册了一个<code>ConfigurationPropertiesBindingPostProcessor</code>Bean</p>
+<p>绑定的核心逻辑在<code>ConfigurationPropertiesBindingPostProcessor</code>中</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">  <span class="keyword">if</span> (!hasBoundValueObject(beanName)) {</span><br><span class="line">    bind(ConfigurationPropertiesBean.get(<span class="built_in">this</span>.applicationContext, bean, beanName));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(ConfigurationPropertiesBean bean)</span> {</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="built_in">this</span>.binder.bind(bean);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (Exception ex) {</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationPropertiesBindException</span>(bean, ex);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">BindResult&lt;?&gt; bind(ConfigurationPropertiesBean propertiesBean) {</span><br><span class="line">  Bindable&lt;?&gt; target = propertiesBean.asBindTarget();</span><br><span class="line">  <span class="type">ConfigurationProperties</span> <span class="variable">annotation</span> <span class="operator">=</span> propertiesBean.getAnnotation();</span><br><span class="line">  <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(target, annotation);</span><br><span class="line">  <span class="comment">// 绑定ConfigurationPropertySource中的属性源和ConfigurationPropertiesBean对象</span></span><br><span class="line">  <span class="keyword">return</span> getBinder().bind(annotation.prefix(), target, bindHandler);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> Binder <span class="title function_">getBinder</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">    <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">Binder</span>(getConfigurationPropertySources(), getPropertySourcesPlaceholdersResolver(),</span><br><span class="line">        getConversionServices(), getPropertyEditorInitializer(), <span class="literal">null</span>, <span class="literal">null</span>);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">this</span>.binder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从注入的属性源构建ConfigurationPropertySource</span></span><br><span class="line"><span class="keyword">private</span> Iterable&lt;ConfigurationPropertySource&gt; <span class="title function_">getConfigurationPropertySources</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> ConfigurationPropertySources.from(<span class="built_in">this</span>.propertySources);</span><br><span class="line">}</span><br><span class="line"><span class="comment">// 从注入的属性源构建PropertySourcesResolver, 支持解析占位符</span></span><br><span class="line"><span class="keyword">private</span> PropertySourcesPlaceholdersResolver <span class="title function_">getPropertySourcesPlaceholdersResolver</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PropertySourcesPlaceholdersResolver</span>(<span class="built_in">this</span>.propertySources);</span><br><span class="line">}</span><br><span class="line"><span class="comment">// 类型转换</span></span><br><span class="line"><span class="keyword">private</span> List&lt;ConversionService&gt; <span class="title function_">getConversionServices</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ConversionServiceDeducer</span>(<span class="built_in">this</span>.applicationContext).getConversionServices();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> Consumer&lt;PropertyEditorRegistry&gt; <span class="title function_">getPropertyEditorInitializer</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.applicationContext <span class="keyword">instanceof</span> ConfigurableApplicationContext configurableContext) {</span><br><span class="line">    <span class="keyword">return</span> configurableContext.getBeanFactory()::copyRegisteredEditorsTo;</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>关键点在于使用Binder将<code>ConfigurationPropertySource</code>中的属性源和实际的<code>ConfigurationPropertiesBean</code>对象绑定在了一起，实现配置的注入。注意<code>ConfigurationPropertySource</code>中的属性源是带有<code>prefix</code>的</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PrefixedConfigurationPropertySource</span> <span class="keyword">implements</span> <span class="title class_">ConfigurationPropertySource</span> {</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ConfigurationPropertySource source;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ConfigurationPropertyName prefix;</span><br><span class="line"></span><br><span class="line">  PrefixedConfigurationPropertySource(ConfigurationPropertySource source, String prefix) {</span><br><span class="line">    Assert.notNull(source, <span class="string">"Source must not be null"</span>);</span><br><span class="line">    Assert.hasText(prefix, <span class="string">"Prefix must not be empty"</span>);</span><br><span class="line">    <span class="built_in">this</span>.source = source;</span><br><span class="line">    <span class="built_in">this</span>.prefix = ConfigurationPropertyName.of(prefix);</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
 <hr>
-<p>Agents的核心思想是使用语言模型来选择要采取的一系列Action</p>
-<p>在langchain中，一系列Action被硬编码（在代码中）。</p>
-<p>在Agents中，语言模型被用作推理引擎来确定要采取哪些操作以及按什么顺序。</p>
-<p>不同Agents的区别：不同的推理提示风格、不同的编码输入方式以及不同的解析输出方式。</p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>构建代理的核心组件</p>
+<p>参考：</p>
 <ul>
-<li><code>AgentAction</code> 即Action，表示代理执行的操作，通常表示调用tools<ul>
-<li>我们将想让对Agents的操作封装成Action（tools），再让Agents在被调用时选择应该使用哪些tools</li>
-<li>在<code>AgentAction</code>中有两个属性：<code>tool</code>和<code>tool_input</code>，分别代表工具的名字和工具输入</li>
+<li><a href="https://www.cnblogs.com/wt20/p/17588895.html" title="https://www.cnblogs.com/wt20/p/17588895.html">https://www.cnblogs.com/wt20/p/17588895.html</a></li>
+<li><a href="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot%E4%B9%8B%E7%BC%96%E7%A8%8B%E5%BC%8F%E5%B1%9E%E6%80%A7%E7%BB%91%E5%AE%9ABinder/" title="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/">https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/</a></li>
 </ul>
-</li>
-<li><code>AgentFinish</code>  Agents返回的最终结果</li>
-<li><code>Intermediate Steps</code> 中间步骤。代表<code>AgentAction</code>以及当前Agents运行的相应输出</li>
-</ul>
-<h3 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h3><ul>
-<li><code>Agent Inputs</code> Agents的输入，键值对类型<ul>
-<li>required：<code>intermediate_steps</code></li>
-</ul>
-</li>
-<li><code>Agent Outputs</code> Agents的响应，分为<code>Union[AgentAction, List[AgentAction], AgentFinish]</code><ul>
-<li>输出解析器负责获取原始 LLM 输出并将其转换为这三种类型之一</li>
-</ul>
-</li>
-</ul>
-<p>demo：</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">agent = (</span><br><span class="line">    {</span><br><span class="line">        <span class="string">"input"</span>: <span class="keyword">lambda</span> x: x[<span class="string">"input"</span>],</span><br><span class="line">        <span class="string">"agent_scratchpad"</span>: <span class="keyword">lambda</span> x: format_to_openai_tool_messages(</span><br><span class="line">            x[<span class="string">"intermediate_steps"</span>]</span><br><span class="line">        ),</span><br><span class="line">    }</span><br><span class="line">    | prompt</span><br><span class="line">    | llm_with_tools</span><br><span class="line">    | OpenAIToolsAgentOutputParser()</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
-
-<h4 id="Agents-API"><a href="#Agents-API" class="headerlink" title="Agents API"></a>Agents API</h4><ul>
-<li><code>AgentExecutor</code> 重复调用Agents并执行工具<ul>
-<li>封装了各种错误处理、日志等</li>
-</ul>
-</li>
-</ul>
-<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><p>工具是代理可以调用​​的功能。 <code>Tool</code> 抽象由两个组件组成：</p>
-<p>工具 API 的目标是比使用通用文本完成或聊天 API 更可靠地返回有效且有用的工具调用。</p>
-<ul>
-<li>schema</li>
-<li>function</li>
-</ul>
-<p>设计Agents的关键：</p>
-<ul>
-<li>让Agents正确的使用tools</li>
-<li>以对代理最有帮助的方式描述工具</li>
-</ul>
-<h2 id="Agent-Type"><a href="#Agent-Type" class="headerlink" title="Agent Type"></a>Agent Type</h2><p>介绍几个常用的Agent Type</p>
-<p>ReAct：LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。</p>
-<h1 id="Prompt"><a href="#Prompt" class="headerlink" title="Prompt"></a>Prompt</h1><p>提示词工程和模型微调的区别：</p>
-<ul>
-<li><p>微调</p>
-<ul>
-<li>定义：针对预先训练的语言模型，在特定任务的少量数据集上对其进行进一步训练</li>
-<li>适用场景：当任务或域定义明确，并且有足够的标记数据可供训练时，通常使用微调过程</li>
-</ul>
-</li>
-<li><p>提示词工程</p>
-<ul>
-<li>涉及设计自然语言提示或指令，可以指导语言模型执行特定任务</li>
-<li>最适合需要高精度和明确输出的任务。提示工程可用于制作引发所需输出的查询</li>
-</ul>
-</li>
-</ul>
-<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
-<p>四种主要储存模块：</p>
-<ul>
-<li><code>ConversationBufferMemory</code>对话缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按窗口缓存</li>
-<li><code>ConversationTokenBufferMemory</code>按令牌缓存</li>
-<li><code>ConversationSummaryBufferMemory</code>按摘要缓存</li>
-</ul>
-<p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
-<p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
-<p><img src="/../images/image_96cXegtOz-.png"></p>
-<h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
-<h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
-
-<p><a href="https://python.langchain.com/v0.1/docs/expression_language/get_started/" title="https://python.langchain.com/v0.1/docs/expression_language/get_started/">https://python.langchain.com/v0.1/docs/expression_language/get_started/</a></p>
-<p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
-<p>下面举一些简单的栗子：</p>
-<p>模型调用：</p>
-<p><img src="/../images/image_tamQ_03vHR.png"></p>
-<p>Stream流：</p>
-<p><img src="/../images/image_UPmDNoWd_p.png"></p>
-<p>Batch批处理：</p>
-<p><img src="/../images/image_JliK3KA3oM.png"></p>
-<p>异步调用：</p>
-<p><img src="/../images/image_Gf01np9mh3.png"></p>
-<h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
-<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
-<p>核心组件：</p>
-<ul>
-<li><strong>Document loaders</strong>文档加载器</li>
-<li>Text Splitting文本分割器，将大文档分割（或分块）为更小的块。</li>
-<li>Text Embedding models嵌入模型，用于将文档嵌入到Vector stores中，主要有两种常用方式：<ul>
-<li>text2vector</li>
-<li>llm</li>
-</ul>
-</li>
-<li>Retrievers检索器，用于在数据源中检索相关信息</li>
-<li>Indexing数据库索引，用于检索</li>
-</ul>
-<h2 id="Retrievers检索"><a href="#Retrievers检索" class="headerlink" title="Retrievers检索"></a>Retrievers检索</h2><p>相关算法：</p>
-<ul>
-<li><p>基本语义相似度（Basicsemanticsimilarity)</p>
-</li>
-<li><p>最大边际相关性（Maximummarginalrelevance，MMR)</p>
-</li>
-<li><p>过滤元数据</p>
-</li>
-<li><p>LLM辅助检索 SelfQueryRetriever</p>
-</li>
-<li><p>压缩 ContextualCompressionRetriever</p>
-<ul>
-<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
-</ul>
-</li>
-</ul>
-<p>其他类型的检索：</p>
-<p>vetordb 并不是唯一一种检索文档的工具。 LangChain 还提供了其他检索文档的方式，例如： TF-IDF 或 SVM 。</p>
-<h2 id="对话检索链"><a href="#对话检索链" class="headerlink" title="对话检索链"></a>对话检索链</h2><h3 id="检索链类型"><a href="#检索链类型" class="headerlink" title="检索链类型"></a>检索链类型</h3><p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下</p>
-<ul>
-<li>llm大语言模型</li>
-<li><code>chain_type</code>指定传入链（用于将文档传递到 LLM 的上下文窗口中）类型<ul>
-<li><strong>Stuff</strong>：只需将所有文档“塞”到一个提示中即可，这是最简单的方法<ul>
-<li>API：create_stuff_documents_chain</li>
-</ul>
-</li>
-<li><strong>Map-reduce</strong>：将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的<ul>
-<li>MapReduceDocumentsChain</li>
-</ul>
-</li>
-<li><strong>Refine</strong><ul>
-<li>循环许多文档，实际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
-<p><img src="/../images/image_kuqREZwJrr.png"></p>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
 ]]></content>
       <categories>
-        <category>AI</category>
+        <category>Spring源码系列</category>
       </categories>
       <tags>
-        <tag>学习笔记</tag>
-        <tag>langchain</tag>
-        <tag>LLM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mybatis Interceptor</title>
-    <url>/2023/01/08/Mybatis-Interceptor/</url>
-    <content><![CDATA[<p>我们先来看一下MyBatis的执行过程，这个也是网上的热图了：</p>
-<p><img src="/../images/image-20240908231217545.png" alt="image-20240908231217545"></p>
-<p>Mybatis的拦截器提供了非常强大的扩展能力。在sql最终执行之前，提供了四个拦截点，支持不同场景的功能扩展：</p>
-<ul>
-<li><code>Executor</code>：代表执行器，由它调度StatementHandler、ParameterHandler、ResultSetHandler等来执行对应的SQL，其中StatementHandler是最重要的。</li>
-<li><code>ParameterHandler</code>：处理SQL参数。</li>
-<li><code>ResultSetHandler</code>：进行结果集（ResultSet）的封装返回处理，它非常的复杂，好在不常用。</li>
-<li><code>StatementHandler</code>：作用是使用数据库的Statement（PreparedStatement）执行操作，它是四大对象的核心，起到承上启下的作用，许多重要的插件都是通过拦截它来实现的。</li>
-</ul>
-<p>每个拦截点提供了多个方法，拦截器是基于方法的</p>
-<ul>
-<li><code>Executor</code> (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</li>
-<li><code>ParameterHandler</code> (getParameterObject, setParameters)</li>
-<li><code>ResultSetHandler</code> (handleResultSets, handleOutputParameters)</li>
-<li><code>StatementHandler</code> (prepare, parameterize, batch, update, query)</li>
-</ul>
-<h2 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h2><p>自定义插件实现，重点两步</p>
-<ul>
-<li>实现接口<code>org.apache.ibatis.plugin.Interceptor</code></li>
-<li><code>@Intercepts</code>标志该类是一个拦截器；<code>@Signature</code>定义切点，可以指定多个</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Intercepts({</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {java.sql.Statement.class})</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = "sensitive", name = "enabled")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SensitiveInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SensitiveService sensitiveService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable {</span><br><span class="line">        List&lt;Object&gt; results = (List&lt;Object&gt;) invocation.proceed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (results.isEmpty()) {</span><br><span class="line">            <span class="keyword">return</span> results;</span><br><span class="line">        }</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// ResultSet</span></span><br><span class="line">        <span class="type">ResultSetHandler</span> <span class="variable">resultSetHandler</span> <span class="operator">=</span> (ResultSetHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">MetaObject</span> <span class="variable">metaObject</span> <span class="operator">=</span> SystemMetaObject.forObject(resultSetHandler);</span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) metaObject.getValue(<span class="string">"mappedStatement"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> {</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-]]></content>
-      <categories>
-        <category>Mybatis</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>RabbitMQ学习笔记</title>
-    <url>/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h1 id="1-AMQP协议中的关键概念"><a href="#1-AMQP协议中的关键概念" class="headerlink" title="1 AMQP协议中的关键概念"></a>1 AMQP协议中的关键概念</h1><ul>
-<li><code>Connection</code>socket连接，它封装了socket协议相关部分逻辑。你可以认为一个Connection就是一个Tcp连接。</li>
-<li><code>Channel</code>生产者与Broker通信的通道，可以把通道理解成共享一个 TCP 连接的多个轻量化连接（通常每个thread创建单独的channel进行通讯）。</li>
-</ul>
-<blockquote>
-<p><code>Connection</code>就是一个TCP连接对象，而<code>Channel</code>相当于连接池</p>
-</blockquote>
-<ul>
-<li><code>Exchange</code>交换器，接收消息，按照路由规则将消息路由到一个或者多个队列</li>
-<li><code>Queue</code>消息队列，用来保存消息，供消费者消费</li>
-<li><code>Produce/Consumer</code>消息生产者和消费者</li>
-<li><code>Binding</code>绑定，交换器和消息队列之间的虚拟连接，绑定中可以包含一个或者多个 RoutingKey。</li>
-<li><code>RoutingKey</code>路由键，生产者将消息发送给交换器的时候，会指定一个 RoutingKey，用来指定路由规则，交换器根据路由键把消息发送到指定队列</li>
-</ul>
-<h1 id="2-消息队列模式"><a href="#2-消息队列模式" class="headerlink" title="2 消息队列模式"></a>2 消息队列模式</h1><h2 id="2-1-点对点模式"><a href="#2-1-点对点模式" class="headerlink" title="2.1 点对点模式"></a>2.1 点对点模式</h2><p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/e6053e18-99d6-4914-b06a-4dc65d258a30_1koS-yViN2.png"></p>
-<p>点对点模式特点：<strong>一个具体的消息只能由一个消费者消费</strong>，多个生产者可以向同一个消息队列发送消息，但是一个消息在被一个消息者处理的时候，这个消息在队列上会被锁住或者被移除并且其他消费者无法处理该消息。</p>
-<h2 id="2-2-发布-订阅模式"><a href="#2-2-发布-订阅模式" class="headerlink" title="2.2 发布/订阅模式"></a>2.2 发布/订阅模式</h2><p><strong>单个消息可以被多个订阅者并发的获取和处理</strong>。一般来说，订阅有两种类型：</p>
-<ul>
-<li>临时订阅：这种订阅只有在消费者启动并且运行的时候才存在。一旦消费者退出，相应的订阅以及尚未处理的消息就会丢失。</li>
-<li>持久订阅：这种订阅会一直存在，除非主动去删除。消费者退出后，消息系统会继续维护该订阅，并且后续消息可以被继续处理。</li>
-</ul>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_TSARw_VzVJ.png"></p>
-<h1 id="3-RabbitMQ原理"><a href="#3-RabbitMQ原理" class="headerlink" title="3 RabbitMQ原理"></a>3 RabbitMQ原理</h1><p>RabbbitMQ使用Erlang语言开发，基于AMQP协议实现。AMQP协议由三部分组成，分别是消费者，生产者和服务端。执行流程如下：</p>
-<ol>
-<li><p>生产者连接到Server，建立一个连接，开启一个通道。</p>
-</li>
-<li><p>生产者声明交换器和队列，设置相关属性，并通过路由键将交换器和队列进行绑定。</p>
-</li>
-<li><p>消费者也需要进行建立连接，开启信道等操作，便于接收消息。</p>
-</li>
-<li><p>生产者发送消息，发送到服务端中的虚拟主机。</p>
-</li>
-<li><p>虚拟主机中的交换器根据路由键选择路由规则，发送到不同的消息队列中。</p>
-</li>
-<li><p>订阅了消息队列的消费者就可以获取到消息，进行消费。</p>
-</li>
-</ol>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/82ff9d01-1ac7-4463-9733-a7372c642d35_wBUrxx8cW8.png"></p>
-<blockquote>
-<p>📌RabbitMQ 消息传递模型的核心思想是生产者从不直接向队列发送任何消息。实际上，生产者通常根本不知道消息是否会被传递到任何队列。</p>
-<p>相反，生产者只能将消息发送到交换器。交换是一件非常简单的事情。一方面，它接收来自生产者的消息，另一方面，它将消息推送到队列。</p>
-<p>交换机绑定多个队列，一个队列绑定一个键</p>
-</blockquote>
-<h2 id="3-1-交换机"><a href="#3-1-交换机" class="headerlink" title="3.1 交换机"></a>3.1 交换机</h2><p>Rabbitmq队列和交换机是绑定的，每个队列都有一个***<code>routingKey</code><em><strong>，发布者每次发布的消息也有一个</strong></em><code>routingKey</code>***，交换机会根据不同的匹配规则将消息匹配到与自己绑定的队列中</p>
-<p>RabbitMQ常用交换机有四种：</p>
-<h3 id="3-1-1-Direct"><a href="#3-1-1-Direct" class="headerlink" title="3.1.1 Direct"></a>3.1.1 Direct</h3><p>Direct exchange背后的路由算法很简单 - 消息进入其绑定键与消息的路由键完全匹配的队列。</p>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_gOLw0gI3JR.png"></p>
-<blockquote>
-<p>多重绑定</p>
-<p>使用相同的绑定键绑定多个队列是完全合法的。在我们的示例中，我们可以使用绑定键black在X和Q1之间添加绑定。在这种情况下，直接交换的行为将类似于扇出，并将消息广播到所有匹配的队列。</p>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_ILV-y7PI8A.png"></p>
-</blockquote>
-<h3 id="3-1-2-Topic-exchange"><a href="#3-1-2-Topic-exchange" class="headerlink" title="3.1.2 Topic exchange"></a>3.1.2 Topic exchange</h3><p>**<code>topic</code>**：将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。符号“#”匹配一个或多个词，符号“*”只能匹配一个词</p>
-<p>发送到Topic exchange的 <code>routing_key</code>它必须是一个由点分隔的单词列表。这些单词可以是任何内容，但通常它们指定与消息相关的一些功能。一些有效的路由键示例： <code>stock.usd.nyse</code> 、 <code>nyse.vmw</code> 、<code>quick.orange.rabbit</code> 。路由密钥中可以有任意多个单词，最多 255 个字节。</p>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_WeBDd2GgZO.png"></p>
-<ul>
-<li><code>*</code>可以恰好替代一个单词。</li>
-<li><code>#</code>可以替代零个或多个单词。</li>
-</ul>
-<p>当队列与<code>#</code>绑定键绑定时 - 它将接收所有消息，无论路由键如何 - 就像在扇区交换器中一样。</p>
-<h3 id="3-1-3-Fanout"><a href="#3-1-3-Fanout" class="headerlink" title="3.1.3 Fanout"></a>3.1.3 Fanout</h3><p>Fanout 不处理路由键，而是广播。你只需要简单的将队列绑定到交换机上。一个发送到该类型交换机的消息都会被广播到与该交换机绑定的所有队列上</p>
-<h3 id="Headers"><a href="#Headers" class="headerlink" title="Headers"></a><strong>Headers</strong></h3><p>不处理路由键，而是根据发送的消息内容中的headers属性进行匹配。</p>
-<h2 id="3-2-队列"><a href="#3-2-队列" class="headerlink" title="3.2 队列"></a>3.2 队列</h2><h3 id="3-2-1-死信队列"><a href="#3-2-1-死信队列" class="headerlink" title="3.2.1 死信队列"></a>3.2.1 死信队列</h3><p>来自队列的消息可能是“<strong>死信的</strong>”；也就是说，当发生以下任何事件时，重新发布到交换机：</p>
-<ul>
-<li>消费者使用<code>basic.reject</code>或 <code>basic.nack</code>否定确认消息，并将requeue参数设置为false。</li>
-<li>由于每条消息 TTL（最大存活时间） 的原因，该消息过期；</li>
-<li>由于队列超出长度限制，消息被丢弃</li>
-</ul>
-<blockquote>
-<p>应用场景</p>
-</blockquote>
-<p>一般用在较为重要的业务队列中，为了确保未被正确消费的消息不被丢弃，当发生异常时，通过死信队列，可以让未正确处理的消息暂存到另一个队列中。待后续排查清楚问题后，编写相应的处理代码来处理死信消息，这样比手工恢复数据要好太多了 。</p>
-<h3 id="3-2-2-延时队列"><a href="#3-2-2-延时队列" class="headerlink" title="3.2.2 延时队列"></a>3.2.2 延时队列</h3><p>​ 延迟队列存储的对象肯定是对应的延时消息，所谓”延时消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。</p>
-<p><a href="https://www.wolai.com/57hkFrHvCbQvHVKQW5Z4jk" title="官方文档">官方文档</a></p>
-<h2 id="3-3-ACK机制"><a href="#3-3-ACK机制" class="headerlink" title="3.3 ACK机制"></a>3.3 ACK机制</h2><p>ACK机制是消费者从RabbitMQ收到消息并处理完成后，反馈给RabbitMQ，RabbitMQ收到反馈后才将次消息从队列中删除。如果消费者处理消息时出现异常，RabbitMQ会认为消息未被正常消费，将消息重新放入队列中。可以在消费消息中try-catch或在Consumer的配置文件中配置重试机制来解决这个问题。</p>
-<h2 id="3-4-重试机制"><a href="#3-4-重试机制" class="headerlink" title="3.4 重试机制"></a>3.4 重试机制</h2><p>在消息<strong>消费失败</strong>的时候，Spring-AMQP 会通过<strong>消费重试</strong>机制，重新投递该消息给 Consumer ，让 Consumer 有机会重新消费消息，实现消费成功。</p>
-<p>当然，Spring-AMQP 并不会无限重新投递消息给 Consumer 重新消费，而是在默认情况下，达到 N 次重试次数时，Consumer 还是消费失败时，该消息就会进入到<strong>死信队列</strong>。后续，我们可以通过对死信队列中的消息进行重发，来使得消费者实例再次进行消费。</p>
-<p>为了效率和节省资源，我们一般会选择<code>CONNECTION</code>模式</p>
-<h1 id="4-衡量标准"><a href="#4-衡量标准" class="headerlink" title="4 衡量标准"></a>4 衡量标准</h1><p>市面上的</p>
-<ul>
-<li><strong>消息顺序</strong>：发送到队列的消息，消费时是否可以保证消费的顺序，比如 A 先下单，B 后下单，应该是 A 先去扣库存，B 再去扣，顺序不能反。</li>
-<li><strong>消息路由</strong>：根据路由规则，只订阅匹配路由规则的消息，比如有 A/B 两者规则的消息，消费者可以只订阅 A 消息，B 消息不会消费。</li>
-<li>消息可靠性：是否会存在丢消息的情况，比如有 A/B 两个消息，最后只有 B 消息能消费，A 消息丢失。</li>
-<li><strong>消息时序</strong>：主要包括 “消息存活时间” 和“延迟 / 预定的消息”，“消息存活时间”表示生产者可以对消息设置 TTL，如果超过该 TTL，消息会自动消失；“延迟 / 预定的消息”指的是可以延迟或者预订消费消息，比如延时 5 分钟，那么消息会 5 分钟后才能让消费者消费，时间未到的话，是不能消费的。</li>
-<li><strong>消息留存</strong>：消息消费成功后，是否还会继续保留在消息队列。</li>
-<li><strong>容错性</strong>：当一条消息消费失败后，是否有一些机制，保证这条消息是一种能成功，比如异步第三方退款消息，需要保证这条消息消费掉，才能确定给用户退款成功，所以必须保证这条消息消费成功的准确性。</li>
-<li><strong>伸缩</strong>：当消息队列性能有问题，比如消费太慢，是否可以快速支持库容；当消费队列过多，浪费系统资源，是否可以支持缩容。</li>
-<li><strong>吞吐量</strong>：支持的最高并发数。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>中间件</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
+        <tag>Spring源码阅读</tag>
       </tags>
   </entry>
   <entry>
@@ -1286,39 +1289,6 @@
 ]]></content>
       <categories>
         <category>MyBatis</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Spingboot3.0 升级记录</title>
-    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
-</blockquote>
-<h2 id="Spring-Boot-3-0-主要改动"><a href="#Spring-Boot-3-0-主要改动" class="headerlink" title="Spring Boot 3.0 主要改动"></a>Spring Boot 3.0 主要改动</h2><p>以下是 Spring Boot 3.0 中最重要的变动：</p>
-<ul>
-<li><strong>最低 Java 版本要求</strong>：升级至 Java 17。</li>
-<li><strong>移除内置配置</strong>：例如，MySQL 驱动等配置被移除，官方提供迁移工具协助升级：</li>
-</ul>
-<span id="more"></span>
-
-<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-properties-migrator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
-<ul>
-<li><strong>Jakarta EE 替代 Java EE</strong>：所有 <code>javax</code> 包被替换为 <code>jakarta</code> 包：</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">javax.persistence.*   -&gt; jakarta.persistence.*</span><br><span class="line">javax.validation.*    -&gt; jakarta.validation.*</span><br><span class="line">javax.servlet.*       -&gt; jakarta.servlet.*</span><br><span class="line">javax.annotation.*    -&gt; jakarta.annotation.*</span><br><span class="line">javax.transaction.*   -&gt; jakarta.transaction.*</span><br></pre></td></tr></tbody></table></figure>
-
-<p>更多改动详情，参考官方文档：<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes">Spring Boot 3.0 发布说明</a></p>
-<h2 id="项目迁移中发现的问题"><a href="#项目迁移中发现的问题" class="headerlink" title="项目迁移中发现的问题"></a>项目迁移中发现的问题</h2><h3 id="自定义-Starter-不兼容"><a href="#自定义-Starter-不兼容" class="headerlink" title="自定义 Starter 不兼容"></a>自定义 Starter 不兼容</h3><p>原版本中自定义 Starter 的方式为：在扫描类上使用 <code>@Configuration</code> 注解，并在 <code>META-INF/spring.factories</code> 文件中声明该扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\</span><br><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>新版中，自定义 Starter 应采用 <code>@AutoConfiguration</code> 注解，并在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件中声明扫描类：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">{{启动类路径}}</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="Mybatis-兼容性问题"><a href="#Mybatis-兼容性问题" class="headerlink" title="Mybatis 兼容性问题"></a>Mybatis 兼容性问题</h3><p><img src="/../images/Secure2%20Image.png" alt="Secure2 Image"></p>
-<p><strong>原因</strong>：Mybatis 旧版本与 Spring Boot 3.0 不兼容，需升级至 Mybatis 3.x 版本或更高。</p>
-]]></content>
-      <categories>
-        <category>Spring</category>
       </categories>
   </entry>
   <entry>
@@ -1410,112 +1380,10 @@
 </ul>
 ]]></content>
       <categories>
-        <category>Spring</category>
+        <category>Spring源码系列</category>
       </categories>
       <tags>
-        <tag>Spring源码系列</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot实现GitHub第三方登录</title>
-    <url>/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
-    <content><![CDATA[<h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
-<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
-<p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
-<span id="more"></span>
-
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
-<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
-<p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
-<p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
-<p>下面是Demo：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<hr>
-<p>相关文档：</p>
-<ul>
-<li><a href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
-<li><a href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>oauth</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spring Environment体系</title>
-    <url>/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/</url>
-    <content><![CDATA[<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><ul>
-<li><code>PropertySource</code>：管理各种配置源的抽象类，即属性源</li>
-<li><code>PropertySources</code>：用于统一管理和访问多个 PropertySource 实例</li>
-<li><code>PropertyResolver</code>：通用属性解析<ul>
-<li><code>Environment</code>：应用环境表示，提供属性访问，支持profile。</li>
-<li><code>ConfigurablePropertyResolver</code>：属性解析配置，支持占位符解析。</li>
-</ul>
-</li>
-<li><code>Binder</code>：配置绑定工具</li>
-</ul>
-<p>大致关系图：</p>
-<p><img src="/../images/image_98WWM6BQwA.png"></p>
-<span id="more"></span>
-
-<blockquote>
-<p>图片来自<a href="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-%E5%92%8Cspring%E9%9B%86%E6%88%90%E7%9A%84%E5%8E%9F%E7%90%86" title="https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理">https://www.apolloconfig.com/#/zh/design/apollo-design?id=_31-和spring集成的原理</a></p>
-</blockquote>
-<h2 id="PropertySource"><a href="#PropertySource" class="headerlink" title="PropertySource"></a>PropertySource</h2><p><img src="/../images/image_eZgD5dC_Ym.png"></p>
-<p>PropertySource是 Spring 框架中的一个关键抽象类，封装了一个属性源，属性源可以是一个<code>Map</code>、<code>Resource</code>对象、系统变量等等</p>
-<h2 id="PropertySources"><a href="#PropertySources" class="headerlink" title="PropertySources"></a>PropertySources</h2><p><code>PropertySources</code> 是一个Spring框架中的接口，用于表示和管理一组属性源（<code>PropertySource</code>），这些属性源包含了应用程序环境中的配置数据。该接口提供了一系列方法来检索、添加、替换和删除这些属性源，允许开发者以统一的方式访问不同来源的配置信息，如环境变量、系统属性、配置文件等。</p>
-<h2 id="PropertyResolver"><a href="#PropertyResolver" class="headerlink" title="PropertyResolver"></a>PropertyResolver</h2><p><code>PropertyResolver</code>是一个顶层接口，提供了一套灵活且强大的机制来处理应用程序配置属性。它定义了一些获取属性值，以及解析占位符的方法，用于访问和操纵来自各种源的属性值。</p>
-<p><img src="/../images/image_TL0vgbMjbo.png"></p>
-<h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p><code>Environment</code> 接口是 Spring 框架中的一个核心部分，它提供了一个统一的方式来访问各种外部化的配置数据（继承自<code>PropertyResolver</code>）；支持配置文件（Profiles）的概念，可以在不同环境下进行条件性的配置，管理多个属性源。</p>
-<p>可以看到<code>Environment</code>是继承了<code>PropertyResolver</code>接口的，<strong>只是增加了一些环境信息方法(profile)</strong></p>
-<p>其中<code>Environment</code>实例关于<code>PropertyResolver</code>接口的方法是通过组合模式实现的，内部持有一个<code>PropertySourcesPropertyResolver</code>实例。</p>
-<h3 id="ConfigurablePropertyResolver"><a href="#ConfigurablePropertyResolver" class="headerlink" title="ConfigurablePropertyResolver"></a>ConfigurablePropertyResolver</h3><p><code>ConfigurablePropertyResolver</code> 接口则增加了一些配置方法，在Spring中关键作用是提供灵活的配置属性解析。它支持<strong>占位符解析</strong>，并解析这些占位符为实际的配置值，提升配置的动态性和灵活性。</p>
-<h3 id="其他实现"><a href="#其他实现" class="headerlink" title="其他实现"></a>其他实现</h3><ul>
-<li><code>ConfigurableEnvironment</code>，增加了一些配置的方法，以及可以获取到内部的<code>PropertySource</code>列表。</li>
-<li><code>StandardEnvironment</code>，非web上下文使用的环境实例。</li>
-<li><code>StandardServletEnvironment</code>，web上下文使用的环境实例。</li>
-</ul>
-<h2 id="属性绑定"><a href="#属性绑定" class="headerlink" title="属性绑定"></a>属性绑定</h2><h3 id="ConfigurationPropertySource"><a href="#ConfigurationPropertySource" class="headerlink" title="ConfigurationPropertySource"></a>ConfigurationPropertySource</h3><p>这是一个新的接口，不过它的实现类也是借助了<code>PropertySource</code>来实现，尽管他们之间没有任何继承关系。</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ConfigurationPropertySource</span> {</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据属性名获取对应的值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    ConfigurationProperty <span class="title function_">getConfigurationProperty</span><span class="params">(ConfigurationPropertyName name)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断是否包含后代属性</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">default</span> ConfigurationPropertyState <span class="title function_">containsDescendantOf</span><span class="params">(ConfigurationPropertyName name)</span> {</span><br><span class="line">        <span class="keyword">return</span> ConfigurationPropertyState.UNKNOWN;</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注册别名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">default</span> ConfigurationPropertySource <span class="title function_">withAliases</span><span class="params">(ConfigurationPropertyNameAliases aliases)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliasedConfigurationPropertySource</span>(<span class="built_in">this</span>, aliases);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p><code>ConfigurationPropertySources</code>提供了从environment中获取属性源构建ConfigurationPropertySource的方法：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">Iterable&lt;ConfigurationPropertySource&gt; sources = ConfigurationPropertySources.get(environment);</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="Binder"><a href="#Binder" class="headerlink" title="Binder"></a>Binder</h3><p>Spring提供了一个很强大的工具类<code>Binder</code>，依赖<code>ConfigurationPropertySource</code></p>
-<p>作用：<em><strong>可以将<code>Environment</code>或者<code>ConfigurationPropertySource</code>中的属性绑定到一个Java对象中</strong></em>，且支持占位符，类型转换，宽松绑定。</p>
-<p><code>Binder</code>类还提供一个静态方法来构造<code>Binder</code>实例，可以从<code>Environment</code>实例获取<code>PropertySources</code></p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Binder <span class="title function_">get</span><span class="params">(Environment environment)</span> {  </span><br><span class="line">    <span class="keyword">return</span> get(environment, <span class="literal">null</span>);  </span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Binder <span class="title function_">get</span><span class="params">(Environment environment, BindHandler defaultBindHandler)</span> {</span><br><span class="line">    Iterable&lt;ConfigurationPropertySource&gt; sources = ConfigurationPropertySources.get(environment);</span><br><span class="line">    <span class="type">PropertySourcesPlaceholdersResolver</span> <span class="variable">placeholdersResolver</span> <span class="operator">=</span> </span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">PropertySourcesPlaceholdersResolver</span>(environment);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Binder</span>(sources, placeholdersResolver, <span class="literal">null</span>, <span class="literal">null</span>, defaultBindHandler);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>我们常用于配置注入的<code>@ConfigurationProperties</code>，实现原理也是通过Binder</p>
-<h3 id="ConfigurationProperties实现原理"><a href="#ConfigurationProperties实现原理" class="headerlink" title="@ConfigurationProperties实现原理"></a>@ConfigurationProperties实现原理</h3><p><code>@ConfigurationProperties</code>注解在Spring Boot中常用来绑定属性到Java Bean中，不难猜出内部原理便是使用上面所介绍的<code>Binder</code>类来实现的。</p>
-<p>使用该注解时常常搭配<code>@EnableConfigurationProperties</code>注解一起使用，<code>@EnableConfigurationProperties</code>的主要作用就是注册了一个<code>ConfigurationPropertiesBindingPostProcessor</code>Bean</p>
-<p>绑定的核心逻辑在<code>ConfigurationPropertiesBindingPostProcessor</code>中</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">  <span class="keyword">if</span> (!hasBoundValueObject(beanName)) {</span><br><span class="line">    bind(ConfigurationPropertiesBean.get(<span class="built_in">this</span>.applicationContext, bean, beanName));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">bind</span><span class="params">(ConfigurationPropertiesBean bean)</span> {</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="built_in">this</span>.binder.bind(bean);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (Exception ex) {</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationPropertiesBindException</span>(bean, ex);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">BindResult&lt;?&gt; bind(ConfigurationPropertiesBean propertiesBean) {</span><br><span class="line">  Bindable&lt;?&gt; target = propertiesBean.asBindTarget();</span><br><span class="line">  <span class="type">ConfigurationProperties</span> <span class="variable">annotation</span> <span class="operator">=</span> propertiesBean.getAnnotation();</span><br><span class="line">  <span class="type">BindHandler</span> <span class="variable">bindHandler</span> <span class="operator">=</span> getBindHandler(target, annotation);</span><br><span class="line">  <span class="comment">// 绑定ConfigurationPropertySource中的属性源和ConfigurationPropertiesBean对象</span></span><br><span class="line">  <span class="keyword">return</span> getBinder().bind(annotation.prefix(), target, bindHandler);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> Binder <span class="title function_">getBinder</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.binder == <span class="literal">null</span>) {</span><br><span class="line">    <span class="built_in">this</span>.binder = <span class="keyword">new</span> <span class="title class_">Binder</span>(getConfigurationPropertySources(), getPropertySourcesPlaceholdersResolver(),</span><br><span class="line">        getConversionServices(), getPropertyEditorInitializer(), <span class="literal">null</span>, <span class="literal">null</span>);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">this</span>.binder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从注入的属性源构建ConfigurationPropertySource</span></span><br><span class="line"><span class="keyword">private</span> Iterable&lt;ConfigurationPropertySource&gt; <span class="title function_">getConfigurationPropertySources</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> ConfigurationPropertySources.from(<span class="built_in">this</span>.propertySources);</span><br><span class="line">}</span><br><span class="line"><span class="comment">// 从注入的属性源构建PropertySourcesResolver, 支持解析占位符</span></span><br><span class="line"><span class="keyword">private</span> PropertySourcesPlaceholdersResolver <span class="title function_">getPropertySourcesPlaceholdersResolver</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PropertySourcesPlaceholdersResolver</span>(<span class="built_in">this</span>.propertySources);</span><br><span class="line">}</span><br><span class="line"><span class="comment">// 类型转换</span></span><br><span class="line"><span class="keyword">private</span> List&lt;ConversionService&gt; <span class="title function_">getConversionServices</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ConversionServiceDeducer</span>(<span class="built_in">this</span>.applicationContext).getConversionServices();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> Consumer&lt;PropertyEditorRegistry&gt; <span class="title function_">getPropertyEditorInitializer</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.applicationContext <span class="keyword">instanceof</span> ConfigurableApplicationContext configurableContext) {</span><br><span class="line">    <span class="keyword">return</span> configurableContext.getBeanFactory()::copyRegisteredEditorsTo;</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<p>关键点在于使用Binder将<code>ConfigurationPropertySource</code>中的属性源和实际的<code>ConfigurationPropertiesBean</code>对象绑定在了一起，实现配置的注入。注意<code>ConfigurationPropertySource</code>中的属性源是带有<code>prefix</code>的</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PrefixedConfigurationPropertySource</span> <span class="keyword">implements</span> <span class="title class_">ConfigurationPropertySource</span> {</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ConfigurationPropertySource source;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ConfigurationPropertyName prefix;</span><br><span class="line"></span><br><span class="line">  PrefixedConfigurationPropertySource(ConfigurationPropertySource source, String prefix) {</span><br><span class="line">    Assert.notNull(source, <span class="string">"Source must not be null"</span>);</span><br><span class="line">    Assert.hasText(prefix, <span class="string">"Prefix must not be empty"</span>);</span><br><span class="line">    <span class="built_in">this</span>.source = source;</span><br><span class="line">    <span class="built_in">this</span>.prefix = ConfigurationPropertyName.of(prefix);</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://www.cnblogs.com/wt20/p/17588895.html" title="https://www.cnblogs.com/wt20/p/17588895.html">https://www.cnblogs.com/wt20/p/17588895.html</a></li>
-<li><a href="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot%E4%B9%8B%E7%BC%96%E7%A8%8B%E5%BC%8F%E5%B1%9E%E6%80%A7%E7%BB%91%E5%AE%9ABinder/" title="https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/">https://spring.hhui.top/spring-blog/2023/06/18/230618-SpringBoot之编程式属性绑定Binder/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>Spring源码系列</tag>
+        <tag>Spring源码阅读</tag>
       </tags>
   </entry>
   <entry>
@@ -2070,10 +1938,142 @@
 </ul>
 ]]></content>
       <categories>
+        <category>Spring源码系列</category>
+      </categories>
+      <tags>
+        <tag>Spring源码阅读</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot实现GitHub第三方登录</title>
+    <url>/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
+<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
+<p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
+<span id="more"></span>
+
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
+<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
+<p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
+<p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
+<p>下面是Demo：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<p>相关文档：</p>
+<ul>
+<li><a href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
+<li><a href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
+</ul>
+]]></content>
+      <categories>
         <category>Spring</category>
       </categories>
       <tags>
-        <tag>Spring源码系列</tag>
+        <tag>oauth</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RabbitMQ学习笔记</title>
+    <url>/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="1-AMQP协议中的关键概念"><a href="#1-AMQP协议中的关键概念" class="headerlink" title="1 AMQP协议中的关键概念"></a>1 AMQP协议中的关键概念</h1><ul>
+<li><code>Connection</code>socket连接，它封装了socket协议相关部分逻辑。你可以认为一个Connection就是一个Tcp连接。</li>
+<li><code>Channel</code>生产者与Broker通信的通道，可以把通道理解成共享一个 TCP 连接的多个轻量化连接（通常每个thread创建单独的channel进行通讯）。</li>
+</ul>
+<blockquote>
+<p><code>Connection</code>就是一个TCP连接对象，而<code>Channel</code>相当于连接池</p>
+</blockquote>
+<ul>
+<li><code>Exchange</code>交换器，接收消息，按照路由规则将消息路由到一个或者多个队列</li>
+<li><code>Queue</code>消息队列，用来保存消息，供消费者消费</li>
+<li><code>Produce/Consumer</code>消息生产者和消费者</li>
+<li><code>Binding</code>绑定，交换器和消息队列之间的虚拟连接，绑定中可以包含一个或者多个 RoutingKey。</li>
+<li><code>RoutingKey</code>路由键，生产者将消息发送给交换器的时候，会指定一个 RoutingKey，用来指定路由规则，交换器根据路由键把消息发送到指定队列</li>
+</ul>
+<h1 id="2-消息队列模式"><a href="#2-消息队列模式" class="headerlink" title="2 消息队列模式"></a>2 消息队列模式</h1><h2 id="2-1-点对点模式"><a href="#2-1-点对点模式" class="headerlink" title="2.1 点对点模式"></a>2.1 点对点模式</h2><p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/e6053e18-99d6-4914-b06a-4dc65d258a30_1koS-yViN2.png"></p>
+<p>点对点模式特点：<strong>一个具体的消息只能由一个消费者消费</strong>，多个生产者可以向同一个消息队列发送消息，但是一个消息在被一个消息者处理的时候，这个消息在队列上会被锁住或者被移除并且其他消费者无法处理该消息。</p>
+<h2 id="2-2-发布-订阅模式"><a href="#2-2-发布-订阅模式" class="headerlink" title="2.2 发布/订阅模式"></a>2.2 发布/订阅模式</h2><p><strong>单个消息可以被多个订阅者并发的获取和处理</strong>。一般来说，订阅有两种类型：</p>
+<ul>
+<li>临时订阅：这种订阅只有在消费者启动并且运行的时候才存在。一旦消费者退出，相应的订阅以及尚未处理的消息就会丢失。</li>
+<li>持久订阅：这种订阅会一直存在，除非主动去删除。消费者退出后，消息系统会继续维护该订阅，并且后续消息可以被继续处理。</li>
+</ul>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_TSARw_VzVJ.png"></p>
+<h1 id="3-RabbitMQ原理"><a href="#3-RabbitMQ原理" class="headerlink" title="3 RabbitMQ原理"></a>3 RabbitMQ原理</h1><p>RabbbitMQ使用Erlang语言开发，基于AMQP协议实现。AMQP协议由三部分组成，分别是消费者，生产者和服务端。执行流程如下：</p>
+<ol>
+<li><p>生产者连接到Server，建立一个连接，开启一个通道。</p>
+</li>
+<li><p>生产者声明交换器和队列，设置相关属性，并通过路由键将交换器和队列进行绑定。</p>
+</li>
+<li><p>消费者也需要进行建立连接，开启信道等操作，便于接收消息。</p>
+</li>
+<li><p>生产者发送消息，发送到服务端中的虚拟主机。</p>
+</li>
+<li><p>虚拟主机中的交换器根据路由键选择路由规则，发送到不同的消息队列中。</p>
+</li>
+<li><p>订阅了消息队列的消费者就可以获取到消息，进行消费。</p>
+</li>
+</ol>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/82ff9d01-1ac7-4463-9733-a7372c642d35_wBUrxx8cW8.png"></p>
+<blockquote>
+<p>📌RabbitMQ 消息传递模型的核心思想是生产者从不直接向队列发送任何消息。实际上，生产者通常根本不知道消息是否会被传递到任何队列。</p>
+<p>相反，生产者只能将消息发送到交换器。交换是一件非常简单的事情。一方面，它接收来自生产者的消息，另一方面，它将消息推送到队列。</p>
+<p>交换机绑定多个队列，一个队列绑定一个键</p>
+</blockquote>
+<h2 id="3-1-交换机"><a href="#3-1-交换机" class="headerlink" title="3.1 交换机"></a>3.1 交换机</h2><p>Rabbitmq队列和交换机是绑定的，每个队列都有一个***<code>routingKey</code><em><strong>，发布者每次发布的消息也有一个</strong></em><code>routingKey</code>***，交换机会根据不同的匹配规则将消息匹配到与自己绑定的队列中</p>
+<p>RabbitMQ常用交换机有四种：</p>
+<h3 id="3-1-1-Direct"><a href="#3-1-1-Direct" class="headerlink" title="3.1.1 Direct"></a>3.1.1 Direct</h3><p>Direct exchange背后的路由算法很简单 - 消息进入其绑定键与消息的路由键完全匹配的队列。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_gOLw0gI3JR.png"></p>
+<blockquote>
+<p>多重绑定</p>
+<p>使用相同的绑定键绑定多个队列是完全合法的。在我们的示例中，我们可以使用绑定键black在X和Q1之间添加绑定。在这种情况下，直接交换的行为将类似于扇出，并将消息广播到所有匹配的队列。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_ILV-y7PI8A.png"></p>
+</blockquote>
+<h3 id="3-1-2-Topic-exchange"><a href="#3-1-2-Topic-exchange" class="headerlink" title="3.1.2 Topic exchange"></a>3.1.2 Topic exchange</h3><p>**<code>topic</code>**：将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。符号“#”匹配一个或多个词，符号“*”只能匹配一个词</p>
+<p>发送到Topic exchange的 <code>routing_key</code>它必须是一个由点分隔的单词列表。这些单词可以是任何内容，但通常它们指定与消息相关的一些功能。一些有效的路由键示例： <code>stock.usd.nyse</code> 、 <code>nyse.vmw</code> 、<code>quick.orange.rabbit</code> 。路由密钥中可以有任意多个单词，最多 255 个字节。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_WeBDd2GgZO.png"></p>
+<ul>
+<li><code>*</code>可以恰好替代一个单词。</li>
+<li><code>#</code>可以替代零个或多个单词。</li>
+</ul>
+<p>当队列与<code>#</code>绑定键绑定时 - 它将接收所有消息，无论路由键如何 - 就像在扇区交换器中一样。</p>
+<h3 id="3-1-3-Fanout"><a href="#3-1-3-Fanout" class="headerlink" title="3.1.3 Fanout"></a>3.1.3 Fanout</h3><p>Fanout 不处理路由键，而是广播。你只需要简单的将队列绑定到交换机上。一个发送到该类型交换机的消息都会被广播到与该交换机绑定的所有队列上</p>
+<h3 id="Headers"><a href="#Headers" class="headerlink" title="Headers"></a><strong>Headers</strong></h3><p>不处理路由键，而是根据发送的消息内容中的headers属性进行匹配。</p>
+<h2 id="3-2-队列"><a href="#3-2-队列" class="headerlink" title="3.2 队列"></a>3.2 队列</h2><h3 id="3-2-1-死信队列"><a href="#3-2-1-死信队列" class="headerlink" title="3.2.1 死信队列"></a>3.2.1 死信队列</h3><p>来自队列的消息可能是“<strong>死信的</strong>”；也就是说，当发生以下任何事件时，重新发布到交换机：</p>
+<ul>
+<li>消费者使用<code>basic.reject</code>或 <code>basic.nack</code>否定确认消息，并将requeue参数设置为false。</li>
+<li>由于每条消息 TTL（最大存活时间） 的原因，该消息过期；</li>
+<li>由于队列超出长度限制，消息被丢弃</li>
+</ul>
+<blockquote>
+<p>应用场景</p>
+</blockquote>
+<p>一般用在较为重要的业务队列中，为了确保未被正确消费的消息不被丢弃，当发生异常时，通过死信队列，可以让未正确处理的消息暂存到另一个队列中。待后续排查清楚问题后，编写相应的处理代码来处理死信消息，这样比手工恢复数据要好太多了 。</p>
+<h3 id="3-2-2-延时队列"><a href="#3-2-2-延时队列" class="headerlink" title="3.2.2 延时队列"></a>3.2.2 延时队列</h3><p>​ 延迟队列存储的对象肯定是对应的延时消息，所谓”延时消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。</p>
+<p><a href="https://www.wolai.com/57hkFrHvCbQvHVKQW5Z4jk" title="官方文档">官方文档</a></p>
+<h2 id="3-3-ACK机制"><a href="#3-3-ACK机制" class="headerlink" title="3.3 ACK机制"></a>3.3 ACK机制</h2><p>ACK机制是消费者从RabbitMQ收到消息并处理完成后，反馈给RabbitMQ，RabbitMQ收到反馈后才将次消息从队列中删除。如果消费者处理消息时出现异常，RabbitMQ会认为消息未被正常消费，将消息重新放入队列中。可以在消费消息中try-catch或在Consumer的配置文件中配置重试机制来解决这个问题。</p>
+<h2 id="3-4-重试机制"><a href="#3-4-重试机制" class="headerlink" title="3.4 重试机制"></a>3.4 重试机制</h2><p>在消息<strong>消费失败</strong>的时候，Spring-AMQP 会通过<strong>消费重试</strong>机制，重新投递该消息给 Consumer ，让 Consumer 有机会重新消费消息，实现消费成功。</p>
+<p>当然，Spring-AMQP 并不会无限重新投递消息给 Consumer 重新消费，而是在默认情况下，达到 N 次重试次数时，Consumer 还是消费失败时，该消息就会进入到<strong>死信队列</strong>。后续，我们可以通过对死信队列中的消息进行重发，来使得消费者实例再次进行消费。</p>
+<p>为了效率和节省资源，我们一般会选择<code>CONNECTION</code>模式</p>
+<h1 id="4-衡量标准"><a href="#4-衡量标准" class="headerlink" title="4 衡量标准"></a>4 衡量标准</h1><p>市面上的</p>
+<ul>
+<li><strong>消息顺序</strong>：发送到队列的消息，消费时是否可以保证消费的顺序，比如 A 先下单，B 后下单，应该是 A 先去扣库存，B 再去扣，顺序不能反。</li>
+<li><strong>消息路由</strong>：根据路由规则，只订阅匹配路由规则的消息，比如有 A/B 两者规则的消息，消费者可以只订阅 A 消息，B 消息不会消费。</li>
+<li>消息可靠性：是否会存在丢消息的情况，比如有 A/B 两个消息，最后只有 B 消息能消费，A 消息丢失。</li>
+<li><strong>消息时序</strong>：主要包括 “消息存活时间” 和“延迟 / 预定的消息”，“消息存活时间”表示生产者可以对消息设置 TTL，如果超过该 TTL，消息会自动消失；“延迟 / 预定的消息”指的是可以延迟或者预订消费消息，比如延时 5 分钟，那么消息会 5 分钟后才能让消费者消费，时间未到的话，是不能消费的。</li>
+<li><strong>消息留存</strong>：消息消费成功后，是否还会继续保留在消息队列。</li>
+<li><strong>容错性</strong>：当一条消息消费失败后，是否有一些机制，保证这条消息是一种能成功，比如异步第三方退款消息，需要保证这条消息消费掉，才能确定给用户退款成功，所以必须保证这条消息消费成功的准确性。</li>
+<li><strong>伸缩</strong>：当消息队列性能有问题，比如消费太慢，是否可以快速支持库容；当消费队列过多，浪费系统资源，是否可以支持缩容。</li>
+<li><strong>吞吐量</strong>：支持的最高并发数。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>中间件</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -2124,215 +2124,6 @@
       <tags>
         <tag>技术方案</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>微服务理论体系</title>
-    <url>/2023/02/08/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/</url>
-    <content><![CDATA[<h1 id="1-微服务发展历史"><a href="#1-微服务发展历史" class="headerlink" title="1 微服务发展历史"></a>1 微服务发展历史</h1><ul>
-<li><p><em><strong>单体应用阶段</strong></em></p>
-<p>早期互联网公司的架构：</p>
-<ul>
-<li>LAMP（Linux + Apache + MySQL + PHP）</li>
-<li>MVC（Spring + iBatis/Hibernate + Tomcat）<br>特点：团队规模一般不超过5人</li>
-</ul>
-</li>
-<li><p><em><strong>服务化思想</strong></em></p>
-<p>把原来整个大的项目粗略分为不同的业务模块，拆分出来进行独立部署，并以RPC接口的形式对外提供服务。这样原来的模块就会由进程内调用变为远程RPC调用，也就可以独立开发、测试、上线和运维，甚至交给不同的团队去做。</p>
-</li>
-<li><p><em><strong>微服务阶段</strong></em></p>
-<p>相比于服务化，微服务拆分粒度更细，服务之间更加独立，并且由于拆分后的服务更多，需要有一个同一个管理平台去维护，需要做服务监控、服务追踪、服务治理等去管理</p>
-</li>
-</ul>
-<h2 id="1-1-服务发布和引用"><a href="#1-1-服务发布和引用" class="headerlink" title="1.1 服务发布和引用"></a>1.1 服务发布和引用</h2><blockquote>
-<p>📌最常见的服务发布和引用的方式有三种：</p>
-<ul>
-<li>RESTful API</li>
-<li>XML配置</li>
-<li>IDL文件</li>
-</ul>
-</blockquote>
-<h3 id="1-1-1-RESTful-API"><a href="#1-1-1-RESTful-API" class="headerlink" title="1.1.1 RESTful API"></a>1.1.1 RESTful API</h3><p>主要被<strong>用作HTTP或者HTTPS协议的接口定义</strong>，即使在非微服务架构体系下，也被广泛采用。</p>
-<p>服务提供者和消费者间通过HTTP协议进行交互，适合需要向其他业务部分提供服务或者给外网提供服务的场景</p>
-<h3 id="1-1-2-XML配置"><a href="#1-1-2-XML配置" class="headerlink" title="1.1.2 XML配置"></a>1.1.2 XML配置</h3><p>这种方式的服务发布和引用主要分三个步骤：</p>
-<ul>
-<li>服务提供者定义接口，并实现接口。</li>
-<li>服务提供者进程启动时，通过加载server.xml配置文件将接口暴露出去。</li>
-<li>服务消费者进程启动时，通过加载client.xml配置文件来引入要调用的接口。</li>
-</ul>
-<p>服务提供者和服务消费者之间维持一份对等的XML配置文件，来保证服务消费者按照服务提供者的约定来进行服务调用。在这种方式下，如果服务提供者变更了接口定义，不仅需要更新server.xml，还需要同时更新client.xml。</p>
-<p>适用场景：</p>
-<ul>
-<li>私有RPC框架（性能要求高）</li>
-<li>公司内部联系比较紧密的业务</li>
-</ul>
-<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> </span></span><br><span class="line"><span class="tag">      <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">xmlns:aop</span>=<span class="string">"http://www.springframework.org/schema/aop"</span> </span></span><br><span class="line"><span class="tag">     <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="string"><span class="tag">            http://www.springframework.org/schema/context/spring-context-2.5.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">motan:service</span> <span class="attr">ref</span>=<span class="string">"userLastStatusLocalService"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">requestTimeout</span>=<span class="string">"50"</span> <span class="attr">retries</span>=<span class="string">"2"</span>    <span class="attr">interface</span>=<span class="string">"com.weibo.api.common.status.service.UserLastStatusService"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">basicService</span>=<span class="string">"serviceBasicConfig"</span> <span class="attr">export</span>=<span class="string">"motan:8882"</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">motan:method</span> <span class="attr">name</span>=<span class="string">"getLastStatusId"</span> <span class="attr">requestTimeout</span>=<span class="string">"300"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">retries</span>=<span class="string">"0"</span> /&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">motan:method</span> <span class="attr">name</span>=<span class="string">"getLastStatusIds"</span> <span class="attr">requestTimeout</span>=<span class="string">"300"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">retries</span>=<span class="string">"0"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">motan:service</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="1-1-3-IDL文件"><a href="#1-1-3-IDL文件" class="headerlink" title="1.1.3 IDL文件"></a>1.1.3 IDL文件</h3><p>通过一种中立的方式来描述接口，使得在不同的平台上运行的对象和不同语言编写的程序可以相互通信交流。</p>
-<p>有两种最常用的IDL：</p>
-<ul>
-<li>Facebook开源的<strong>Thrift协议</strong></li>
-<li>Google开源的<strong>gRPC协议</strong>。</li>
-</ul>
-<h2 id="1-2-注册中心"><a href="#1-2-注册中心" class="headerlink" title="1.2 注册中心"></a>1.2 注册中心</h2><ul>
-<li>服务注册</li>
-<li>服务发现</li>
-</ul>
-<h3 id="1-2-1-注册中心原理"><a href="#1-2-1-注册中心原理" class="headerlink" title="1.2.1 注册中心原理"></a>1.2.1 注册中心原理</h3><p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_qRiIliPDtc.png"></p>
-<ul>
-<li>RPC Server提供服务，在启动时，根据服务发布文件server.xml中的配置的信息，向Registry注册自身服务，并向Registry定期发送心跳汇报存活状态。</li>
-<li>RPC Client调用服务，在启动时，根据服务引用文件client.xml中配置的信息，向Registry订阅服务，把Registry返回的服务节点列表缓存在本地内存中，并与RPC Sever建立连接。</li>
-<li>当RPC Server节点发生变更时，Registry会同步变更，RPC Client感知后会刷新本地内存中缓存的服务节点列表。</li>
-<li>RPC Client从本地缓存的服务节点列表中，<strong>基于负载均衡算法</strong>选择一台RPC Sever发起调用。</li>
-</ul>
-<h3 id="1-2-2-注册中心实现方式"><a href="#1-2-2-注册中心实现方式" class="headerlink" title="1.2.2 注册中心实现方式"></a>1.2.2 注册中心实现方式</h3><h4 id="注册中心API"><a href="#注册中心API" class="headerlink" title="注册中心API"></a><strong>注册中心API</strong></h4><ul>
-<li>服务注册接口：服务提供者通过调用服务注册接口来完成服务注册。</li>
-<li>服务反注册接口：服务提供者通过调用服务反注册接口来完成服务注销。</li>
-<li>心跳汇报接口：服务提供者通过调用心跳汇报接口完成节点存活状态上报。</li>
-<li>服务订阅接口：服务消费者通过调用服务订阅接口完成服务订阅，获取可用的服务提供者节点列表。</li>
-<li>服务变更查询接口：服务消费者通过调用服务变更查询接口，获取最新的可用服务节点列表。</li>
-<li>服务查询接口：查询注册中心当前注册了哪些服务信息。</li>
-<li>服务修改接口：修改注册中心中某一服务的信息。</li>
-</ul>
-<h4 id="1-2-2-2-集群部署"><a href="#1-2-2-2-集群部署" class="headerlink" title="1.2.2.2 集群部署"></a>1.2.2.2 集群部署</h4><p>注册中心作为服务提供者和服务消费者之间沟通的桥梁，它的重要性不言而喻。所以注册中心一般都是采用集群部署来保证高可用性，并通过分布式一致性协议来确保集群中不同节点之间的数据保持一致。</p>
-<p>以ZooKeeper为例，ZooKeeper集群中包含多个节点，服务提供者和服务消费者可以同任意一个节点通信，因为它们的数据一定是相同的。ZooKeeper的工作原理：</p>
-<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_o-_tuXD8rn.png"></p>
-<ul>
-<li>每个Server在内存中存储了一份数据，Client的读请求可以请求任意一个Server</li>
-<li>ZooKeeper启动时，将从实例中选举一个leader（Paxos协议）</li>
-<li>Leader负责处理数据更新等操作（ZAB协议）</li>
-<li>一个更新操作成功，当且仅当大多数Server在内存中成功修改 </li>
-</ul>
-<p>通过上面这种方式，ZooKeeper保证了<strong>高可用性</strong>以及<strong>数据一致性</strong></p>
-<h4 id="目录存储"><a href="#目录存储" class="headerlink" title="目录存储"></a><strong>目录存储</strong></h4><p>还是以ZooKeeper为例，注册中心存储服务信息一般采用层次化的目录结构：</p>
-<ul>
-<li>每个目录在ZooKeeper中叫作znode，并且其有一个唯一的路径标识。</li>
-<li>znode可以包含数据和子znode。</li>
-<li>znode中的数据可以有多个版本，比如某一个znode下存有多个数据版本，那么查询这个路径下的数据需带上版本信息。</li>
-</ul>
-<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_gn7reAdS58.png"></p>
-<h4 id="服务健康状态检测"><a href="#服务健康状态检测" class="headerlink" title="服务健康状态检测"></a><strong>服务健康状态检测</strong></h4><p>一旦注册中心探测到有服务提供者节点新加入或者被剔除，就必须立刻通知所有订阅该服务的服务消费者，刷新本地缓存的服务节点信息，确保服务调用不会请求不可用的服务提供者节点。</p>
-<p>继续以ZooKeeper为例，基于ZooKeeper的<strong>Watcher机制</strong>，来实现服务状态变更通知给服务消费者的。服务消费者在调用ZooKeeper的getData方法订阅服务时，还可以通过监听器Watcher的process方法获取服务的变更，然后调用getData方法来获取变更后的数据，刷新本地缓存的服务节点信息。</p>
-<h4 id="1-2-2-5-白名单机制"><a href="#1-2-2-5-白名单机制" class="headerlink" title="1.2.2.5 白名单机制"></a>1.2.2.5 白名单机制</h4><p>在实际应用中，注册中心可以提供一个白名单机制，只有添加到注册中心白名单内的RPC Server，才能够调用注册中心的注册接口，这样的话可以避免测试环境中的节点意外跑到线上环境中去。</p>
-<h2 id="1-3-RPC远程调用"><a href="#1-3-RPC远程调用" class="headerlink" title="1.3 RPC远程调用"></a>1.3 RPC远程调用</h2><blockquote>
-<p>RPC协议的主要目的是做到不同服务间调用方法像同一服务间调用本地方法一样</p>
-</blockquote>
-<p>由服务提供者给出业务接口声明，在调用方的程序里面，RPC框架根据调用的服务接口提前生成动态代理实现类，并通过依赖注入等技术注入到声明了该接口的相关业务逻辑里面。该代理实现类会拦截所有的方法调用，在提供的方法处理逻辑里面完成一整套的远程调用，并把远程调用结果返回给调用方，这样调用方在调用远程方法的时候就获得了像调用本地接口一样的体验。</p>
-<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_cSeWjwsfhb.png"></p>
-<p>要完成一次RPC调用，就必须先建立网络连接。建立连接后，双方还必须按照某种约定的协议进行网络通信，这个协议就是通信协议。双方能够正常通信后，服务端接收到请求时，需要以某种方式进行处理，处理成功后，把请求结果返回给客户端。为了减少传输的数据大小，还要对数据进行压缩，也就是对数据进行序列化。</p>
-<h3 id="1-3-1-客户端和服务端如何建立网络连接？"><a href="#1-3-1-客户端和服务端如何建立网络连接？" class="headerlink" title="1.3.1 客户端和服务端如何建立网络连接？"></a>1.3.1 客户端和服务端如何建立网络连接？</h3><ol>
-<li><p>HTTP通信</p>
-</li>
-<li><p>Socket通信</p>
-<p>Socket通信是基于TCP/IP协议的封装，建立一次Socket连接至少需要一对套接字，其中一个运行于客户端，称为ClientSocket；另一个运行于服务器端，称为ServerSocket。Socket通信的过程分为四个步骤：服务器监听、客户端请求、连接确认、数据传输。</p>
-</li>
-</ol>
-<h3 id="1-3-2-服务端如何处理请求？"><a href="#1-3-2-服务端如何处理请求？" class="headerlink" title="1.3.2 服务端如何处理请求？"></a>1.3.2 服务端如何处理请求？</h3><p>三种处理方式：</p>
-<ul>
-<li><p>同步阻塞方式（BIO）：客户端每发一次请求，服务端就生成一个线程去处理。</p>
-<p>适用于连接数比较小的业务场景，这样的话不至于系统中没有可用线程去处理请求。这种方式写的程序也比较简单直观，易于理解。</p>
-</li>
-<li><p>同步非阻塞方式 (NIO)：客户端每发一次请求，服务端并不是每次都创建一个新线程来处理，而是通过I/O多路复用技术进行处理。就是把多个I/O的阻塞复用到同一个select的阻塞上，从而使系统在单线程的情况下可以同时处理多个客户端请求。</p>
-<p>适用于连接数比较多并且请求消耗比较轻的业务场景，比如聊天服务器。这种方式相比BIO，相对来说编程比较复杂。</p>
-</li>
-<li><p>异步非阻塞方式（AIO）：客户端只需要发起一个I/O操作然后立即返回，等I/O操作真正完成以后，客户端会得到I/O操作完成的通知，此时客户端只需要对数据进行处理就好了，不需要进行实际的I/O读写操作，因为真正的I/O读取或者写入操作已经由内核完成了。</p>
-<p>适用于连接数比较多而且请求消耗比较重的业务场景，比如涉及I/O操作的相册服务器。这种方式相比另外两种，编程难度最大，程序也不易于理解。</p>
-</li>
-</ul>
-<p>上面两个问题就是“<em><strong>通信框架</strong></em>”要解决的问题，常用开源通信框架有Netty、MINA等</p>
-<h3 id="1-3-3-数据传输采用什么协议？"><a href="#1-3-3-数据传输采用什么协议？" class="headerlink" title="1.3.3 数据传输采用什么协议？"></a>1.3.3 数据传输采用什么协议？</h3><ul>
-<li>开放协议：如最常用的Http</li>
-<li>私有协议：如Dubbo</li>
-</ul>
-<p>协议的作用就是“约定”。消费者按照约定对数据进行加密传输，提供者按照约定解码数据并进行处理，最后再加密发给消费者。</p>
-<h3 id="1-3-4-数据该如何序列化和反序列化？"><a href="#1-3-4-数据该如何序列化和反序列化？" class="headerlink" title="1.3.4 数据该如何序列化和反序列化？"></a>1.3.4 数据该如何序列化和反序列化？</h3><p>常用的序列化方式分为两类：文本类如<code>XML/JSON</code>等，二进制类如<code>PB/Thrift</code>等，而具体采用哪种序列化方式，主要取决于三个方面的因素。</p>
-<h2 id="1-4-服务监控"><a href="#1-4-服务监控" class="headerlink" title="1.4 服务监控"></a>1.4 服务监控</h2><p>服务监控的三个关键点：</p>
-<h3 id="1-4-1-监控对象"><a href="#1-4-1-监控对象" class="headerlink" title="1.4.1 监控对象"></a>1.4.1 监控对象</h3><ul>
-<li>用户端监控</li>
-<li>接口监控</li>
-<li>资源监控</li>
-<li>基础监控</li>
-</ul>
-<h3 id="1-4-2-监控指标"><a href="#1-4-2-监控指标" class="headerlink" title="1.4.2 监控指标"></a>1.4.2 监控指标</h3><ul>
-<li>请求量</li>
-<li>响应时间</li>
-<li>错误率</li>
-</ul>
-<h3 id="1-4-3-监控系统原理"><a href="#1-4-3-监控系统原理" class="headerlink" title="1.4.3 监控系统原理"></a>1.4.3 监控系统原理</h3><p>监控系统主要包括四个环节：数据采集、数据传输、数据处理和数据展示</p>
-<h4 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a><strong>数据采集</strong></h4><p>通常有两种数据采集方式：</p>
-<ul>
-<li>服务主动上报</li>
-<li>代理收集</li>
-</ul>
-<h4 id="数据传输"><a href="#数据传输" class="headerlink" title="数据传输"></a><strong>数据传输</strong></h4><ul>
-<li>UDP传输</li>
-<li>Kafka传输</li>
-</ul>
-<h4 id="数据处理"><a href="#数据处理" class="headerlink" title="数据处理"></a><strong>数据处理</strong></h4><ul>
-<li>接口维度聚合</li>
-<li>机器维度聚合</li>
-</ul>
-<p><strong>数据展示</strong></p>
-<p>如常见的曲线图、饼状图等等，以Dashboard方式展示给用户</p>
-<p>补充：</p>
-<p><strong>①监控架构</strong></p>
-<blockquote>
-<p>下面的图是大部分公司的一种监控架构图。每一个服务都有一个 Agent，Agent 收集到关键信息，会传到一些 MQ 中，为了解耦。</p>
-<p>同时将日志传入 ELK，将 Metrics 传入 InfluxDB 时间序列库。而像 Nagios，可以定期向 Agent 发起信息检查微服务。</p>
-<p><img src="https://pic4.zhimg.com/v2-2b4b839b0246785af5e3f47872a81987_b.jpg"></p>
-</blockquote>
-<h2 id="1-5-服务追踪"><a href="#1-5-服务追踪" class="headerlink" title="1.5 服务追踪"></a>1.5 服务追踪</h2><p>服务追踪可以跟踪记录用户的一次请求都发起了哪些调用，经过哪些服务处理，并记录每一次调用所涉及的服务的详细信息。在出现调用失败的时候，就可以第一时间定位到问题出现的地方。</p>
-<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_jNdoYfL_Si.png"></p>
-<h3 id="1-5-1-服务追踪系统原理"><a href="#1-5-1-服务追踪系统原理" class="headerlink" title="1.5.1 服务追踪系统原理"></a>1.5.1 服务追踪系统原理</h3><p>服务追踪系统的鼻祖：Google发布的一篇的论文<a href="http://bigbully.github.io/Dapper-translation/" title="Dapper, a Large-Scale Distributed Systems Tracing Infrastructure">Dapper, a Large-Scale Distributed Systems Tracing Infrastructure</a>，里面详细讲解了服务追踪系统的实现原理。它的核心理念就是<strong>调用链</strong>：通过一个全局唯一的ID将分布在各个服务节点上的同一次请求串联起来，从而还原原有的调用关系，可以追踪系统问题、分析调用数据并统计各种系统指标。</p>
-<p>可以说后面的诞生各种服务追踪系统都是基于Dapper衍生出来的，比较有名的有Twitter的<a href="http://zipkin.io/" title="Zipkin">Zipkin</a>、阿里的<a href="http://www.slideshare.net/terryice/eagleeye-with-taobaojavaone" title="鹰眼">鹰眼</a>、美团的<a href="http://tech.meituan.com/mt_mtrace.html" title="MTrace">MTrace</a>等。</p>
-<p>基本概念：<code>traceId</code>、<code>spanId</code>、<code>annonation</code></p>
-<ul>
-<li><code>traceId</code>，用于标识某一次具体的请求ID。当用户的请求进入系统后，会在RPC调用网络的第一层生成一个全局唯一的traceId，并且会随着每一层的RPC调用，不断往后传递，这样的话通过traceId就可以把一次用户请求在系统中调用的路径串联起来。</li>
-<li><code>spanId</code>，用于标识一次RPC调用在分布式请求中的位置。当用户的请求进入系统后，处在RPC调用网络的第一层A时spanId初始值是0，进入下一层RPC调用B的时候spanId是0.1，继续进入下一层RPC调用C时spanId是0.1.1，而与B处在同一层的RPC调用E的spanId是0.2，这样的话通过spanId就可以定位某一次RPC请求在系统调用中所处的位置，以及它的上下游依赖分别是谁。</li>
-<li><code>annotation</code>，用于业务自定义埋点数据，可以是业务感兴趣的想上传到后端的数据，比如一次请求的用户UID。</li>
-</ul>
-<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_CSQOKCBHqX.png"></p>
-<h3 id="1-5-2-服务追踪系统实现"><a href="#1-5-2-服务追踪系统实现" class="headerlink" title="1.5.2 服务追踪系统实现"></a>1.5.2 服务追踪系统实现</h3><p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_HPN1q5xycN.png"></p>
-<ul>
-<li>数据采集层，负责数据埋点并上报。</li>
-<li>数据处理层，负责数据的存储与计算。</li>
-<li>数据展示层，负责数据的图形化展示。</li>
-</ul>
-<h4 id="1-5-2-1-数据埋点的流程"><a href="#1-5-2-1-数据埋点的流程" class="headerlink" title="1.5.2.1 数据埋点的流程"></a>1.5.2.1 数据埋点的流程</h4><p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_eKHdGZHbKl.png"></p>
-<p>以红色方框里圈出的A调用B的过程为例，一次RPC请求可以分为四个阶段。</p>
-<ul>
-<li>CS（Client Send）阶段 : 客户端发起请求，并生成调用的上下文。</li>
-<li>SR（Server Recieve）阶段 : 服务端接收请求，并生成上下文。</li>
-<li>SS（Server Send）阶段 : 服务端返回请求，这个阶段会将服务端上下文数据上报，下面这张图可以说明上报的数据有：<code>traceId=123456，spanId=0.1，appKey=B，method=B.method，start=103，duration=38</code></li>
-<li>CR（Client Recieve）阶段 : 客户端接收返回结果，这个阶段会将客户端上下文数据上报，上报的数据有：<code>traceid=123456，spanId=0.1，appKey=A，method=B.method，start=103，duration=38</code></li>
-</ul>
-<h2 id="1-6-服务治理"><a href="#1-6-服务治理" class="headerlink" title="1.6 服务治理"></a>1.6 服务治理</h2><p>服务调用出现问题：</p>
-<ul>
-<li>注册中心宕机；</li>
-<li>服务提供者有节点宕机；</li>
-<li>服务消费者/提供者与注册中心之间的网络不通；</li>
-<li>服务消费者和服务提供者之间的网络不通；</li>
-</ul>
-<h3 id="1-6-1-节点管理"><a href="#1-6-1-节点管理" class="headerlink" title="1.6.1 节点管理"></a>1.6.1 节点管理</h3><ol>
-<li>注册中心主动摘除机制</li>
-<li>服务消费者摘除机制</li>
-</ol>
-<h3 id="1-6-2-负载均衡"><a href="#1-6-2-负载均衡" class="headerlink" title="1.6.2 负载均衡"></a>1.6.2 负载均衡</h3><ul>
-<li><strong>随机算法</strong></li>
-<li><strong>轮询算法</strong></li>
-<li><strong>最少活跃调用算法</strong></li>
-<li><strong>一致性Hash算法</strong></li>
-</ul>
-<h1 id="2-DevOps"><a href="#2-DevOps" class="headerlink" title="2 DevOps"></a>2 DevOps</h1><p>传统业务流程：开发→测试→运维</p>
-<p>DevOps：</p>
-<ul>
-<li>CI（Continuous Integration），持续集成。开发完成代码开发后，能自动地进行代码检查、单元测试、打包部署到测试环境，进行集成测试，跑自动化测试用例。</li>
-<li>CD（Continuous Deploy），持续部署/持续交付。代码测试通过后，能自动部署到类生产环境中进行集成测试，测试通过后再进行小流量的灰度验证，验证通过后代码就达到线上发布的要求了，就可以把代码自动部署到线上。</li>
-</ul>
-<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_kcPQoyjIJ3.png"></p>
-]]></content>
-      <categories>
-        <category>微服务</category>
-      </categories>
   </entry>
   <entry>
     <title>项目中的全局异常处理</title>
@@ -2557,6 +2348,215 @@
 ]]></content>
       <categories>
         <category>AI</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>微服务理论体系</title>
+    <url>/2023/02/08/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/</url>
+    <content><![CDATA[<h1 id="1-微服务发展历史"><a href="#1-微服务发展历史" class="headerlink" title="1 微服务发展历史"></a>1 微服务发展历史</h1><ul>
+<li><p><em><strong>单体应用阶段</strong></em></p>
+<p>早期互联网公司的架构：</p>
+<ul>
+<li>LAMP（Linux + Apache + MySQL + PHP）</li>
+<li>MVC（Spring + iBatis/Hibernate + Tomcat）<br>特点：团队规模一般不超过5人</li>
+</ul>
+</li>
+<li><p><em><strong>服务化思想</strong></em></p>
+<p>把原来整个大的项目粗略分为不同的业务模块，拆分出来进行独立部署，并以RPC接口的形式对外提供服务。这样原来的模块就会由进程内调用变为远程RPC调用，也就可以独立开发、测试、上线和运维，甚至交给不同的团队去做。</p>
+</li>
+<li><p><em><strong>微服务阶段</strong></em></p>
+<p>相比于服务化，微服务拆分粒度更细，服务之间更加独立，并且由于拆分后的服务更多，需要有一个同一个管理平台去维护，需要做服务监控、服务追踪、服务治理等去管理</p>
+</li>
+</ul>
+<h2 id="1-1-服务发布和引用"><a href="#1-1-服务发布和引用" class="headerlink" title="1.1 服务发布和引用"></a>1.1 服务发布和引用</h2><blockquote>
+<p>📌最常见的服务发布和引用的方式有三种：</p>
+<ul>
+<li>RESTful API</li>
+<li>XML配置</li>
+<li>IDL文件</li>
+</ul>
+</blockquote>
+<h3 id="1-1-1-RESTful-API"><a href="#1-1-1-RESTful-API" class="headerlink" title="1.1.1 RESTful API"></a>1.1.1 RESTful API</h3><p>主要被<strong>用作HTTP或者HTTPS协议的接口定义</strong>，即使在非微服务架构体系下，也被广泛采用。</p>
+<p>服务提供者和消费者间通过HTTP协议进行交互，适合需要向其他业务部分提供服务或者给外网提供服务的场景</p>
+<h3 id="1-1-2-XML配置"><a href="#1-1-2-XML配置" class="headerlink" title="1.1.2 XML配置"></a>1.1.2 XML配置</h3><p>这种方式的服务发布和引用主要分三个步骤：</p>
+<ul>
+<li>服务提供者定义接口，并实现接口。</li>
+<li>服务提供者进程启动时，通过加载server.xml配置文件将接口暴露出去。</li>
+<li>服务消费者进程启动时，通过加载client.xml配置文件来引入要调用的接口。</li>
+</ul>
+<p>服务提供者和服务消费者之间维持一份对等的XML配置文件，来保证服务消费者按照服务提供者的约定来进行服务调用。在这种方式下，如果服务提供者变更了接口定义，不仅需要更新server.xml，还需要同时更新client.xml。</p>
+<p>适用场景：</p>
+<ul>
+<li>私有RPC框架（性能要求高）</li>
+<li>公司内部联系比较紧密的业务</li>
+</ul>
+<figure class="highlight xml"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> </span></span><br><span class="line"><span class="tag">      <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">xmlns:aop</span>=<span class="string">"http://www.springframework.org/schema/aop"</span> </span></span><br><span class="line"><span class="tag">     <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="string"><span class="tag">            http://www.springframework.org/schema/context/spring-context-2.5.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">motan:service</span> <span class="attr">ref</span>=<span class="string">"userLastStatusLocalService"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">requestTimeout</span>=<span class="string">"50"</span> <span class="attr">retries</span>=<span class="string">"2"</span>    <span class="attr">interface</span>=<span class="string">"com.weibo.api.common.status.service.UserLastStatusService"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">basicService</span>=<span class="string">"serviceBasicConfig"</span> <span class="attr">export</span>=<span class="string">"motan:8882"</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">motan:method</span> <span class="attr">name</span>=<span class="string">"getLastStatusId"</span> <span class="attr">requestTimeout</span>=<span class="string">"300"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">retries</span>=<span class="string">"0"</span> /&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">motan:method</span> <span class="attr">name</span>=<span class="string">"getLastStatusIds"</span> <span class="attr">requestTimeout</span>=<span class="string">"300"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">retries</span>=<span class="string">"0"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">motan:service</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="1-1-3-IDL文件"><a href="#1-1-3-IDL文件" class="headerlink" title="1.1.3 IDL文件"></a>1.1.3 IDL文件</h3><p>通过一种中立的方式来描述接口，使得在不同的平台上运行的对象和不同语言编写的程序可以相互通信交流。</p>
+<p>有两种最常用的IDL：</p>
+<ul>
+<li>Facebook开源的<strong>Thrift协议</strong></li>
+<li>Google开源的<strong>gRPC协议</strong>。</li>
+</ul>
+<h2 id="1-2-注册中心"><a href="#1-2-注册中心" class="headerlink" title="1.2 注册中心"></a>1.2 注册中心</h2><ul>
+<li>服务注册</li>
+<li>服务发现</li>
+</ul>
+<h3 id="1-2-1-注册中心原理"><a href="#1-2-1-注册中心原理" class="headerlink" title="1.2.1 注册中心原理"></a>1.2.1 注册中心原理</h3><p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_qRiIliPDtc.png"></p>
+<ul>
+<li>RPC Server提供服务，在启动时，根据服务发布文件server.xml中的配置的信息，向Registry注册自身服务，并向Registry定期发送心跳汇报存活状态。</li>
+<li>RPC Client调用服务，在启动时，根据服务引用文件client.xml中配置的信息，向Registry订阅服务，把Registry返回的服务节点列表缓存在本地内存中，并与RPC Sever建立连接。</li>
+<li>当RPC Server节点发生变更时，Registry会同步变更，RPC Client感知后会刷新本地内存中缓存的服务节点列表。</li>
+<li>RPC Client从本地缓存的服务节点列表中，<strong>基于负载均衡算法</strong>选择一台RPC Sever发起调用。</li>
+</ul>
+<h3 id="1-2-2-注册中心实现方式"><a href="#1-2-2-注册中心实现方式" class="headerlink" title="1.2.2 注册中心实现方式"></a>1.2.2 注册中心实现方式</h3><h4 id="注册中心API"><a href="#注册中心API" class="headerlink" title="注册中心API"></a><strong>注册中心API</strong></h4><ul>
+<li>服务注册接口：服务提供者通过调用服务注册接口来完成服务注册。</li>
+<li>服务反注册接口：服务提供者通过调用服务反注册接口来完成服务注销。</li>
+<li>心跳汇报接口：服务提供者通过调用心跳汇报接口完成节点存活状态上报。</li>
+<li>服务订阅接口：服务消费者通过调用服务订阅接口完成服务订阅，获取可用的服务提供者节点列表。</li>
+<li>服务变更查询接口：服务消费者通过调用服务变更查询接口，获取最新的可用服务节点列表。</li>
+<li>服务查询接口：查询注册中心当前注册了哪些服务信息。</li>
+<li>服务修改接口：修改注册中心中某一服务的信息。</li>
+</ul>
+<h4 id="1-2-2-2-集群部署"><a href="#1-2-2-2-集群部署" class="headerlink" title="1.2.2.2 集群部署"></a>1.2.2.2 集群部署</h4><p>注册中心作为服务提供者和服务消费者之间沟通的桥梁，它的重要性不言而喻。所以注册中心一般都是采用集群部署来保证高可用性，并通过分布式一致性协议来确保集群中不同节点之间的数据保持一致。</p>
+<p>以ZooKeeper为例，ZooKeeper集群中包含多个节点，服务提供者和服务消费者可以同任意一个节点通信，因为它们的数据一定是相同的。ZooKeeper的工作原理：</p>
+<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_o-_tuXD8rn.png"></p>
+<ul>
+<li>每个Server在内存中存储了一份数据，Client的读请求可以请求任意一个Server</li>
+<li>ZooKeeper启动时，将从实例中选举一个leader（Paxos协议）</li>
+<li>Leader负责处理数据更新等操作（ZAB协议）</li>
+<li>一个更新操作成功，当且仅当大多数Server在内存中成功修改 </li>
+</ul>
+<p>通过上面这种方式，ZooKeeper保证了<strong>高可用性</strong>以及<strong>数据一致性</strong></p>
+<h4 id="目录存储"><a href="#目录存储" class="headerlink" title="目录存储"></a><strong>目录存储</strong></h4><p>还是以ZooKeeper为例，注册中心存储服务信息一般采用层次化的目录结构：</p>
+<ul>
+<li>每个目录在ZooKeeper中叫作znode，并且其有一个唯一的路径标识。</li>
+<li>znode可以包含数据和子znode。</li>
+<li>znode中的数据可以有多个版本，比如某一个znode下存有多个数据版本，那么查询这个路径下的数据需带上版本信息。</li>
+</ul>
+<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_gn7reAdS58.png"></p>
+<h4 id="服务健康状态检测"><a href="#服务健康状态检测" class="headerlink" title="服务健康状态检测"></a><strong>服务健康状态检测</strong></h4><p>一旦注册中心探测到有服务提供者节点新加入或者被剔除，就必须立刻通知所有订阅该服务的服务消费者，刷新本地缓存的服务节点信息，确保服务调用不会请求不可用的服务提供者节点。</p>
+<p>继续以ZooKeeper为例，基于ZooKeeper的<strong>Watcher机制</strong>，来实现服务状态变更通知给服务消费者的。服务消费者在调用ZooKeeper的getData方法订阅服务时，还可以通过监听器Watcher的process方法获取服务的变更，然后调用getData方法来获取变更后的数据，刷新本地缓存的服务节点信息。</p>
+<h4 id="1-2-2-5-白名单机制"><a href="#1-2-2-5-白名单机制" class="headerlink" title="1.2.2.5 白名单机制"></a>1.2.2.5 白名单机制</h4><p>在实际应用中，注册中心可以提供一个白名单机制，只有添加到注册中心白名单内的RPC Server，才能够调用注册中心的注册接口，这样的话可以避免测试环境中的节点意外跑到线上环境中去。</p>
+<h2 id="1-3-RPC远程调用"><a href="#1-3-RPC远程调用" class="headerlink" title="1.3 RPC远程调用"></a>1.3 RPC远程调用</h2><blockquote>
+<p>RPC协议的主要目的是做到不同服务间调用方法像同一服务间调用本地方法一样</p>
+</blockquote>
+<p>由服务提供者给出业务接口声明，在调用方的程序里面，RPC框架根据调用的服务接口提前生成动态代理实现类，并通过依赖注入等技术注入到声明了该接口的相关业务逻辑里面。该代理实现类会拦截所有的方法调用，在提供的方法处理逻辑里面完成一整套的远程调用，并把远程调用结果返回给调用方，这样调用方在调用远程方法的时候就获得了像调用本地接口一样的体验。</p>
+<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_cSeWjwsfhb.png"></p>
+<p>要完成一次RPC调用，就必须先建立网络连接。建立连接后，双方还必须按照某种约定的协议进行网络通信，这个协议就是通信协议。双方能够正常通信后，服务端接收到请求时，需要以某种方式进行处理，处理成功后，把请求结果返回给客户端。为了减少传输的数据大小，还要对数据进行压缩，也就是对数据进行序列化。</p>
+<h3 id="1-3-1-客户端和服务端如何建立网络连接？"><a href="#1-3-1-客户端和服务端如何建立网络连接？" class="headerlink" title="1.3.1 客户端和服务端如何建立网络连接？"></a>1.3.1 客户端和服务端如何建立网络连接？</h3><ol>
+<li><p>HTTP通信</p>
+</li>
+<li><p>Socket通信</p>
+<p>Socket通信是基于TCP/IP协议的封装，建立一次Socket连接至少需要一对套接字，其中一个运行于客户端，称为ClientSocket；另一个运行于服务器端，称为ServerSocket。Socket通信的过程分为四个步骤：服务器监听、客户端请求、连接确认、数据传输。</p>
+</li>
+</ol>
+<h3 id="1-3-2-服务端如何处理请求？"><a href="#1-3-2-服务端如何处理请求？" class="headerlink" title="1.3.2 服务端如何处理请求？"></a>1.3.2 服务端如何处理请求？</h3><p>三种处理方式：</p>
+<ul>
+<li><p>同步阻塞方式（BIO）：客户端每发一次请求，服务端就生成一个线程去处理。</p>
+<p>适用于连接数比较小的业务场景，这样的话不至于系统中没有可用线程去处理请求。这种方式写的程序也比较简单直观，易于理解。</p>
+</li>
+<li><p>同步非阻塞方式 (NIO)：客户端每发一次请求，服务端并不是每次都创建一个新线程来处理，而是通过I/O多路复用技术进行处理。就是把多个I/O的阻塞复用到同一个select的阻塞上，从而使系统在单线程的情况下可以同时处理多个客户端请求。</p>
+<p>适用于连接数比较多并且请求消耗比较轻的业务场景，比如聊天服务器。这种方式相比BIO，相对来说编程比较复杂。</p>
+</li>
+<li><p>异步非阻塞方式（AIO）：客户端只需要发起一个I/O操作然后立即返回，等I/O操作真正完成以后，客户端会得到I/O操作完成的通知，此时客户端只需要对数据进行处理就好了，不需要进行实际的I/O读写操作，因为真正的I/O读取或者写入操作已经由内核完成了。</p>
+<p>适用于连接数比较多而且请求消耗比较重的业务场景，比如涉及I/O操作的相册服务器。这种方式相比另外两种，编程难度最大，程序也不易于理解。</p>
+</li>
+</ul>
+<p>上面两个问题就是“<em><strong>通信框架</strong></em>”要解决的问题，常用开源通信框架有Netty、MINA等</p>
+<h3 id="1-3-3-数据传输采用什么协议？"><a href="#1-3-3-数据传输采用什么协议？" class="headerlink" title="1.3.3 数据传输采用什么协议？"></a>1.3.3 数据传输采用什么协议？</h3><ul>
+<li>开放协议：如最常用的Http</li>
+<li>私有协议：如Dubbo</li>
+</ul>
+<p>协议的作用就是“约定”。消费者按照约定对数据进行加密传输，提供者按照约定解码数据并进行处理，最后再加密发给消费者。</p>
+<h3 id="1-3-4-数据该如何序列化和反序列化？"><a href="#1-3-4-数据该如何序列化和反序列化？" class="headerlink" title="1.3.4 数据该如何序列化和反序列化？"></a>1.3.4 数据该如何序列化和反序列化？</h3><p>常用的序列化方式分为两类：文本类如<code>XML/JSON</code>等，二进制类如<code>PB/Thrift</code>等，而具体采用哪种序列化方式，主要取决于三个方面的因素。</p>
+<h2 id="1-4-服务监控"><a href="#1-4-服务监控" class="headerlink" title="1.4 服务监控"></a>1.4 服务监控</h2><p>服务监控的三个关键点：</p>
+<h3 id="1-4-1-监控对象"><a href="#1-4-1-监控对象" class="headerlink" title="1.4.1 监控对象"></a>1.4.1 监控对象</h3><ul>
+<li>用户端监控</li>
+<li>接口监控</li>
+<li>资源监控</li>
+<li>基础监控</li>
+</ul>
+<h3 id="1-4-2-监控指标"><a href="#1-4-2-监控指标" class="headerlink" title="1.4.2 监控指标"></a>1.4.2 监控指标</h3><ul>
+<li>请求量</li>
+<li>响应时间</li>
+<li>错误率</li>
+</ul>
+<h3 id="1-4-3-监控系统原理"><a href="#1-4-3-监控系统原理" class="headerlink" title="1.4.3 监控系统原理"></a>1.4.3 监控系统原理</h3><p>监控系统主要包括四个环节：数据采集、数据传输、数据处理和数据展示</p>
+<h4 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a><strong>数据采集</strong></h4><p>通常有两种数据采集方式：</p>
+<ul>
+<li>服务主动上报</li>
+<li>代理收集</li>
+</ul>
+<h4 id="数据传输"><a href="#数据传输" class="headerlink" title="数据传输"></a><strong>数据传输</strong></h4><ul>
+<li>UDP传输</li>
+<li>Kafka传输</li>
+</ul>
+<h4 id="数据处理"><a href="#数据处理" class="headerlink" title="数据处理"></a><strong>数据处理</strong></h4><ul>
+<li>接口维度聚合</li>
+<li>机器维度聚合</li>
+</ul>
+<p><strong>数据展示</strong></p>
+<p>如常见的曲线图、饼状图等等，以Dashboard方式展示给用户</p>
+<p>补充：</p>
+<p><strong>①监控架构</strong></p>
+<blockquote>
+<p>下面的图是大部分公司的一种监控架构图。每一个服务都有一个 Agent，Agent 收集到关键信息，会传到一些 MQ 中，为了解耦。</p>
+<p>同时将日志传入 ELK，将 Metrics 传入 InfluxDB 时间序列库。而像 Nagios，可以定期向 Agent 发起信息检查微服务。</p>
+<p><img src="https://pic4.zhimg.com/v2-2b4b839b0246785af5e3f47872a81987_b.jpg"></p>
+</blockquote>
+<h2 id="1-5-服务追踪"><a href="#1-5-服务追踪" class="headerlink" title="1.5 服务追踪"></a>1.5 服务追踪</h2><p>服务追踪可以跟踪记录用户的一次请求都发起了哪些调用，经过哪些服务处理，并记录每一次调用所涉及的服务的详细信息。在出现调用失败的时候，就可以第一时间定位到问题出现的地方。</p>
+<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_jNdoYfL_Si.png"></p>
+<h3 id="1-5-1-服务追踪系统原理"><a href="#1-5-1-服务追踪系统原理" class="headerlink" title="1.5.1 服务追踪系统原理"></a>1.5.1 服务追踪系统原理</h3><p>服务追踪系统的鼻祖：Google发布的一篇的论文<a href="http://bigbully.github.io/Dapper-translation/" title="Dapper, a Large-Scale Distributed Systems Tracing Infrastructure">Dapper, a Large-Scale Distributed Systems Tracing Infrastructure</a>，里面详细讲解了服务追踪系统的实现原理。它的核心理念就是<strong>调用链</strong>：通过一个全局唯一的ID将分布在各个服务节点上的同一次请求串联起来，从而还原原有的调用关系，可以追踪系统问题、分析调用数据并统计各种系统指标。</p>
+<p>可以说后面的诞生各种服务追踪系统都是基于Dapper衍生出来的，比较有名的有Twitter的<a href="http://zipkin.io/" title="Zipkin">Zipkin</a>、阿里的<a href="http://www.slideshare.net/terryice/eagleeye-with-taobaojavaone" title="鹰眼">鹰眼</a>、美团的<a href="http://tech.meituan.com/mt_mtrace.html" title="MTrace">MTrace</a>等。</p>
+<p>基本概念：<code>traceId</code>、<code>spanId</code>、<code>annonation</code></p>
+<ul>
+<li><code>traceId</code>，用于标识某一次具体的请求ID。当用户的请求进入系统后，会在RPC调用网络的第一层生成一个全局唯一的traceId，并且会随着每一层的RPC调用，不断往后传递，这样的话通过traceId就可以把一次用户请求在系统中调用的路径串联起来。</li>
+<li><code>spanId</code>，用于标识一次RPC调用在分布式请求中的位置。当用户的请求进入系统后，处在RPC调用网络的第一层A时spanId初始值是0，进入下一层RPC调用B的时候spanId是0.1，继续进入下一层RPC调用C时spanId是0.1.1，而与B处在同一层的RPC调用E的spanId是0.2，这样的话通过spanId就可以定位某一次RPC请求在系统调用中所处的位置，以及它的上下游依赖分别是谁。</li>
+<li><code>annotation</code>，用于业务自定义埋点数据，可以是业务感兴趣的想上传到后端的数据，比如一次请求的用户UID。</li>
+</ul>
+<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_CSQOKCBHqX.png"></p>
+<h3 id="1-5-2-服务追踪系统实现"><a href="#1-5-2-服务追踪系统实现" class="headerlink" title="1.5.2 服务追踪系统实现"></a>1.5.2 服务追踪系统实现</h3><p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_HPN1q5xycN.png"></p>
+<ul>
+<li>数据采集层，负责数据埋点并上报。</li>
+<li>数据处理层，负责数据的存储与计算。</li>
+<li>数据展示层，负责数据的图形化展示。</li>
+</ul>
+<h4 id="1-5-2-1-数据埋点的流程"><a href="#1-5-2-1-数据埋点的流程" class="headerlink" title="1.5.2.1 数据埋点的流程"></a>1.5.2.1 数据埋点的流程</h4><p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_eKHdGZHbKl.png"></p>
+<p>以红色方框里圈出的A调用B的过程为例，一次RPC请求可以分为四个阶段。</p>
+<ul>
+<li>CS（Client Send）阶段 : 客户端发起请求，并生成调用的上下文。</li>
+<li>SR（Server Recieve）阶段 : 服务端接收请求，并生成上下文。</li>
+<li>SS（Server Send）阶段 : 服务端返回请求，这个阶段会将服务端上下文数据上报，下面这张图可以说明上报的数据有：<code>traceId=123456，spanId=0.1，appKey=B，method=B.method，start=103，duration=38</code></li>
+<li>CR（Client Recieve）阶段 : 客户端接收返回结果，这个阶段会将客户端上下文数据上报，上报的数据有：<code>traceid=123456，spanId=0.1，appKey=A，method=B.method，start=103，duration=38</code></li>
+</ul>
+<h2 id="1-6-服务治理"><a href="#1-6-服务治理" class="headerlink" title="1.6 服务治理"></a>1.6 服务治理</h2><p>服务调用出现问题：</p>
+<ul>
+<li>注册中心宕机；</li>
+<li>服务提供者有节点宕机；</li>
+<li>服务消费者/提供者与注册中心之间的网络不通；</li>
+<li>服务消费者和服务提供者之间的网络不通；</li>
+</ul>
+<h3 id="1-6-1-节点管理"><a href="#1-6-1-节点管理" class="headerlink" title="1.6.1 节点管理"></a>1.6.1 节点管理</h3><ol>
+<li>注册中心主动摘除机制</li>
+<li>服务消费者摘除机制</li>
+</ol>
+<h3 id="1-6-2-负载均衡"><a href="#1-6-2-负载均衡" class="headerlink" title="1.6.2 负载均衡"></a>1.6.2 负载均衡</h3><ul>
+<li><strong>随机算法</strong></li>
+<li><strong>轮询算法</strong></li>
+<li><strong>最少活跃调用算法</strong></li>
+<li><strong>一致性Hash算法</strong></li>
+</ul>
+<h1 id="2-DevOps"><a href="#2-DevOps" class="headerlink" title="2 DevOps"></a>2 DevOps</h1><p>传统业务流程：开发→测试→运维</p>
+<p>DevOps：</p>
+<ul>
+<li>CI（Continuous Integration），持续集成。开发完成代码开发后，能自动地进行代码检查、单元测试、打包部署到测试环境，进行集成测试，跑自动化测试用例。</li>
+<li>CD（Continuous Deploy），持续部署/持续交付。代码测试通过后，能自动部署到类生产环境中进行集成测试，测试通过后再进行小流量的灰度验证，验证通过后代码就达到线上发布的要求了，就可以把代码自动部署到线上。</li>
+</ul>
+<p><img src="/../images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/image_kcPQoyjIJ3.png"></p>
+]]></content>
+      <categories>
+        <category>微服务</category>
       </categories>
   </entry>
 </search>
