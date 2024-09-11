@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>《深度学习进阶：自然语言处理》阅读笔记 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">《深度学习进阶：自然语言处理》阅读笔记</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">八月 8, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/AI/">AI</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">3.8k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">13min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="1-神经网络"><a href="#1-神经网络" class="headerlink" title="1 神经网络"></a>1 神经网络</h1><h2 id="1-1-向量"><a href="#1-1-向量" class="headerlink" title="1.1 向量"></a>1.1 向量</h2><p>向量内积和矩阵乘积：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_1bqyqcgBZu.png"></p>
+<h2 id="1-2-激活函数"><a href="#1-2-激活函数" class="headerlink" title="1.2 激活函数"></a>1.2 激活函数</h2><h3 id="1-2-1-sigmoid"><a href="#1-2-1-sigmoid" class="headerlink" title="1.2.1 sigmoid"></a>1.2.1 sigmoid</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_9HSiif9JfV.png"></p>
+<h3 id="1-2-2-tanh"><a href="#1-2-2-tanh" class="headerlink" title="1.2.2 tanh"></a>1.2.2 tanh</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_QIEQOJAnOF.png"></p>
+<h2 id="1-3-Softmax"><a href="#1-3-Softmax" class="headerlink" title="1.3 Softmax"></a>1.3 Softmax</h2><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_N3Vili_wTq.png"></p>
+<p>作用：将输出转化为概率和为1的概率分布（概率标准化</p>
+<p>交叉熵误差</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_zZKfBVcMoO.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_Chw1F7Akcw.png"></p>
+<p>链式法则</p>
+<p>链式法则的重要之处在于，无论我们要处理的函数有多复杂（无论复合了多少个函数），都可以根据它们各自的导数来求复合函数的导数。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_haS6PoUyjG.png" alt="计算图" title="计算图"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_UXq-rgO7SR.png"></p>
+<h2 id="1-4-反向传播"><a href="#1-4-反向传播" class="headerlink" title="1.4 反向传播"></a>1.4 反向传播</h2><p>公式</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_3Nd6MpmQmw.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_Y-jRNJkCgn.png"></p>
+<blockquote>
+<p>本书将矩阵乘积称为 MatMul（Matrix Multiply）节点。</p>
+</blockquote>
+<p>代码</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_ikLUqD3eNu.png"></p>
+<p>链式法则：复合函数的导数可以根据各个简单函数的导数来求。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_FjE1dwS714.png"></p>
+<h3 id="1-4-1-Softmax-with-Loss-层"><a href="#1-4-1-Softmax-with-Loss-层" class="headerlink" title="1.4.1 Softmax with Loss 层"></a>1.4.1 Softmax with Loss 层</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_oi4iYIorJU.png"></p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Softmax with Loss</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SoftmaxWithLoss</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.parame = []</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x, t</span>):</span><br><span class="line">        <span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">        <span class="variable language_">self</span>.t = t</span><br><span class="line">        <span class="variable language_">self</span>.y = np.exp(x) / np.<span class="built_in">sum</span>(np.exp(x))</span><br><span class="line">        <span class="variable language_">self</span>.loss = -np.<span class="built_in">sum</span>(t * np.log(<span class="variable language_">self</span>.y))</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.loss</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">        dx = <span class="variable language_">self</span>.y - <span class="variable language_">self</span>.t</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="1-5-梯度下降"><a href="#1-5-梯度下降" class="headerlink" title="1.5 梯度下降"></a>1.5 梯度下降</h2><p>随机梯度下降法</p>
+<p>梯度下降：在训练过程中，反向传播将不断更新权重的梯度，让损失不断降低</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_39HQB-HZlV.png"></p>
+<p>首先，选择 mini-batch 数据，根据误差反向传播法获得权重的梯度。这个梯度指向当前的权重参数所处位置中损失增加最多的方向。因此，通过将参数向该梯度的反方向更新，可以降低损失。这就是梯度下降法</p>
+<p>权重更新方法：</p>
+<ul>
+<li><p>随机梯度下降法 SGD</p>
+<ul>
+<li>“随机”是指使用随机选择的数据（mini-batch）的梯度。<br><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_hqK0eTi6_4.png"></li>
+</ul>
+<p>η 表示学习率</p>
+</li>
+<li><p>批量梯度下降算法BGD</p>
+</li>
+<li><p>小批量 梯度下降算法MBGD</p>
+</li>
+</ul>
+<h2 id="1-6-单层感知机"><a href="#1-6-单层感知机" class="headerlink" title="1.6 单层感知机"></a>1.6 单层感知机</h2><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_oiKZuVifVq.png"></p>
+<p>单层感知器属于单层前向网络，<strong>即除输入层和输出层之外，只拥有一层神经元节点</strong>。前向网络的特点是，输入数据从输入层经过隐藏层向输出层逐层传播，相邻两层的神经元之间相互连接， 同一层的神经元之间则没有连接。</p>
+<h1 id="2-自然语言处理"><a href="#2-自然语言处理" class="headerlink" title="2 自然语言处理"></a>2 自然语言处理</h1><p>要想让计算机理解自然语言的前提就是让其理解每个单词的含义。我们主要有3种方法实现：</p>
+<ul>
+<li>基于同义词词典的方法<ul>
+<li><strong>WordNet</strong></li>
+</ul>
+</li>
+<li>基于计数的方法</li>
+<li>基于推理的方法（word2vec）</li>
+</ul>
+<h2 id="单词的分布式表示"><a href="#单词的分布式表示" class="headerlink" title="单词的分布式表示"></a><strong>单词的分布式表示</strong></h2><p>我们能不能将类似于颜色RGB表示方法运用到单词上呢？在单词领域构建紧凑合理的向量表示，在自然语言处理领域，这称为<strong>分布式表示</strong>。单词的分布式表示将单词表示为固定长度的向量。这种向量的特征在于它是用密集向量表示的。</p>
+<p><strong>密集向量</strong>：向量的各个元素（大多数）是由非 0 实数表示的。例如三维分布式表示是$[0.21,-0.45,0.83]$</p>
+<p><strong>分布式假设</strong>：“某个单词的含义由它周围的单词形成”，称为<strong>分布式假设</strong>。</p>
+<h2 id="2-2-基于计数的方法"><a href="#2-2-基于计数的方法" class="headerlink" title="2.2 基于计数的方法"></a>2.2 基于计数的方法</h2><p>基于计数的方法根据一个单词周围的单词的出现频数来表示该单词。具体来说，先生成所有单词的共现矩阵，再对这个矩阵进行SVD，以获得密集向量（单词的分布式表示）。但是，基于计数的方法在处理大规模语料库时会出现问题。</p>
+<blockquote>
+<p>奇异值分解（Singular Value Decomposition，SVD）是矩阵分解的一种方法，将一个矩阵分解为三个矩阵的乘积：$M = U \Sigma V^T$，其中 $U$ 和 $V$是正交矩阵，$\Sigma$是对角矩阵，包含奇异值。</p>
+</blockquote>
+<p>通过SVD，可以将原始高维稀疏矩阵压缩为低维稠密矩阵。这些低维矩阵的行向量或列向量就可以作为单词的向量表示。</p>
+<p>SVD的作用：降维、去噪、稠密表示等</p>
+<p>缺点：计算量太大导致计算机难以处理</p>
+<h3 id="语料库的预处理"><a href="#语料库的预处理" class="headerlink" title="语料库的预处理"></a><strong>语料库的预处理</strong></h3><p>现在，我们对一个非常小的文本数据（语料库）进行预处理。这里所说的预处理是指：</p>
+<ol>
+<li>将文本分割成单词</li>
+<li>单词列表转化为单词ID列表</li>
+</ol>
+<h3 id="2-2-2-共现矩阵"><a href="#2-2-2-共现矩阵" class="headerlink" title="2.2.2 共现矩阵"></a>2.2.2 共现矩阵</h3><p>用表格表示单词的上下文中包含的单词的频数，作为单词的向量表示</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_4rUGq7V2am.png"></p>
+<p>对一个句子中所有的单词进行处理，就可以得到如下的共现矩阵：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_6Te4nILf4k.png"></p>
+<h3 id="2-2-3-余弦相似度（cosine-similarity）"><a href="#2-2-3-余弦相似度（cosine-similarity）" class="headerlink" title="2.2.3 余弦相似度（cosine similarity）"></a>2.2.3 余弦相似度（cosine similarity）</h3><p>在测量单词的向量表示的相似度方面，余弦相似度是很常用的。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_K3SNNXUSNA.png"></p>
+<h3 id="2-2-4-点互信息"><a href="#2-2-4-点互信息" class="headerlink" title="2.2.4 点互信息"></a>2.2.4 点互信息</h3><p>共现矩阵的元素表示两个单词同时出现的次数。但是，这种“原始”的次数并不具备好的性质。</p>
+<p>比如“the car…”这样的短语，它们的共现次数将会很大。另外，car 和 drive 也明显有很强的相关性。但是，如果只看单词的出现次数，那么与 drive 相比，the 和 car 的相关性更强。这意味着，仅仅因为 the 是个常用词，它就被认为与 car 有很强的相关性，这显然不是我们想要的。</p>
+<p>点互信息被用于解决这一问题：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_VLIsIt84wg.png"></p>
+<p>其中，P(x) 表示 x 发生的概率，P(y) 表示 y 发生的概率，P(x, y) 表示 x 和 y 同时发生的概率。PMI 的值越高，表明相关性越强。</p>
+<h4 id="2-2-4-1-正的点互信息"><a href="#2-2-4-1-正的点互信息" class="headerlink" title="2.2.4.1 正的点互信息"></a>2.2.4.1 正的点互信息</h4><p>解决当两个单词的共现次数为 0 时，log20 = −∞。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_mvK3ZF2ygS.png"></p>
+<p>尽管PPMI矩阵能够改善之前共现矩阵存在的高频词汇问题，但是这两种方法都存在一个共性问题：<strong>随着单词数目的增加，矩阵的维数也在增加，而其中很多元素都为0(不重要的元素)；向量容易受到噪声的影响，稳定性差。</strong></p>
+<hr>
+<p>基于计数的方法使用整个语料库的统计数据（共现矩阵和 PPMI 等 ），通过一次处理（SVD 等）获得单词的分布式表示。而基于推理的方法使用神经网络，通常在 mini-batch 数据上进行学习。这意味着神经网络一次只需要看一部分学习数据（mini-batch），并反复更新权重。这种学习机制上的差异如图 3-1 所示。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_hUDNVonnr_.png"></p>
+<h2 id="2-3-基于推理的方法"><a href="#2-3-基于推理的方法" class="headerlink" title="2.3 基于推理的方法"></a>2.3 基于推理的方法</h2><p>基于推理的方法的主要操作是“推理”。当给出周围的单词（上下文）时，预测“？”处会出现什么单词，这就是推理。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_9BpxVzfK51.png"></p>
+<h3 id="2-3-1-word2vec"><a href="#2-3-1-word2vec" class="headerlink" title="2.3.1 word2vec"></a>2.3.1 word2vec</h3><p>word2vec 一词最初用来指程序或者工具，但是随着该词的流行，在某些语境下，也指神经网络的模型。</p>
+<p>word2vec 中使用的两个神经网络分别是CBOW 模型和 skip-gram 模型</p>
+<h4 id="2-3-1-1-CBOW-模型"><a href="#2-3-1-1-CBOW-模型" class="headerlink" title="2.3.1.1 CBOW 模型"></a>2.3.1.1 CBOW 模型</h4><p>continuous bag-of-words（CBOW）连续词袋模型</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_tDuQKVJFk5.png"></p>
+<blockquote>
+<p>中间层的神经元数量比输入层少这一点很重要。中间层需要将预测单词所需的信息压缩保存，从而产生密集的向量表示。这时，中间层被写入了我们人类无法解读的代码，这相当于“编码”工作。而从中间层的信息获得期望结果的过程则称为“解码”。这一过程将被编码的信息复原为我们可以理解的形式。</p>
+</blockquote>
+<hr>
+<h5 id="2-3-1-1-1-CBOW模型的学习"><a href="#2-3-1-1-1-CBOW模型的学习" class="headerlink" title="2.3.1.1.1 CBOW模型的学习"></a>2.3.1.1.1 CBOW模型的学习</h5><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_qsAFx46tbi.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_IJZAZJ2j13.png"></p>
+<p>CBOW模型只是学习语料库中单词的出现模式。如果语料库不一样，学习到的单词的分布式表示也不一样。比如，只使用“体育”相关的文章得到的单词的分布式表示，和只使用“音乐”相关的文章得到的单词的分布式表示将有很大不同。</p>
+<h5 id="2-3-1-1-2-CBOW损失函数"><a href="#2-3-1-1-2-CBOW损失函数" class="headerlink" title="2.3.1.1.2 CBOW损失函数"></a>2.3.1.1.2 CBOW损失函数</h5><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_8RkALBaVVW.png"></p>
+<p>CBOW 模型学习的任务就是让损失函数尽可能地小。那时的权重参数就是我们想要的单词的分布式表示。</p>
+<h4 id="2-3-1-2-word2vec的权重和分布式表示"><a href="#2-3-1-2-word2vec的权重和分布式表示" class="headerlink" title="2.3.1.2 word2vec的权重和分布式表示"></a>2.3.1.2 word2vec的权重和分布式表示</h4><p>word2vec 中使用的网络有两个权重，分别是输入侧的全连接层的权重（$W_{in} $）和输出侧的全连接层的权重（$W_{out} $）。</p>
+<p>就 word2vec（特别是 skip-gram 模型）而言，最受欢迎的是只使用输入侧的权重。</p>
+<h3 id="2-3-2-skip-gram模型"><a href="#2-3-2-skip-gram模型" class="headerlink" title="2.3.2 skip-gram模型"></a>2.3.2 skip-gram模型</h3><p>skip-gram 是反转了 CBOW 模型处理的上下文和目标词的模型。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_NWBJQnGsQh.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_Nx1lhLuzli.png"></p>
+<h1 id="3-word2vec的高速化"><a href="#3-word2vec的高速化" class="headerlink" title="3 word2vec的高速化"></a>3 word2vec的高速化</h1><p>TODO</p>
+<h1 id="4-RNN"><a href="#4-RNN" class="headerlink" title="4 RNN"></a>4 RNN</h1><blockquote>
+<p>前馈神经网络FNN：最简单的网络，各神经元分层排列，每个神经元只与前一层的神经元相连。接收前一层的输出，并输出给下一层，各层间没有反馈</p>
+</blockquote>
+<p>到目前为止，我们看到的神经网络都是前馈型神经网络。虽然前馈网络结构简单、易于理解，但是可以应用于许多任务中。不过，这种网络存在一个大问题，就是不能很好地处理时间序列数据。更确切地说，单纯的前馈网络无法充分学习时序数据的性质。于是，RNN（Recurrent Neural Network，循环神经网络）便应运而生。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_SlgtJLs9XQ.png"></p>
+<p>RNN 的特征就在于拥有这样一个环路。这个环路可以使数据不断循环。通过数据的循环，RNN 一边记住过去的数据，一边更新到最新的数据。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_OYNUHRviQU.png"></p>
+<p>RNN 有两个权重，分别是将输入 x 转化为输出 h 的权重$  W_{x}  $和将前一个 RNN 层的输出转化为当前时刻的输出的权重 $W_{h}$。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_N7X68U_dRV.png" alt="RNN三维表现" title="RNN三维表现"></p>
+<p>$$<br>\boldsymbol{h}<em>{t}=\tanh \left(\boldsymbol{h}</em>{t-1} \boldsymbol{W}<em>{h}+\boldsymbol{x}</em>{t} \boldsymbol{W}_{x}+\boldsymbol{b}\right)<br>$$</p>
+<p>从另一个角度看，这可以解释为，RNN 具有“状态”$h$，并以上式的形式被更新。这就是说RNN层是“具有状态的层”或“具有存储（记忆）的层”的原因。RNN 的输出 $h_{t}$称为<strong>隐藏状态</strong>或<strong>隐藏状态向量</strong></p>
+<p>RNN有两个权重：$W_{h}$和$W_{x}$</p>
+<h2 id="4-1-Backpropagation-Through-Time"><a href="#4-1-Backpropagation-Through-Time" class="headerlink" title="4.1 Backpropagation Through Time"></a>4.1 Backpropagation Through Time</h2><p>RNN的误差反向传播法是“按时间顺序展开的神经网络的误差反向传播法”，所以称为 Backpropagation Through Time（基于时间的反向传播），简称 BPTT。</p>
+<h3 id="4-1-1-Truncated-BPTT"><a href="#4-1-1-Truncated-BPTT" class="headerlink" title="4.1.1 Truncated BPTT"></a>4.1.1 Truncated BPTT</h3><p>在处理长时序数据时，通常的做法是将网络连接截成适当的长度。具体来说，就是将时间轴方向上过长的网络在合适的位置进行截断，从而创建多个小型网络，然后对截出来的小型网络执行误差反向传播法，这个方法称为 Truncated BPTT（截断的 BPTT）。 </p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_elYrdSfgP7.png"></p>
+<p>这里需要注意的是，虽然反向传播的连接会被截断，但是正向传播的连接不会。</p>
+<h2 id="4-2-RNN反向传播"><a href="#4-2-RNN反向传播" class="headerlink" title="4.2 RNN反向传播"></a>4.2 RNN反向传播</h2><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_0FJeCOAdIc.png" alt="RNN正向传播" title="RNN正向传播"></p>
+<hr>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_U92MnE7C6K.png" alt="RNN反向传播" title="RNN反向传播"></p>
+<h2 id="4-3-RNNLM"><a href="#4-3-RNNLM" class="headerlink" title="4.3  RNNLM"></a>4.3  RNNLM</h2><p>基于 RNN 的语言模型称为 RNNLM（RNN Language Model，RNN 语言模型）</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_CkpsNamznS.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_tfhaOlgpid.png"></p>
+<p> Embedding 层：将单词 ID 转化为单词的分布式表示（单词向量）</p>
+<h3 id="4-3-1-梯度消失和梯度爆炸"><a href="#4-3-1-梯度消失和梯度爆炸" class="headerlink" title="4.3.1 梯度消失和梯度爆炸"></a>4.3.1 梯度消失和梯度爆炸</h3><blockquote>
+<p>RNN 层通过向过去传递“有意义的梯度”，能够学习时间方向上的依赖关系。此时梯度（理论上）包含了那些应该学到的有意义的信息，通过将这些信息向过去传递，RNN 层学习长期的依赖关系。但是，如果这个梯度在中途变弱（甚至没有包含任何信息），则权重参数将不会被更新。也就是说，RNN 层无法学习长期的依赖关系。不幸的是，随着时间的回溯，这个简单 RNN 未能避免梯度变小（梯度消失）或者梯度变大（梯度爆炸）的命运。</p>
+</blockquote>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_TXW0mkOOdJ.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_Susys1EeV1.png"></p>
+<p>当反向传播的梯度经过tanh 节点时，它的值会越来越小。因此，如果经过 tanh 函数 T 次，则梯度也会减小 T 次。</p>
+<blockquote>
+<p>RNN 层的激活函数一般使用 tanh 函数，但是如果改为 ReLU 函数，则有希望抑制梯度消失的问题（当 ReLU 的输入为 x 时，它的输出是max(0, x)）。这是因为，在 ReLU 的情况下，当 x 大于 0 时，反向传播将上游的梯度原样传递到下游，梯度不会“退化”。</p>
+</blockquote>
+<h2 id="4-4-Gated-RNN"><a href="#4-4-Gated-RNN" class="headerlink" title="4.4 Gated RNN"></a>4.4 Gated RNN</h2><p>上文提到的RNN 不擅长学习时序数据的长期依赖关系，原因是 BPTT 会发生梯度消失和梯度爆炸的问题。</p>
+<p>当我们说 RNN 时，更多的是指 LSTM 层，而不是上一章的 RNN。</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_T4L3lbsK4w.png"></p>
+<p>LSTM 与 RNN 的接口的不同之处在于，LSTM 还有路径 c。这个 c 称为记忆单元（或者简称为“单元”），相当于 LSTM 专用的记忆部门。</p>
+<p>记忆单元的特点是，仅在 LSTM 层内部接收和传递数据。也就是说，记忆单元在 LSTM 层内部结束工作，不向其他层输出。而 LSTM 的隐藏状态 h 和 RNN 层相同，会被（向上）输出到其他层。</p>
+<h2 id="4-5-LSTM"><a href="#4-5-LSTM" class="headerlink" title="4.5 LSTM"></a>4.5 LSTM</h2><h3 id="4-5-1-输出门"><a href="#4-5-1-输出门" class="headerlink" title="4.5.1 输出门"></a>4.5.1 输出门</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_SOAi8mJDjY.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_J8SXWBJc3n.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_kYPB-1QNDR.png"></p>
+<blockquote>
+<p>sigmoid 函数用 $σ()$ 表示</p>
+</blockquote>
+<blockquote>
+<p>tanh的输出是−1.0 ~ 1.0的实数。我们可以认为这个−1.0 ~ 1.0的数值表示某种被编码的“信息”的强弱（程度）。而sigmoid 函数的输出是0.0~1.0的实数，表示数据流出的比例。因此，在大多数情况下，门使用sigmoid函数作为激活函数，而包含实质信息的数据则使用tanh函数作为激活函数。</p>
+</blockquote>
+<h3 id="4-5-2-遗忘门"><a href="#4-5-2-遗忘门" class="headerlink" title="4.5.2 遗忘门"></a>4.5.2 遗忘门</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_YIl0qmaVTK.png"></p>
+<h3 id="4-5-3-新的记忆单元"><a href="#4-5-3-新的记忆单元" class="headerlink" title="4.5.3 新的记忆单元"></a>4.5.3 新的记忆单元</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_h4Nin6H2kA.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_J-HmVurGyH.png"></p>
+<h3 id="4-5-4-输入门"><a href="#4-5-4-输入门" class="headerlink" title="4.5.4 输入门"></a>4.5.4 输入门</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_ThsOkpY5xe.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_soLXg37NZ1.png"></p>
+<h3 id="4-5-5-LSTM的实现"><a href="#4-5-5-LSTM的实现" class="headerlink" title="4.5.5 LSTM的实现"></a>4.5.5 LSTM的实现</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_cQJVJXL5NX.png"></p>
+<p>简化后：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_N71KUQFLnj.png"></p>
+<h1 id="5-Attention"><a href="#5-Attention" class="headerlink" title="5 Attention"></a>5 Attention</h1><h2 id="5-1-seq2seq改进"><a href="#5-1-seq2seq改进" class="headerlink" title="5.1 seq2seq改进"></a>5.1 seq2seq改进</h2><p>seq2seq存在的问题：无论输入语句多长，编码器都将其塞入固定长度的向量中，有用的信息也会从向量中溢出。</p>
+<h3 id="5-1-1-编码器优化"><a href="#5-1-1-编码器优化" class="headerlink" title="5.1.1 编码器优化"></a>5.1.1 编码器优化</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_7o88_Ids4Y.png"></p>
+<p>使用各个时刻（各个单词）的隐藏状态向量，可以获得和输入的单词数相同数量的向量。</p>
+<p>编码器输出的 $h_{s}$ 矩阵就可以视为各个单词对应的向量集合。</p>
+<p>这样一来，编码器就摆脱了“一个固定长度的向量”的制约。</p>
+<h3 id="5-1-2-解码器的改进"><a href="#5-1-2-解码器的改进" class="headerlink" title="5.1.2 解码器的改进"></a>5.1.2 解码器的改进</h3><p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_bSlinKoTI_.png"></p>
+<hr>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_HLsC5sqpbj.png"></p>
+<p>网络所做的工作是提取单词对齐信息。具体来说，就是从 $h_{s}$ 中选出与各个时刻解码器输出的单词有对应关系的单词向量。但是“选择”这一操作是不可微分的，这里使用了单词重要度的权重$a$，计算$a$和$h_{s}$ 加权和可以获得目标向量：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_q4blJe5wuo.png"></p>
+<p>上下文向量 c 中包含了当前时刻进行变换（翻译）所需的信息。更确切地说，模型要从数据中学习出这种能力。 </p>
+<hr>
+<p><strong>如何获取</strong>$a$<strong>？</strong></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_P7kOhf1xaa.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_onuLtYwAEz.png"></p>
+<p> $h$ 表示解码器的 LSTM 层的隐藏状态向量，用$h$和$h_{s}$的内积表示这个 h 在多大程度上和 hs 的各个单词向量“相似”，并将其结果表示为 s，正则化后就得到了a</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_lSZYS8dvFC.png"></p>
+<h3 id="5-1-3-Attention结构"><a href="#5-1-3-Attention结构" class="headerlink" title="5.1.3 Attention结构"></a>5.1.3 Attention结构</h3><p>总结：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_XPq89glvv-.png"></p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_ZxHnftpiMc.png"></p>
+<p>我们上面对seq2seq的优化实际就是加了一层Attention层：</p>
+<p><img src="/../images/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image_wE13ZakECp.png"></p>
+<hr>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/08/08/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">https://qing-wq.github.io/2024/08/08/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/08/20/LangChain4j-Spring%20Bug/">🐛 LangChain4j-Spring Bug修复记录</a>
+            
+            
+            <a class="next" rel="next" href="/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/">📌 Spring实现自定义配置注入&动态更新</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

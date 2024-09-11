@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>项目中的全局异常处理 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">项目中的全局异常处理</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">九月 8, 2022</a>
+                        </span>
+                    
+                    <br/>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">1.1k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">6min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="全局异常处理"><a href="#全局异常处理" class="headerlink" title="全局异常处理"></a>全局异常处理</h2><p><strong>自定义异常</strong></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义异常</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BusinessException</span> <span class="keyword">extends</span> <span class="title class_">RuntimeException</span>{</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> LoggerFactory.getLogger(BusinessException.class);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> String errorMsg;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getErrorMsg</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> errorMsg;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setErrorMsg</span><span class="params">(String errorMsg)</span> {</span><br><span class="line">        <span class="built_in">this</span>.errorMsg = errorMsg;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> BusinessException <span class="title function_">withErrorCode</span><span class="params">(String message)</span> {</span><br><span class="line">        <span class="type">BusinessException</span> <span class="variable">businessException</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BusinessException</span>();</span><br><span class="line">        businessException.setErrorMsg(message);</span><br><span class="line">        <span class="keyword">return</span> businessException;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>全局异常捕获</strong></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.annotation.Order;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.HttpStatus;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.MissingServletRequestParameterException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.nio.file.AccessDeniedException;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GlobalExceptionHandler</span> {</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 参数格式异常处理</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@ExceptionHandler({IllegalArgumentException.class})</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.BAD_REQUEST)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">badRequestException</span><span class="params">(IllegalArgumentException ex)</span> {</span><br><span class="line">        log.error(<span class="string">"[Error]: 参数格式不合法：{}"</span>, ex.getMessage());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;(HttpStatus.BAD_REQUEST.value() + <span class="string">""</span>, <span class="string">"参数格式不符！"</span>);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 权限不足异常处理</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@ExceptionHandler({AccessDeniedException.class})</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.FORBIDDEN)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">badRequestException</span><span class="params">(AccessDeniedException ex)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;(HttpStatus.FORBIDDEN.value() + <span class="string">""</span>, ex.getMessage());</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 参数缺失异常处理</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@ExceptionHandler({MissingServletRequestParameterException.class})</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.BAD_REQUEST)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">badRequestException</span><span class="params">(Exception ex)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;(HttpStatus.BAD_REQUEST.value() + <span class="string">""</span>, <span class="string">"缺少必填参数！"</span>);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 空指针异常</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@ExceptionHandler(NullPointerException.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">handleTypeMismatchException</span><span class="params">(NullPointerException ex)</span> {</span><br><span class="line">        log.error(<span class="string">"[Error]: 空指针异常，{}"</span>, ex.getMessage());</span><br><span class="line">        <span class="keyword">return</span> ApiResult.fail(<span class="string">"空指针异常"</span>);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">handleUnexpectedServer</span><span class="params">(Exception ex)</span> {</span><br><span class="line">        log.error(<span class="string">"[Error]: 系统异常："</span>, ex);</span><br><span class="line">        <span class="keyword">return</span> ApiResult.fail(<span class="string">"系统发生异常，请联系管理员"</span>);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 系统异常处理</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@ExceptionHandler(Throwable.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">exception</span><span class="params">(Throwable throwable)</span> {</span><br><span class="line">        log.error(<span class="string">"[Error]: 系统异常"</span>, throwable);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;(HttpStatus.INTERNAL_SERVER_ERROR.value() + <span class="string">"系统异常，请联系管理员！"</span>);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * 自定义异常处理类</span></span><br><span class="line"><span class="comment">    * */</span></span><br><span class="line">    <span class="meta">@Order</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.BAD_REQUEST)</span></span><br><span class="line">    <span class="meta">@ExceptionHandler(value = BusinessException.class)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult&lt;String&gt; <span class="title function_">BusinessHandler</span><span class="params">(BusinessException e)</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> e.getErrorMsg();</span><br><span class="line">        log.error(<span class="string">"[Error]: {}"</span>, e.getErrorMsg());</span><br><span class="line">        <span class="keyword">return</span> ApiResult.fail(msg);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="响应参数封装"><a href="#响应参数封装" class="headerlink" title="响应参数封装"></a>响应参数封装</h2><p><strong>错误码枚举类</strong></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">ResponseCodeEnums</span> {</span><br><span class="line"></span><br><span class="line">    SUCCESS(<span class="number">200</span>, <span class="string">"success"</span>),</span><br><span class="line">    FAIL(<span class="number">500</span>, <span class="string">"fail"</span>),</span><br><span class="line"></span><br><span class="line">    HTTP_STATUS_200(<span class="number">200</span>, <span class="string">"ok"</span>),</span><br><span class="line">    HTTP_STATUS_400(<span class="number">400</span>, <span class="string">"request error"</span>),</span><br><span class="line">    HTTP_STATUS_401(<span class="number">401</span>, <span class="string">"no authentication"</span>),</span><br><span class="line">    HTTP_STATUS_403(<span class="number">403</span>, <span class="string">"authorities"</span>),</span><br><span class="line">    HTTP_STATUS_500(<span class="number">500</span>, <span class="string">"server error"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> code;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String message;</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>统一返回结果实体类</strong></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ApiResult</span>&lt;T&gt; {</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 状态码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> code;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 响应信息</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> String message;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回数据</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> T data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; ApiResult&lt;T&gt; <span class="title function_">success</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; ApiResult&lt;T&gt; <span class="title function_">success</span><span class="params">(T data)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;(data);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; ApiResult&lt;T&gt; <span class="title function_">fail</span><span class="params">(String message)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ApiResult</span>&lt;&gt;(ResponseCodeEnums.FAIL.getCode(), message);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ApiResult</span><span class="params">()</span> {</span><br><span class="line">        <span class="built_in">this</span>.code = ResponseCodeEnums.SUCCESS.getCode();</span><br><span class="line">        <span class="built_in">this</span>.message = ResponseCodeEnums.SUCCESS.getMessage();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ApiResult</span><span class="params">(ResponseCodeEnums statusEnums)</span> {</span><br><span class="line">        <span class="built_in">this</span>.code = statusEnums.getCode();</span><br><span class="line">        <span class="built_in">this</span>.message = statusEnums.getMessage();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 若没有数据返回，可以人为指定状态码和提示信息</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ApiResult</span><span class="params">(<span class="type">int</span> code, String msg)</span> {</span><br><span class="line">        <span class="built_in">this</span>.code = code;</span><br><span class="line">        <span class="built_in">this</span>.message = msg;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 有数据返回时，状态码为200，默认提示信息为“操作成功！”</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ApiResult</span><span class="params">(T data)</span> {</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">        <span class="built_in">this</span>.code = ResponseCodeEnums.SUCCESS.getCode();</span><br><span class="line">        <span class="built_in">this</span>.message = ResponseCodeEnums.SUCCESS.getMessage();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 有数据返回，状态码为 200，人为指定提示信息</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ApiResult</span><span class="params">(T data, String msg)</span> {</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">        <span class="built_in">this</span>.code = ResponseCodeEnums.SUCCESS.getCode();</span><br><span class="line">        <span class="built_in">this</span>.message = msg;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="全局响应"><a href="#全局响应" class="headerlink" title="全局响应"></a>全局响应</h2><p>对api的返回值进行二次封装</p>
+<p><code>HandlerMethodReturnValueHandler</code></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.assertj.core.util.Lists;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.MethodParameter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.util.AntPathMatcher;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.context.request.NativeWebRequest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.method.support.HandlerMethodReturnValueHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.method.support.ModelAndViewContainer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyHandlerMethodReturnValueHandler</span> <span class="keyword">implements</span> <span class="title class_">HandlerMethodReturnValueHandler</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> HandlerMethodReturnValueHandler handler;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyHandlerMethodReturnValueHandler</span><span class="params">(HandlerMethodReturnValueHandler handler)</span> {</span><br><span class="line">        <span class="built_in">this</span>.handler = handler;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 处理器支持相应的返回值类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> returnType the method return type to check</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supportsReturnType</span><span class="params">(MethodParameter returnType)</span> {</span><br><span class="line"><span class="comment">//        return ApiResult.class.isAssignableFrom(returnType.getParameterType());  // 处理返回值为ApiResult的情况</span></span><br><span class="line">        <span class="keyword">return</span> handler.supportsReturnType(returnType);  <span class="comment">// 处理全部返回值</span></span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对方法返回值进行处理</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> returnValue the value returned from the handler method</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> returnType the type of the return value. This type must have</span></span><br><span class="line"><span class="comment">     * previously been passed to {<span class="doctag">@link</span> #supportsReturnType} which must</span></span><br><span class="line"><span class="comment">     * have returned {<span class="doctag">@code</span> true}.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mavContainer the ModelAndViewContainer for the current request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> webRequest the current request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleReturnValue</span><span class="params">(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        <span class="comment">// 判断返回值外层是否被ApiResult包裹，如果是就交给handler处理</span></span><br><span class="line">        <span class="keyword">if</span> (returnValue <span class="keyword">instanceof</span> ApiResult) {</span><br><span class="line">            <span class="built_in">this</span>.handler.handleReturnValue(returnValue,returnType,mavContainer,webRequest);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        }</span><br><span class="line">        <span class="type">HttpServletRequest</span> <span class="variable">nativeRequest</span> <span class="operator">=</span> webRequest.getNativeRequest(HttpServletRequest.class);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">assert</span> nativeRequest != <span class="literal">null</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">method</span> <span class="operator">=</span> nativeRequest.getMethod();</span><br><span class="line">        <span class="type">String</span> <span class="variable">servletPath</span> <span class="operator">=</span> nativeRequest.getServletPath();</span><br><span class="line">        <span class="type">String</span> <span class="variable">restfulPath</span> <span class="operator">=</span> method + <span class="string">":"</span> + servletPath;</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isHandlerReturnValue</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="type">AntPathMatcher</span> <span class="variable">matcher</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AntPathMatcher</span>();</span><br><span class="line">        <span class="comment">// 判断api是否需要封装</span></span><br><span class="line">        <span class="keyword">for</span> (String s : Lists.newArrayList(<span class="string">"POST:/*"</span>)) {  <span class="comment">// 不需要封装的接口</span></span><br><span class="line">            <span class="keyword">if</span> (matcher.match(s, restfulPath)) {</span><br><span class="line">                isHandlerReturnValue = <span class="literal">false</span>;</span><br><span class="line">            }</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        }</span><br><span class="line">        <span class="built_in">this</span>.handler.handleReturnValue(</span><br><span class="line">                isHandlerReturnValue ? ApiResult.success(returnValue) : returnValue,</span><br><span class="line">                returnType, mavContainer, webRequest);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>一般不需要进行封装：</p>
+<ul>
+<li>回调地址</li>
+<li>指定字符串</li>
+</ul>
+<p>配置 <code>MyHandlerMethodReturnValueHandler</code> 使之生效：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.InitializingBean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.method.support.HandlerMethodReturnValueHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReturnValueConfig</span> <span class="keyword">implements</span> <span class="title class_">InitializingBean</span> {</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    RequestMappingHandlerAdapter requestMappingHandlerAdapter;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        List&lt;HandlerMethodReturnValueHandler&gt; originHandlers = requestMappingHandlerAdapter.getReturnValueHandlers();</span><br><span class="line">        List&lt;HandlerMethodReturnValueHandler&gt; newHandlers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(originHandlers.size());</span><br><span class="line">        <span class="keyword">for</span> (HandlerMethodReturnValueHandler originHandler : originHandlers) {</span><br><span class="line">            <span class="keyword">if</span> (originHandler <span class="keyword">instanceof</span> RequestResponseBodyMethodProcessor) {</span><br><span class="line">                newHandlers.add(<span class="keyword">new</span> <span class="title class_">MyHandlerMethodReturnValueHandler</span>(originHandler));</span><br><span class="line">            } <span class="keyword">else</span> {</span><br><span class="line">                newHandlers.add(originHandler);</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        requestMappingHandlerAdapter.setReturnValueHandlers(newHandlers);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/360175994">Spring Boot 中如何统一 API 接口响应格式？</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7127448265146138660">SpringBoot：如何优雅地进行响应数据封装、异常处理？</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2022/09/08/Spring%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">https://qing-wq.github.io/2022/09/08/Spring%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/01/08/Mybatis-Interceptor/">Mybatis Interceptor</a>
+            
+            
+            <a class="next" rel="next" href="/2022/07/26/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">MyBatis学习笔记</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
