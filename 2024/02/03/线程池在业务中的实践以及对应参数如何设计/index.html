@@ -15,7 +15,7 @@
 
 
 
-<title>Go GC VS Java GC | Qing&#39;s Blog</title>
+<title>线程池在业务中的实践以及对应参数如何设计 | Qing&#39;s Blog</title>
 
 
 
@@ -200,7 +200,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Go GC VS Java GC</h1>
+            <h1 class="post-title">线程池在业务中的实践以及对应参数如何设计</h1>
             
                 <div class="post-meta">
                     
@@ -209,7 +209,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">一月 3, 2024</a>
+                        📅Date: <a href="#">二月 3, 2024</a>
                         </span>
                     
                     <br/>
@@ -217,7 +217,7 @@
                         <span class="post-category">
                             📚Category:
                             
-                                <a href="/categories/Java-VS-Go/">Java VS Go</a>
+                                <a href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
                             
                         </span>
                     
@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">675</a> 
+                            <a href="">712</a> 
                         </span>
                     
                     
@@ -239,35 +239,26 @@
         </header>
 
         <div class="post-content">
-            <p>之前面试的时候被面试官问到过这个问题，但是当时对Go的GC一点也不了解。于是后来整理了一下，发现Go的GC算法真有意思。本文对比了Java和Go在GC算法上的的区别：</p>
-<h1 id="Java-GC"><a href="#Java-GC" class="headerlink" title="Java GC"></a>Java GC</h1><p>Java的GC使用<strong>分代回收算法</strong>，将堆内存划分为新生代和老年代，一般情况下在<strong>新生代使用标记-复制算法，老年代使用标记-清除或标记-整理算法</strong></p>
-<p>分代GC依赖分代假设，即GC将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</p>
-<p>在Java中，不同的垃圾回收器使用的垃圾回收算法不同：</p>
-<ul>
-<li>JDK 8：Parallel Scavenge</li>
-<li>JDK 9 ~ JDK20: G1</li>
-</ul>
-<span id="more"></span>
-
-<p><strong>特点：</strong></p>
-<ul>
-<li>都会造成STW，这是影响性能最主要的因素</li>
-<li>部分算法还会产生大量空间碎片</li>
-</ul>
-<p>介绍一下Java中比较经典的垃圾回收器：</p>
-<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>以获取最短回收停顿时间为目标</strong>，使用了<strong>标记-清除</strong> 算法，<strong>第一次实现了让垃圾收集线程与用户线程（基本上）同时工作</strong></p>
-<ul>
-<li>主要优点：<strong>并发收集、低停顿</strong></li>
-<li>缺点：<strong>对 CPU 资源敏感</strong>，<strong>会产生大量空间碎片</strong></li>
-</ul>
-<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1 收集器在后台维护了一个<strong>优先列表</strong>，每次根据允许的收集时间，优先选择回收价值最大的 Region(这也就是它的名字 <strong>Garbage-First</strong> 的由来) 。这种使用 Region 划分内存空间以及有优先级的区域回收方式，保证了 G1 收集器在有限时间内可以尽可能高的收集效率）。</p>
-<p>G1使用<strong>标记-整理</strong>算法</p>
-<h1 id="Go-GC"><a href="#Go-GC" class="headerlink" title="Go GC"></a>Go GC</h1><p>Golang的垃圾回收算法使用的是<em><strong>无分代、不整理、并发</strong>的</em><em>三色标记清扫算法</em>**。原因在于：</p>
-<ul>
-<li>Go 运行时的分配算法基于<code>tcmalloc</code>，<strong>基本上没有碎片问题</strong>，对对象进行整理不会带来实质性的性能提升。</li>
-<li>Go 的编译器会通过<strong>逃逸分析</strong>将大部分新生对象存储在栈上，只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
-<li>引入了<strong>混合屏障机制</strong>，能够让Go 的垃圾回收器部分阶段与用户代码并发执行，大大缩短了STW的时间</li>
-</ul>
+            <blockquote>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践 - 美团技术团队</a></p>
+</blockquote>
+<h1 id="线程池核心参数"><a href="#线程池核心参数" class="headerlink" title="线程池核心参数"></a>线程池核心参数</h1><ol>
+<li>核心线程数<code>corePoolSize</code><br>如果项目有固定的线程开销可以使用核心线程</li>
+<li>最大线程<code>maximumPoolSize</code><br>如果项目中多线程的场景不是很多，将线程池中的线程全部设置为普通线程，用完后就释放，减少资源占用</li>
+<li>工作队列<code>workQueue</code><br>指定有界或无界队列，队列长度，一般我们选择有界队列，无界队列容易导致OOM</li>
+</ol>
+<h3 id="场景一：快速响应用户请求"><a href="#场景一：快速响应用户请求" class="headerlink" title="场景一：快速响应用户请求"></a>场景一：快速响应用户请求</h3><p>场景：需要快速响应的场景，如<strong>首屏加载</strong>、商品详情页加载这种越快越好的场景</p>
+<p><strong>应该不设置队列去缓冲并发任务，而是调高<code>corePoolSize</code>和<code>maxPoolSize</code>去尽可能创造多的线程快速执行任务。</strong></p>
+<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_dAKT_1wRJI.png"></p>
+<h3 id="场景2：快速处理批量任务"><a href="#场景2：快速处理批量任务" class="headerlink" title="场景2：快速处理批量任务"></a>场景2：快速处理批量任务</h3><p><strong>描述</strong>：离线的大量计算任务，需要快速执行。比如说，统计某个报表，需要计算出全国各个门店中有哪些商品有某种属性，用于后续营销策略的分析，那么我们需要查询全国所有门店中的所有商品，并且记录具有某属性的商品，然后快速生成报表。</p>
+<p><strong>分析</strong>：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，<strong>这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。</strong>所以<strong>应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数</strong>。<strong>在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</strong></p>
+<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_uK86I9zjp7.png"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>考虑到在实际应用中我们获取并发性的场景主要是两种：</p>
+<ol>
+<li>并行执行子任务，提高响应速度。这种情况下，应该使用同步队列，没有什么任务应该被缓存下来，而是应该立即执行</li>
+<li>并行执行大批次任务，提升吞吐量。这种情况下，应该使用有界队列，使用队列去缓冲大批量的任务，队列容量必须声明，防止任务无限制堆积。所以线程池只需要提供这三个关键参数的配置，并且提供两种队列的选择，就可以满足绝大多数的业务需求，Less is More</li>
+</ol>
 
         </div>
 
@@ -282,7 +273,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2024/01/03/Go-GC-Vs-Java-GC/">https://qing-wq.github.io/2024/01/03/Go-GC-Vs-Java-GC/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/">https://qing-wq.github.io/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/</a></span>
                     </p>
                 
                 
@@ -300,6 +291,10 @@
                 <span>Tag(s):</span>
                 <span class="tag">
                     
+                    
+                        <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"># 线程池</a>
+                    
+                        
                 </span>
             </div>
             <div>
@@ -310,10 +305,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/">线程池在业务中的实践以及对应参数如何设计</a>
+                <a class="prev" rel="prev" href="/2024/02/14/Go%20generic%20VS%20Java%20generic/">Go generic VS Java generic</a>
             
             
-            <a class="next" rel="next" href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Spring Lazy-init 踩坑记录</a>
+            <a class="next" rel="next" href="/2024/01/03/Go-GC-Vs-Java-GC/">Go GC VS Java GC</a>
             
         </section>
 

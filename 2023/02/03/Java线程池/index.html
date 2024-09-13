@@ -15,7 +15,7 @@
 
 
 
-<title>Java线程池 | Qing&#39;s Blog</title>
+<title>Java中的线程池 | Qing&#39;s Blog</title>
 
 
 
@@ -200,7 +200,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Java线程池</h1>
+            <h1 class="post-title">Java中的线程池</h1>
             
                 <div class="post-meta">
                     
@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">2k</a> 
+                            <a href="">2.1k</a> 
                         </span>
                     
                     
@@ -312,7 +312,7 @@
 <li><code>DiscardPolicy</code>：直接丢弃任务，不抛出任何异常</li>
 <li><code>DiscardOldestPolicy</code>：将当前处于等待队列列头的等待任务强行取出，然后再试图将当前被拒绝的任务提交</li>
 </ul>
-<h2 id="Executors封装线程池"><a href="#Executors封装线程池" class="headerlink" title="Executors封装线程池"></a>Executors封装线程池</h2><p>三种线程池的特点：</p>
+<h2 id="常见线程池种类"><a href="#常见线程池种类" class="headerlink" title="常见线程池种类"></a>常见线程池种类</h2><p>四种线程池的特点：</p>
 <ul>
 <li><code>SingleThreadExecutor</code>单线程线程池<ul>
 <li>特点：线程池只有一个线程</li>
@@ -320,21 +320,21 @@
 </ul>
 </li>
 <li><code>FixedThreadPool</code>固定线程池<ul>
-<li>特点：最大线程数就是核心线程数</li>
+<li>特点：最大线程数就是核心线程数，<strong>即只有核心线程</strong></li>
 <li><code>keepAliveTime=0</code>，但核心线程不会被回收或者销毁</li>
 <li>无界队列：使用<code>LinkedBlockingQueue</code>作为工作队列，未指定容量（默认值<code>Integer.MAX_VALUE</code>）</li>
-<li>适用于需要并发控制的场景</li>
+<li>适用于需要有一定持续并发量的场景</li>
 </ul>
 </li>
 <li><code>CachedThreadPool</code>缓存线程池<ul>
-<li>没有核心线程，普通线程数量无限</li>
-<li>线程闲置60s后回收</li>
+<li><strong>没有核心线程，普通线程数量无限</strong></li>
+<li><code>keepAliveTime=60</code>，线程闲置60s后回收</li>
 <li>使用<code>SynchronousQueue</code>作为工作队列，它不会保存任务，而是直接将任务交给空闲线程执行</li>
-<li>适用用于任务量大但耗时低的场景</li>
+<li>如果项目中多线程的场景不多或者是需要快速响应的场景，即来即处理，且用完释放，不占用过多资源</li>
 </ul>
 </li>
 <li><code>ScheduledThreadPool</code>定时线程池<ul>
-<li>指定核心线程数量，普通线程数量无限</li>
+<li><strong>指定核心线程数量，普通线程数量无限</strong></li>
 <li>任务队列为延时阻塞队列<code>DelayQueue</code></li>
 <li>适用用于执行定时或周期性的任务</li>
 </ul>
@@ -355,6 +355,7 @@
 </li>
 </ul>
 <p>实际线程池大小的选择还取决于任务的具体特点和系统资源的限制。在实际应用中，可以通过测试和性能调优来确定最佳的线程池大小，确保任务能够高效执行并充分利用系统资源。</p>
+<p><a href="/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/">线程池在业务中的实践以及对应参数如何设计</a></p>
 
         </div>
 
@@ -388,7 +389,7 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"># 学习笔记</a>
+                        <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"># 线程池</a>
                     
                         
                 </span>
