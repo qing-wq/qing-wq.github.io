@@ -15,7 +15,7 @@
 
 
 
-<title>Mybatis Interceptor | Qing&#39;s Blog</title>
+<title>MySQL中的字符串类型 | Qing&#39;s Blog</title>
 
 
 
@@ -200,7 +200,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Mybatis Interceptor</h1>
+            <h1 class="post-title">MySQL中的字符串类型</h1>
             
                 <div class="post-meta">
                     
@@ -209,7 +209,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">一月 8, 2023</a>
+                        📅Date: <a href="#">九月 14, 2023</a>
                         </span>
                     
                     <br/>
@@ -225,13 +225,13 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">350</a> 
+                            <a href="">870</a> 
                         </span>
                     
                     
                         <span class="post-count">
                             ⏱️Time:
-                            <a href="">1min</a> 
+                            <a href="">3min</a> 
                         </span>
                                             
                 </div>
@@ -239,28 +239,59 @@
         </header>
 
         <div class="post-content">
-            <p>我们先来看一下MyBatis的执行过程，这个也是网上的热图了：</p>
-<p><img src="/../images/image-20240908231217545.png" alt="image-20240908231217545"></p>
-<p>Mybatis的拦截器提供了非常强大的扩展能力。在sql最终执行之前，提供了四个拦截点，支持不同场景的功能扩展：</p>
-<ul>
-<li><code>Executor</code>：代表执行器，由它调度StatementHandler、ParameterHandler、ResultSetHandler等来执行对应的SQL，其中StatementHandler是最重要的。</li>
-<li><code>ParameterHandler</code>：处理SQL参数。</li>
-<li><code>ResultSetHandler</code>：进行结果集（ResultSet）的封装返回处理，它非常的复杂，好在不常用。</li>
-<li><code>StatementHandler</code>：作用是使用数据库的Statement（PreparedStatement）执行操作，它是四大对象的核心，起到承上启下的作用，许多重要的插件都是通过拦截它来实现的。</li>
-</ul>
-<p>每个拦截点提供了多个方法，拦截器是基于方法的</p>
-<ul>
-<li><code>Executor</code> (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</li>
-<li><code>ParameterHandler</code> (getParameterObject, setParameters)</li>
-<li><code>ResultSetHandler</code> (handleResultSets, handleOutputParameters)</li>
-<li><code>StatementHandler</code> (prepare, parameterize, batch, update, query)</li>
-</ul>
-<h2 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h2><p>自定义插件实现，重点两步</p>
-<ul>
-<li>实现接口<code>org.apache.ibatis.plugin.Interceptor</code></li>
-<li><code>@Intercepts</code>标志该类是一个拦截器；<code>@Signature</code>定义切点，可以指定多个</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Intercepts({</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {java.sql.Statement.class})</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = "sensitive", name = "enabled")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SensitiveInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SensitiveService sensitiveService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable {</span><br><span class="line">        List&lt;Object&gt; results = (List&lt;Object&gt;) invocation.proceed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (results.isEmpty()) {</span><br><span class="line">            <span class="keyword">return</span> results;</span><br><span class="line">        }</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// ResultSet</span></span><br><span class="line">        <span class="type">ResultSetHandler</span> <span class="variable">resultSetHandler</span> <span class="operator">=</span> (ResultSetHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">MetaObject</span> <span class="variable">metaObject</span> <span class="operator">=</span> SystemMetaObject.forObject(resultSetHandler);</span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) metaObject.getValue(<span class="string">"mappedStatement"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> {</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+            <table>
+<thead>
+<tr>
+<th>变量名称</th>
+<th>含义</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>char</td>
+<td>固定大小的字符</td>
+<td>0-255<strong>个字符</strong></td>
+</tr>
+<tr>
+<td>varchar</td>
+<td>可变长度字符串,相当于<code>String</code></td>
+<td>0 - 65536<strong>个字符</strong></td>
+</tr>
+<tr>
+<td>Text</td>
+<td>文本串,保存大文本</td>
+<td>4G</td>
+</tr>
+<tr>
+<td>Blob</td>
+<td>二进制大对象，专门用来储存图片，声音，视频等流媒体数据。插入数据的时候，需要使用IO流。</td>
+<td>4G</td>
+</tr>
+</tbody></table>
+<h2 id="CHAR-和-VARCHAR-的定义"><a href="#CHAR-和-VARCHAR-的定义" class="headerlink" title="CHAR 和 VARCHAR 的定义"></a>CHAR 和 VARCHAR 的定义</h2><p><code>CHAR(N)</code> 用来保存固定长度的字符，N 的范围是 0 ~ 255，<strong>请牢记，N 表示的是字符，而不是字节</strong>。<code>VARCHAR(N)</code> 用来保存变长字符，N 的范围为 0 ~ 65536， <strong>N 表示字符</strong>。</p>
+<p>在超出 65536 个字符的情况下，可以考虑使用更大的字符类型 TEXT 或 BLOB，两者最大存储长度为 4G，其区别是 BLOB 没有字符集属性，纯属二进制存储。</p>
+<p>MySQL 数据库的 VARCHAR 字符类型，最大能够存储 65536 个字符，所以在 MySQL 数据库下，绝大部分场景使用类型 VARCHAR 就足够了。</p>
+<p>对于长文本，比如存储博客这样的场景，可以使用<code>Text</code></p>
+<p><strong>字符集</strong></p>
+<p>在表结构设计中，除了将列定义为 CHAR 和 VARCHAR 用以存储字符以外，还需要额外定义字符对应的字符集，因为每种字符在不同字符集编码下，对应着不同的二进制值。常见的字符集有 GBK、UTF8，通常默认把字符集设置为 UTF8。</p>
+<p><strong>推荐把 MySQL 的默认字符集设置为 UTF8MB4</strong>，可以存储emoji 表情</p>
+<h2 id="varchar-100-可以存多少中文字符"><a href="#varchar-100-可以存多少中文字符" class="headerlink" title="varchar(100)可以存多少中文字符"></a>varchar(100)可以存多少中文字符</h2><p>不同的字符集，<code>CHAR(N)</code>、<code>VARCHAR(N)</code>对应最长的字节也不相同。</p>
+<p>比如 <em><strong>GBK 字符集，1 个字符最大存储 2 个字节，UTF-8字符集支持每个字符最大三3字节，UTF8MB4 字符集 1 个字符最大存储 4 个字节。</strong></em></p>
+<blockquote>
+<p>注意MySQL中的UTF-8跟平时用的UTF-8有区别，真正的 UTF-8 是每个字符最多四个字节。</p>
+</blockquote>
+<p>那么在UTF-8字符集的情况下，一个汉字3个字节，<code>varchar(100)</code>可以存放100个中文字符</p>
+<h2 id="补充：Unicode-ASCII-UTF-8-GBK-编码的区别"><a href="#补充：Unicode-ASCII-UTF-8-GBK-编码的区别" class="headerlink" title="补充：Unicode ASCII UTF-8 GBK 编码的区别"></a>补充：Unicode ASCII UTF-8 GBK 编码的区别</h2><h3 id="ASCII编码"><a href="#ASCII编码" class="headerlink" title="ASCII编码"></a>ASCII编码</h3><p>ASCII 码使用指定的7 位或8 位二进制数组合来表示128 或256 种可能的字符。</p>
+<p><em><strong>长度：1个字节</strong></em></p>
+<h3 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h3><p>Unicode把所有语言都统一到一套编码里，这样就不会再有乱码问题了。</p>
+<p>Unicode最常用的是用<strong>两个字节表示一个字符</strong>。现代操作系统和大多数编程语言都直接支持Unicode。</p>
+<p>新的问题：如果统一成Unicode编码，乱码问题从此消失了。但是，如果你写的文本基本上全部是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，在存储和传输上就十分不划算。</p>
+<p><em><strong>长度：2个字节</strong></em></p>
+<h3 id="UTF8"><a href="#UTF8" class="headerlink" title="UTF8"></a>UTF8</h3><p>所以，本着节约的精神，出现了“可变长编码”的UTF-8编码</p>
+<p>UTF-8编码把一个Unicode字符根据不同的数字大小编码成1-6个字节，<em><strong>常用的英文字母被编码成1个字节，汉字通常是3个字节，只有很生僻的字符才会被编码成4-6个字节</strong></em>。如果你要传输的文本包含大量英文字符，用UTF-8编码就能节省空间。</p>
+<p><em><strong>长度：1-6个字节，汉字一般是3个字节</strong></em></p>
+<h3 id="GBK-编码"><a href="#GBK-编码" class="headerlink" title="GBK 编码"></a><strong>GBK 编码</strong></h3><p>GBK 编码专门用于表示汉字</p>
+<p><em><strong>长度：</strong></em><em><strong>2个字节</strong></em></p>
 
         </div>
 
@@ -275,7 +306,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2023/01/08/Mybatis-Interceptor/">https://qing-wq.github.io/2023/01/08/Mybatis-Interceptor/</a></span>
+                        <span><a href="https://qing-wq.github.io/2023/09/14/MySQL%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B/">https://qing-wq.github.io/2023/09/14/MySQL%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B/</a></span>
                     </p>
                 
                 
@@ -293,6 +324,10 @@
                 <span>Tag(s):</span>
                 <span class="tag">
                     
+                    
+                        <a href="/tags/MySQL/"># MySQL</a>
+                    
+                        
                 </span>
             </div>
             <div>
@@ -303,10 +338,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/">Java中的线程池</a>
+                <a class="prev" rel="prev" href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Spring Lazy-init 踩坑记录</a>
             
             
-            <a class="next" rel="next" href="/2022/09/08/Spring%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">项目中的全局异常处理</a>
+            <a class="next" rel="next" href="/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">RabbitMQ学习笔记</a>
             
         </section>
 

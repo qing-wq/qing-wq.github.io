@@ -15,7 +15,7 @@
 
 
 
-<title>线程池在业务中的实践以及对应参数如何设计 | Qing&#39;s Blog</title>
+<title>Mybatis Interceptor | Qing&#39;s Blog</title>
 
 
 
@@ -200,7 +200,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">线程池在业务中的实践以及对应参数如何设计</h1>
+            <h1 class="post-title">Mybatis Interceptor</h1>
             
                 <div class="post-meta">
                     
@@ -209,7 +209,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">二月 3, 2024</a>
+                        📅Date: <a href="#">一月 8, 2024</a>
                         </span>
                     
                     <br/>
@@ -217,7 +217,7 @@
                         <span class="post-category">
                             📚Category:
                             
-                                <a href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+                                <a href="/categories/%E6%97%A5%E5%B8%B8%E5%B0%8F%E8%AE%B0/">日常小记</a>
                             
                         </span>
                     
@@ -225,13 +225,13 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">712</a> 
+                            <a href="">350</a> 
                         </span>
                     
                     
                         <span class="post-count">
                             ⏱️Time:
-                            <a href="">2min</a> 
+                            <a href="">1min</a> 
                         </span>
                                             
                 </div>
@@ -239,26 +239,28 @@
         </header>
 
         <div class="post-content">
-            <blockquote>
-<p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践 - 美团技术团队</a></p>
-</blockquote>
-<h1 id="线程池核心参数"><a href="#线程池核心参数" class="headerlink" title="线程池核心参数"></a>线程池核心参数</h1><ol>
-<li>核心线程数<code>corePoolSize</code><br>如果项目有固定的线程开销可以使用核心线程</li>
-<li>最大线程<code>maximumPoolSize</code><br>如果项目中多线程的场景不是很多，将线程池中的线程全部设置为普通线程，用完后就释放，减少资源占用</li>
-<li>工作队列<code>workQueue</code><br>指定有界或无界队列，队列长度，一般我们选择有界队列，无界队列容易导致OOM</li>
-</ol>
-<h3 id="场景一：快速响应用户请求"><a href="#场景一：快速响应用户请求" class="headerlink" title="场景一：快速响应用户请求"></a>场景一：快速响应用户请求</h3><p>场景：需要快速响应的场景，如<strong>首屏加载</strong>、商品详情页加载这种越快越好的场景</p>
-<p><strong>应该不设置队列去缓冲并发任务，而是调高<code>corePoolSize</code>和<code>maxPoolSize</code>去尽可能创造多的线程快速执行任务。</strong></p>
-<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_dAKT_1wRJI.png"></p>
-<h3 id="场景2：快速处理批量任务"><a href="#场景2：快速处理批量任务" class="headerlink" title="场景2：快速处理批量任务"></a>场景2：快速处理批量任务</h3><p><strong>描述</strong>：离线的大量计算任务，需要快速执行。比如说，统计某个报表，需要计算出全国各个门店中有哪些商品有某种属性，用于后续营销策略的分析，那么我们需要查询全国所有门店中的所有商品，并且记录具有某属性的商品，然后快速生成报表。</p>
-<p><strong>分析</strong>：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，<strong>这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。</strong>所以<strong>应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数</strong>。<strong>在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</strong></p>
-<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_uK86I9zjp7.png"></p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>考虑到在实际应用中我们获取并发性的场景主要是两种：</p>
-<ol>
-<li>并行执行子任务，提高响应速度。这种情况下，应该使用同步队列，没有什么任务应该被缓存下来，而是应该立即执行</li>
-<li>并行执行大批次任务，提升吞吐量。这种情况下，应该使用有界队列，使用队列去缓冲大批量的任务，队列容量必须声明，防止任务无限制堆积。所以线程池只需要提供这三个关键参数的配置，并且提供两种队列的选择，就可以满足绝大多数的业务需求，Less is More</li>
-</ol>
+            <p>我们先来看一下MyBatis的执行过程，这个也是网上的热图了：</p>
+<p><img src="/../images/image-20240908231217545.png" alt="image-20240908231217545"></p>
+<p>Mybatis的拦截器提供了非常强大的扩展能力。在sql最终执行之前，提供了四个拦截点，支持不同场景的功能扩展：</p>
+<ul>
+<li><code>Executor</code>：代表执行器，由它调度StatementHandler、ParameterHandler、ResultSetHandler等来执行对应的SQL，其中StatementHandler是最重要的。</li>
+<li><code>ParameterHandler</code>：处理SQL参数。</li>
+<li><code>ResultSetHandler</code>：进行结果集（ResultSet）的封装返回处理，它非常的复杂，好在不常用。</li>
+<li><code>StatementHandler</code>：作用是使用数据库的Statement（PreparedStatement）执行操作，它是四大对象的核心，起到承上启下的作用，许多重要的插件都是通过拦截它来实现的。</li>
+</ul>
+<p>每个拦截点提供了多个方法，拦截器是基于方法的</p>
+<ul>
+<li><code>Executor</code> (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</li>
+<li><code>ParameterHandler</code> (getParameterObject, setParameters)</li>
+<li><code>ResultSetHandler</code> (handleResultSets, handleOutputParameters)</li>
+<li><code>StatementHandler</code> (prepare, parameterize, batch, update, query)</li>
+</ul>
+<h2 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h2><p>自定义插件实现，重点两步</p>
+<ul>
+<li>实现接口<code>org.apache.ibatis.plugin.Interceptor</code></li>
+<li><code>@Intercepts</code>标志该类是一个拦截器；<code>@Signature</code>定义切点，可以指定多个</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Intercepts({</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {java.sql.Statement.class})</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = "sensitive", name = "enabled")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SensitiveInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SensitiveService sensitiveService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable {</span><br><span class="line">        List&lt;Object&gt; results = (List&lt;Object&gt;) invocation.proceed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (results.isEmpty()) {</span><br><span class="line">            <span class="keyword">return</span> results;</span><br><span class="line">        }</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// ResultSet</span></span><br><span class="line">        <span class="type">ResultSetHandler</span> <span class="variable">resultSetHandler</span> <span class="operator">=</span> (ResultSetHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">MetaObject</span> <span class="variable">metaObject</span> <span class="operator">=</span> SystemMetaObject.forObject(resultSetHandler);</span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) metaObject.getValue(<span class="string">"mappedStatement"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> {</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
         </div>
 
@@ -273,7 +275,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/">https://qing-wq.github.io/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/01/08/Mybatis-Interceptor/">https://qing-wq.github.io/2024/01/08/Mybatis-Interceptor/</a></span>
                     </p>
                 
                 
@@ -292,7 +294,7 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"># 线程池</a>
+                        <a href="/tags/MyBatis/"># MyBatis</a>
                     
                         
                 </span>
@@ -305,10 +307,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/02/14/Go%20generic%20VS%20Java%20generic/">Go generic VS Java generic</a>
+                <a class="prev" rel="prev" href="/2024/01/10/Java%20NIO/">Java NIO</a>
             
             
-            <a class="next" rel="next" href="/2024/01/10/Java%20NIO/">Java NIO</a>
+            <a class="next" rel="next" href="/2024/01/03/Go-GC-Vs-Java-GC/">Go GC VS Java GC</a>
             
         </section>
 
