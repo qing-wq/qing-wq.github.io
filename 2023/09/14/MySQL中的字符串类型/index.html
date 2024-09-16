@@ -268,6 +268,9 @@
 <td>4G</td>
 </tr>
 </tbody></table>
+<span id="more"></span>
+
+
 <h2 id="CHAR-和-VARCHAR-的定义"><a href="#CHAR-和-VARCHAR-的定义" class="headerlink" title="CHAR 和 VARCHAR 的定义"></a>CHAR 和 VARCHAR 的定义</h2><p><code>CHAR(N)</code> 用来保存固定长度的字符，N 的范围是 0 ~ 255，<strong>请牢记，N 表示的是字符，而不是字节</strong>。<code>VARCHAR(N)</code> 用来保存变长字符，N 的范围为 0 ~ 65536， <strong>N 表示字符</strong>。</p>
 <p>在超出 65536 个字符的情况下，可以考虑使用更大的字符类型 TEXT 或 BLOB，两者最大存储长度为 4G，其区别是 BLOB 没有字符集属性，纯属二进制存储。</p>
 <p>MySQL 数据库的 VARCHAR 字符类型，最大能够存储 65536 个字符，所以在 MySQL 数据库下，绝大部分场景使用类型 VARCHAR 就足够了。</p>
@@ -341,7 +344,7 @@
                 <a class="prev" rel="prev" href="/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Spring Lazy-init 踩坑记录</a>
             
             
-            <a class="next" rel="next" href="/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">RabbitMQ学习笔记</a>
+            <a class="next" rel="next" href="/2023/09/12/Spring-Security%E6%9E%B6%E6%9E%84/">🤨 Spring Security架构体系</a>
             
         </section>
 

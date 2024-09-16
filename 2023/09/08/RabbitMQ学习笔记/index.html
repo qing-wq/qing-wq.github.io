@@ -253,6 +253,8 @@
 <li><code>Binding</code>绑定，交换器和消息队列之间的虚拟连接，绑定中可以包含一个或者多个 RoutingKey。</li>
 <li><code>RoutingKey</code>路由键，生产者将消息发送给交换器的时候，会指定一个 RoutingKey，用来指定路由规则，交换器根据路由键把消息发送到指定队列</li>
 </ul>
+<span id="more"></span>
+
 <h1 id="2-消息队列模式"><a href="#2-消息队列模式" class="headerlink" title="2 消息队列模式"></a>2 消息队列模式</h1><h2 id="2-1-点对点模式"><a href="#2-1-点对点模式" class="headerlink" title="2.1 点对点模式"></a>2.1 点对点模式</h2><p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/e6053e18-99d6-4914-b06a-4dc65d258a30_1koS-yViN2.png"></p>
 <p>点对点模式特点：<strong>一个具体的消息只能由一个消费者消费</strong>，多个生产者可以向同一个消息队列发送消息，但是一个消息在被一个消息者处理的时候，这个消息在队列上会被锁住或者被移除并且其他消费者无法处理该消息。</p>
 <h2 id="2-2-发布-订阅模式"><a href="#2-2-发布-订阅模式" class="headerlink" title="2.2 发布/订阅模式"></a>2.2 发布/订阅模式</h2><p><strong>单个消息可以被多个订阅者并发的获取和处理</strong>。一般来说，订阅有两种类型：</p>
@@ -376,7 +378,7 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2023/09/14/MySQL%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B/">MySQL中的字符串类型</a>
+                <a class="prev" rel="prev" href="/2023/09/12/Spring-Security%E6%9E%B6%E6%9E%84/">🤨 Spring Security架构体系</a>
             
             
             <a class="next" rel="next" href="/2023/09/03/JUC%E5%9F%BA%E7%A1%80/">JUC基础</a>

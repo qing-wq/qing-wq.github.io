@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>🤨 Spring Security架构体系 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">🤨 Spring Security架构体系</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">九月 12, 2023</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/%E6%97%A5%E5%B8%B8%E5%B0%8F%E8%AE%B0/">日常小记</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">509</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">1min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p><em>本文暂未完善</em></p>
+<p>SpringSecurity的逻辑架构主要分为两部分：认证架构和授权架构</p>
+<h1 id="Servlet-认证架构"><a href="#Servlet-认证架构" class="headerlink" title="Servlet 认证架构"></a>Servlet 认证架构</h1><p>总体架构：</p>
+<p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_hWPD8lsRmI.png"></p>
+<p>关键组件：</p>
+<p><code>AuthenticationFilter</code>：用于获取请求中的信息，并创建 <code>Authentication</code>对象</p>
+<p><code>AuthenticationProvider</code>：用于验证登录逻辑，对<code>Authentication</code>进行进一步的身份认证</p>
+<span id="more"></span>
+
+<p>用户携带认证token进行请求，请求中的用户身份信息会被AuthenTicationFilter提取出来并交给<code>AuthenticationManager</code>，<code>AuthenticationManager</code>负责对用户的身份信息进行认证</p>
+<p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_67F-kIkJIp.png"></p>
+<h2 id="逻辑关系"><a href="#逻辑关系" class="headerlink" title="逻辑关系"></a>逻辑关系</h2><p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_BnjQG1hUFj.png"></p>
+<h2 id="ProviderManager"><a href="#ProviderManager" class="headerlink" title="ProviderManager"></a>ProviderManager</h2><p>ProviderManager中包含了一系列的Provider，这些Provider负责执行实际的身份验证。例如，<code>DaoAuthenticationProvider</code>支持基于用户名/密码的身份验证，同时<code>JwtAuthenticationProvider</code>支持对 JWT 令牌进行身份验证。每个<code>AuthenticationProvider</code>执行特定类型的身份验证。</p>
+<p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_3sJrWUgN3w.png"></p>
+<p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_nA3iwqM0Zb.png"></p>
+<h2 id="DaoAuthenticationProvider"><a href="#DaoAuthenticationProvider" class="headerlink" title="DaoAuthenticationProvider"></a>DaoAuthenticationProvider</h2><p>输入Username和Password，返回UserDetails和Authorities</p>
+<p>作用：是一个<code>AuthenticationProvider</code>，用于校验账号密码</p>
+<p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_KiWYyJMnjI.png"></p>
+<h1 id="SecurityContextHolder"><a href="#SecurityContextHolder" class="headerlink" title="SecurityContextHolder"></a>SecurityContextHolder</h1><p>Spring Security 身份验证模型的核心是<code>SecurityContextHolder</code>，它存在于TreadLocal中</p>
+<p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_2QYvifZK3U.png"></p>
+<h2 id="设置SecurityContextHolder"><a href="#设置SecurityContextHolder" class="headerlink" title="设置SecurityContextHolder"></a>设置SecurityContextHolder</h2><p>不能直接通过<code>SecurityContextHolder.getContext().setAuthentication(authentication)</code>来设置Holder中的context，否则多线程情况下会出现问题。应该为每个线程创建单独的实例：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SecurityContext</span> <span class="variable">context</span> <span class="operator">=</span> SecurityContextHolder.createEmptyContext(); </span><br><span class="line"><span class="type">Authentication</span> <span class="variable">authentication</span> <span class="operator">=</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">TestingAuthenticationToken</span>(<span class="string">"username"</span>, <span class="string">"password"</span>, <span class="string">"ROLE_USER"</span>); </span><br><span class="line">context.setAuthentication(authentication);</span><br><span class="line"></span><br><span class="line">SecurityContextHolder.setContext(context); </span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="访问当前经过身份验证的用户"><a href="#访问当前经过身份验证的用户" class="headerlink" title="访问当前经过身份验证的用户"></a>访问当前经过身份验证的用户</h2><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SecurityContext</span> <span class="variable">context</span> <span class="operator">=</span> SecurityContextHolder.getContext();</span><br><span class="line"><span class="type">Authentication</span> <span class="variable">authentication</span> <span class="operator">=</span> context.getAuthentication();</span><br><span class="line"><span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> authentication.getName();</span><br><span class="line"><span class="type">Object</span> <span class="variable">principal</span> <span class="operator">=</span> authentication.getPrincipal();</span><br><span class="line">Collection&lt;? <span class="keyword">extends</span> <span class="title class_">GrantedAuthority</span>&gt; authorities = authentication.getAuthorities();</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>默认情况下，SecurityContextHolder使用 <code>ThreadLocal</code>来存储这些详细信息。</li>
+<li>ThreadLocal如果在处理当前主体的请求后注意清除线程，Spring Security 的<code>FilterChainProxy</code>确保SecurityContext始终清除。</li>
+<li>三者包含关系：SecurityContextHolder→ SecurityContext → Authentication</li>
+</ul>
+<p><code>Authentication</code>中包含：</p>
+<ul>
+<li><code>principal</code>：标识用户。当使用用户名/密码进行身份验证时，这通常是<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/user-details.html#servlet-authentication-userdetails" title="UserDetails">UserDetails</a>.</li>
+<li><code>credentials</code>: 通常是密码。很多情况下，这个是在用户通过认证后清除的，以保证不被泄露。</li>
+<li><code>Collection&lt;? extends GrantedAuthority&gt;</code>：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-granted-authority" title="GrantedAuthority">GrantedAuthority</a>实例是授予用户的高级权限。</li>
+</ul>
+<blockquote>
+<p><code>UserDetails</code>、<code>UserDetailsService</code>关系：</p>
+<p>UserDetails由UserDetailsService返回。<code>DaoAuthenticationProvider</code>验证UserDetails，然后返回一个Authentication，该Authentication的主体是配置的UserDetailsService返回的UserDetails。</p>
+</blockquote>
+<h1 id="Security授权流程"><a href="#Security授权流程" class="headerlink" title="Security授权流程"></a>Security授权流程</h1><p><img src="/../images/Spring-Security%E6%9E%B6%E6%9E%84/image_YR7XuKyby2.png"></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2023/09/12/Spring-Security%E6%9E%B6%E6%9E%84/">https://qing-wq.github.io/2023/09/12/Spring-Security%E6%9E%B6%E6%9E%84/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Spring-Security/"># Spring Security</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/09/14/MySQL%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B/">MySQL中的字符串类型</a>
+            
+            
+            <a class="next" rel="next" href="/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">RabbitMQ学习笔记</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
