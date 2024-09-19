@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">2.1k</a> 
+                            <a href="">2.2k</a> 
                         </span>
                     
                     
@@ -277,13 +277,9 @@
 </li>
 </ol>
 <p>我们可以这样类比：</p>
-<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"></p>
-<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。在<code>ThreadPoolExecutor</code>线程池的API文文档中，一共推荐了三种等待队列:</p>
-<ol>
-<li><code>SynchronousQueue</code> 同步队列</li>
-<li><code>LinkedBlockingQueue</code></li>
-<li><code>ArrayBlockingQueue</code></li>
-</ol>
+<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"><br><em><strong>注意：核心线程没有空闲时，超量任务首先放入队列中，队列满了才会开普通线程处理！</strong></em></p>
+<p>如果<code>corePoolSize</code>为0，则要使用<code>SynchronousQueue</code>避免无限阻塞。因为核心线程为0时，任务会先放入队列中，队列放不下了再使用普通线程，如果队列是无限的就会导致一直阻塞</p>
+<h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。</p>
 <p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
 <p>BlockQueue有四组API：</p>
 <p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
@@ -300,11 +296,7 @@
 <li><code>DelayQueue</code>：基于优先级堆实现的延迟阻塞队列。其中的元素必须实现<code>Delayed</code>接口，只有经过一定时间后才能被取出。</li>
 </ol>
 <p><em><strong>BlockingQueue实现原理：ReentrantLock + Condition</strong></em></p>
-<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：</p>
-<ul>
-<li><code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，出队和入队不能同时进行</li>
-<li><code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，出队和入队可以同时进行</li>
-</ul>
+<p><code>ArrayBlockingQueue</code>和<code>LinkedBlockingQueue</code>区别：<br>    - <code>ArrayBlockingQueue</code>使用数组作缓冲区，有界，生产者消费者之间使用<strong>独占锁</strong>，即生产者和消费者共用一把缓冲区的锁，出队和入队不能同时进行<br>    - <code>LinkedBlockingQueue</code>使用链表作缓冲区，无界，生产者消费者之间使用<strong>分离锁</strong>，即生产者和消费者分别用一把缓冲区的锁，出队和入队可以同时进行</p>
 <h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>  如上面介绍，拒绝策略需要实现<code>RejectedExecutionHandler</code>接口，<code>Executors</code>为我们提供了4种拒绝策略：</p>
 <ul>
 <li><code>AbortPolicy</code>（默认）：丢弃任务并抛出<code>RejectedExecutionException</code>异常</li>
