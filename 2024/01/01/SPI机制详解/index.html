@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>SPI机制详解 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">SPI机制详解</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">一月 1, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/%E6%97%A5%E5%B8%B8%E5%B0%8F%E8%AE%B0/">日常小记</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">1.4k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">5min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>什么是SPI机制？</p>
+<p><em><strong>SPI（Service Provider Interface）</strong></em>，是 JDK 内置的一种服务提供发现机制，具体表现为按照约定能够为同一接口提供多种不同的实现，常用来启用框架扩展和替换组件</p>
+<p><img src="/../images/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/image_ieFj3Q2IEV.png"></p>
+<p>Java 中 SPI 机制主要思想是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要，其核心思想就是 <strong>解耦</strong>。</p>
+</blockquote>
+<p>本文探讨SPI在Java和SpringBoot中的实现以及具体的使用姿势</p>
+<h1 id="Java-SPI"><a href="#Java-SPI" class="headerlink" title="Java SPI"></a>Java SPI</h1><p>Java SPI 中有四个重要的组件：</p>
+<ol>
+<li><strong>服务接口</strong>：一个定义了服务提供者实现类契约方法的接口或者抽象类。</li>
+<li><strong>服务实现</strong>：实际提供服务的实现类。</li>
+<li><strong>SPI 配置文件</strong>：文件名必须存在于 <code>META-INF/services</code> 目录中。文件名应与服务提供商接口完全限定名完全相同。文件中的每一行都有一个实现服务类详细信息，即服务提供者类的完全限定名。</li>
+<li><strong>ServiceLoader</strong>： Java SPI 关键类，用于加载服务提供者接口的服务。</li>
+</ol>
+<p>简单看一个demo：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 标准服务接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Compresser</span> {</span><br><span class="line">    <span class="type">byte</span>[] compress(<span class="type">byte</span>[] bytes);</span><br><span class="line">    <span class="type">byte</span>[] decompress(<span class="type">byte</span>[] bytes);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实际服务提供者1</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GzipCompresser</span> <span class="keyword">implements</span> <span class="title class_">Compresser</span>{</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] compress(<span class="type">byte</span>[] bytes) {</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"compress by Gzip"</span>.getBytes(StandardCharsets.UTF_8);</span><br><span class="line">    }</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] decompress(<span class="type">byte</span>[] bytes) {</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"decompress by Gzip"</span>.getBytes(StandardCharsets.UTF_8);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实际服务提供者2</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ZipCompresser</span> <span class="keyword">implements</span> <span class="title class_">Compresser</span> {</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] compress(<span class="type">byte</span>[] bytes) {</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"compress by Zip"</span>.getBytes(StandardCharsets.UTF_8);</span><br><span class="line">    }</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] decompress(<span class="type">byte</span>[] bytes) {</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"decompress by Zip"</span>.getBytes(StandardCharsets.UTF_8);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>编写SPI 配置文件：</p>
+<p>在<code>META-INF/services</code>中创建<code>cn.ppphuang.demoserver.serviceproviders.Compresser</code>文件，注意文件名是标准服务接口类的<strong>全限定类名</strong></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cn.ppphuang.demoserver.serviceproviders.GzipCompresser</span><br><span class="line">cn.ppphuang.demoserver.serviceproviders.ZipCompresser cn.ppphuang.demoserver.serviceproviders.Compresser</span><br></pre></td></tr></tbody></table></figure>
+
+<p>接下来通过 ServiceLoader 加载服务：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">  ServiceLoader&lt;Compresser&gt; serviceLoader = ServiceLoader.load(Compresser.class);</span><br><span class="line">  <span class="keyword">for</span> (Compresser service : serviceLoader) {</span><br><span class="line">    System.out.println(service.getClass().getClassLoader());</span><br><span class="line">    <span class="type">byte</span>[] compress = service.compress(<span class="string">"Hello"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">    System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(compress));</span><br><span class="line">    <span class="type">byte</span>[] decompress = service.decompress(<span class="string">"Hello"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">    System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(decompress));</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">-------------</span><br><span class="line">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="line">compress by Gzip</span><br><span class="line">decompress by Gzip</span><br><span class="line">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="line">compress by Zip</span><br><span class="line">decompress by Zip</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="常见SPI案例"><a href="#常见SPI案例" class="headerlink" title="常见SPI案例"></a>常见SPI案例</h2><ul>
+<li><p>JDBC SPI</p>
+<p>SPI的使用非常广泛，一个比较出名的实现就是JDBC</p>
+<p>在JDBC中，我们一般会通过<code>DriverManager</code>去创建与数据库的连接；而<code>DriverManager</code>会查找并加载classPath中不同的<code>Driver</code>的实现</p>
+</li>
+<li><p>Common-Logging（JCL）</p>
+<p>Common-Logging apache是常用的日志库门面。只有接口（<code>LogFactory</code>），没有实现。具体方案由各提供商实现</p>
+</li>
+</ul>
+<h2 id="Java-SPI存在的问题"><a href="#Java-SPI存在的问题" class="headerlink" title="Java SPI存在的问题"></a>Java SPI存在的问题</h2><p>使用 Java SPI 能方便得解耦模块，使得接口的定义与具体业务实现分离。应用程序可以根据实际业务情况启用或替换具体组件。但是也有一些缺点：</p>
+<ul>
+<li><strong>不能按需加载</strong>。虽然 ServiceLoader 做了延迟载入，但是基本只能通过遍历全部获取，也就是接口的实现类得全部载入并实例化。如果你并不想用某些实现类，或者某些类实例化很耗时，它也被载入并实例化了，这就造成了浪费。</li>
+<li><strong>获取某个实现类的方式不够灵活</strong>。只能通过 Iterator 形式获取，不能根据某个参数来获取对应的实现类。</li>
+<li>多个并发多线程使用 ServiceLoader 类的实例是不安全的。</li>
+</ul>
+<h1 id="Spring-SPI"><a href="#Spring-SPI" class="headerlink" title="Spring SPI"></a>Spring SPI</h1><p>Spring的SPI机制其实就是SpringBoot自动装配的原理。在springboot的自动装配过程中，最终会加载<code>META-INF/spring.factories</code>文件，而加载的过程是由<code>SpringFactoriesLoader</code>加载的。</p>
+<p><code>@SpringBootApplication</code> → <code>@EnableAutoConfinguration</code>  → <code>@Import(AutoConfigurationImportSelector.class)</code></p>
+<p>核心类<code>AutoConfigurationImportSelector</code></p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AutoConfigurationImportSelector</span> <span class="keyword">implements</span> <span class="title class_">DeferredImportSelector</span>, BeanClassLoaderAware,</span><br><span class="line">    ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> String[] selectImports(AnnotationMetadata annotationMetadata) {</span><br><span class="line">    <span class="keyword">if</span> (!isEnabled(annotationMetadata)) {</span><br><span class="line">      <span class="keyword">return</span> NO_IMPORTS;</span><br><span class="line">    }</span><br><span class="line">    <span class="type">AutoConfigurationEntry</span> <span class="variable">autoConfigurationEntry</span> <span class="operator">=</span> getAutoConfigurationEntry(annotationMetadata);</span><br><span class="line">    <span class="keyword">return</span> StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());</span><br><span class="line">  }</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">protected</span> AutoConfigurationEntry <span class="title function_">getAutoConfigurationEntry</span><span class="params">(AnnotationMetadata annotationMetadata)</span> {</span><br><span class="line">    <span class="keyword">if</span> (!isEnabled(annotationMetadata)) {</span><br><span class="line">      <span class="keyword">return</span> EMPTY_ENTRY;</span><br><span class="line">    }</span><br><span class="line">    <span class="type">AnnotationAttributes</span> <span class="variable">attributes</span> <span class="operator">=</span> getAttributes(annotationMetadata);</span><br><span class="line">    List&lt;String&gt; configurations = getCandidateConfigurations(annotationMetadata, attributes);</span><br><span class="line">    configurations = removeDuplicates(configurations);</span><br><span class="line">    Set&lt;String&gt; exclusions = getExclusions(annotationMetadata, attributes);</span><br><span class="line">    checkExcludedClasses(configurations, exclusions);</span><br><span class="line">    configurations.removeAll(exclusions);</span><br><span class="line">    configurations = getConfigurationClassFilter().filter(configurations);</span><br><span class="line">    fireAutoConfigurationImportEvents(configurations, exclusions);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AutoConfigurationEntry</span>(configurations, exclusions);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> List&lt;String&gt; <span class="title function_">getCandidateConfigurations</span><span class="params">(AnnotationMetadata metadata, AnnotationAttributes attributes)</span> {</span><br><span class="line">  List&lt;String&gt; configurations = ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader())</span><br><span class="line">    .getCandidates();</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> configurations;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">LOCATION</span> <span class="operator">=</span> <span class="string">"META-INF/spring/%s.imports"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取资源文件并获取Bean的URL</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ImportCandidates <span class="title function_">load</span><span class="params">(Class&lt;?&gt; annotation, ClassLoader classLoader)</span> {</span><br><span class="line">  Assert.notNull(annotation, <span class="string">"'annotation' must not be null"</span>);</span><br><span class="line">  <span class="type">ClassLoader</span> <span class="variable">classLoaderToUse</span> <span class="operator">=</span> decideClassloader(classLoader);</span><br><span class="line">  <span class="type">String</span> <span class="variable">location</span> <span class="operator">=</span> String.format(LOCATION, annotation.getName());</span><br><span class="line">  Enumeration&lt;URL&gt; urls = findUrlsInClasspath(classLoaderToUse, location);</span><br><span class="line">  List&lt;String&gt; importCandidates = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">  <span class="keyword">while</span> (urls.hasMoreElements()) {</span><br><span class="line">    <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> urls.nextElement();</span><br><span class="line">    importCandidates.addAll(readCandidateConfigurations(url));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ImportCandidates</span>(importCandidates);</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+<p>我们可以看一下最后获取到的需要注入的Bean信息：</p>
+<p><img src="/../images/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/image_aJce8e-8zN.png"></p>
+<h1 id="Dubbo-SPI"><a href="#Dubbo-SPI" class="headerlink" title="Dubbo SPI"></a>Dubbo SPI</h1><p>补充一下Dubbo SPI 扩展能力的特性：</p>
+<ul>
+<li>按需加载。Dubbo 的扩展能力不会一次性实例化所有实现，可以根据别名实例化指定的扩展类</li>
+<li>增加扩展类的 IOC 能力。Dubbo 的扩展能力并不仅仅只是发现扩展服务实现类，而是在此基础上更进一步，如果该扩展类的属性依赖其他对象，则 Dubbo 会自动的完成该依赖对象的注入功能。</li>
+<li>增加扩展类的 AOP 能力。Dubbo 扩展能力会自动的发现扩展类的包装类，完成包装类的构造，增强扩展类的功能。</li>
+<li>具备动态选择扩展实现的能力。Dubbo 扩展会基于参数，在运行时动态选择对应的扩展类，提高了 Dubbo 的扩展能力。</li>
+<li>可以对扩展实现进行排序。能够基于用户需求，指定扩展实现的执行顺序。</li>
+<li>提供扩展点的 Adaptive 能力。该能力可以使的一些扩展类在 consumer 端生效，一些扩展类在 provider 端生效。</li>
+</ul>
+<p>Dubbo SPI 加载扩展的工作流程：</p>
+<p><img src="/../images/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/image_3P8oDOj5xz.png"></p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1985623" title="如何在项目中引入SPI">如何在项目中引入SPI</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41564440/article/details/108705534" title="Spring SPI机制实现自动装配 实现自定义Starter组件">Spring SPI机制实现自动装配 实现自定义Starter组件</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/01/01/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/">https://qing-wq.github.io/2024/01/01/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/SPI/"># SPI</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/01/08/Mybatis-Interceptor/">Mybatis Interceptor</a>
+            
+            
+            <a class="next" rel="next" href="/2023/11/14/Go%20generic%20VS%20Java%20generic/">🤨 Go generic VS Java generic</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
