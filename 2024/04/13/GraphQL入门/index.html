@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>GraphQL入门 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">GraphQL入门</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">四月 13, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">1.2k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">4min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>最近工作中用到了这个技术GraphQL，本文记录一下入门学习过程</p>
+</blockquote>
+<h1 id="1-基础概念"><a href="#1-基础概念" class="headerlink" title="1 基础概念"></a>1 基础概念</h1><h3 id="1-1-操作类型-Operation-Type"><a href="#1-1-操作类型-Operation-Type" class="headerlink" title="1.1 操作类型 Operation Type"></a>1.1 操作类型 Operation Type</h3><ol>
+<li><code>query</code>：查询数据，CRUD 中的 R</li>
+<li><code>mutation</code>：变更，对数据进行变更，比如增加、删除、修改，CRUD 中的 CUD</li>
+<li><code>substription</code>：订阅，当数据发生更改，进行消息推送</li>
+</ol>
+<h3 id="1-2-对象类型和标量类型-Object-Type-Scalar-Type"><a href="#1-2-对象类型和标量类型-Object-Type-Scalar-Type" class="headerlink" title="1.2 对象类型和标量类型 Object Type &amp; Scalar Type"></a>1.2 对象类型和标量类型 Object Type &amp; Scalar Type</h3><p>如果一个 GraphQL 服务接受到了一个 <code>query</code>，那么这个 <code>query</code> 将从 <code>Root Query</code> 开始查找，找到对象类型（Object Type）时则使用它的解析函数 Resolver 来获取内容，如果返回的是对象类型则继续使用解析函数获取内容，如果返回的是标量类型（Scalar Type）则结束获取，直到找到最后一个标量类型。</p>
+<ol>
+<li><strong>对象类型</strong>：用户在 schema 中定义的 <code>type</code></li>
+<li><strong>标量类型</strong>：GraphQL 中内置有一些标量类型 <code>String</code>、<code>Int</code>、<code>Float</code>、<code>Boolean</code>、<code>ID</code>，用户也可以定义自己的标量类型</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight graphql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MetaData <span class="punctuation">{</span></span><br><span class="line">    <span class="symbol">fileName</span><span class="punctuation">:</span> String<span class="punctuation">!</span></span><br><span class="line">    <span class="symbol">fileId</span><span class="punctuation">:</span> ID</span><br><span class="line"><span class="punctuation">}</span></span><br><span class="line"> <span class="keyword">schema</span>.graphql</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其中<code>MetaData</code>是对象类型，<code>String</code>、<code>ID</code>等则是标量类型，<code>!</code>表示非空标量</p>
+<h3 id="1-3-模式-Schema"><a href="#1-3-模式-Schema" class="headerlink" title="1.3 模式 Schema"></a>1.3 模式 Schema</h3><p>Schema定义了字段的类型、数据的结构，描述了接口数据请求的规则，Schema 使用一个简单的强类型模式语法，称为模式描述语言（Schema Definition Language, <u><em><strong>SDL</strong></em></u>）</p>
+<p>如下是一个Schema的demo：</p>
+<figure class="highlight graphql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="keyword">Query</span> <span class="punctuation">{</span></span><br><span class="line">    metaData<span class="punctuation">(</span><span class="symbol">fileId</span><span class="punctuation">:</span> ID<span class="punctuation">)</span><span class="punctuation">:</span> MetaData</span><br><span class="line"><span class="punctuation">}</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> <span class="keyword">Mutation</span> <span class="punctuation">{</span></span><br><span class="line">    createMetaData<span class="punctuation">(</span><span class="symbol">fileId</span><span class="punctuation">:</span> ID, <span class="symbol">fileName</span><span class="punctuation">:</span> String, <span class="symbol">fileType</span><span class="punctuation">:</span> String<span class="punctuation">)</span><span class="punctuation">:</span> MetaData</span><br><span class="line"><span class="punctuation">}</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MetaData <span class="punctuation">{</span></span><br><span class="line">    <span class="symbol">fileName</span><span class="punctuation">:</span> String<span class="punctuation">!</span></span><br><span class="line">    <span class="symbol">fileType</span><span class="punctuation">:</span> String</span><br><span class="line"><span class="punctuation">}</span></span><br><span class="line"> <span class="keyword">schema</span>.graphql</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Schema 文件从 Query、Mutation、Subscription 入口开始定义了各个对象类型或标量类型，这些字段的类型也可能是其他的对象类型或标量类型，组成一个树形的结构，而用户在向服务端发送请求的时候，沿着这个树选择一个或多个分支就可以获取多组信息。</p>
+<p>注意：<strong>在 Query 查询字段时，是并行执行的，而在 Mutation 变更的时候，是线性执行，一个接着一个</strong>，防止同时变更带来的竞态问题，比如说我们在一个请求中发送了两个 Mutation，那么前一个将始终在后一个之前执行。</p>
+<h3 id="1-4-解析函数-Resolver"><a href="#1-4-解析函数-Resolver" class="headerlink" title="1.4 解析函数 Resolver"></a>1.4 解析函数 Resolver</h3><p>前端请求信息到达后端之后，需要由解析函数 Resolver 来提供数据：</p>
+<figure class="highlight graphql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">{</span></span><br><span class="line">  hello</span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>对应的同名的解析函数应该是这样的：</p>
+<figure class="highlight graphql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">Query</span><span class="punctuation">:</span> <span class="punctuation">{</span></span><br><span class="line">  hello <span class="punctuation">(</span>parent, args, context, info<span class="punctuation">)</span> <span class="punctuation">{</span></span><br><span class="line">    return <span class="punctuation">...</span></span><br><span class="line">  <span class="punctuation">}</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>解析函数接受四个参数，分别为</p>
+<ol>
+<li><code>parent</code>：当前上一个解析函数的返回值</li>
+<li><code>args</code>：查询中传入的参数</li>
+<li><code>context</code>：提供给所有解析器的上下文信息</li>
+<li><code>info</code>：一个保存与当前查询相关的字段特定信息以及 schema 详细信息的值</li>
+</ol>
+<h3 id="1-5-请求格式"><a href="#1-5-请求格式" class="headerlink" title="1.5 请求格式"></a>1.5 请求格式</h3><p>下面演示如何通过 Get/Post 方式来执行下面的 GraphQL 查询：</p>
+<figure class="highlight graphql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">{</span></span><br><span class="line">  me <span class="punctuation">{</span></span><br><span class="line">    name</span><br><span class="line">  <span class="punctuation">}</span></span><br><span class="line"><span class="punctuation">}</span></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>Get/Post请求方式：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># Get 方式</span><br><span class="line">http<span class="punctuation">:</span><span class="comment">//myapi/graphql?query={me{name}}</span></span><br><span class="line"></span><br><span class="line"># Post 方式的请求体</span><br><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"query"</span><span class="punctuation">:</span> <span class="string">"..."</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"operationName"</span><span class="punctuation">:</span> <span class="string">"..."</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"variables"</span><span class="punctuation">:</span> <span class="punctuation">{</span> <span class="attr">"myVariable"</span><span class="punctuation">:</span> <span class="string">"someValue"</span><span class="punctuation">,</span> ... <span class="punctuation">}</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>返回的格式</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 正确返回</span><br><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"data"</span><span class="punctuation">:</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span></span><br><span class="line"><span class="punctuation">}</span></span><br><span class="line"></span><br><span class="line"># 执行时发生错误</span><br><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"errors"</span><span class="punctuation">:</span> <span class="punctuation">[</span> ... <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/../images/GraphQL%E5%85%A5%E9%97%A8/image_jMhoX2sV5m.png"></p>
+<blockquote>
+<p>左边是请求信息栏，左下是请求参数栏和请求头设置栏，右边是返回参数栏</p>
+</blockquote>
+<h1 id="2-GraphQL-Java"><a href="#2-GraphQL-Java" class="headerlink" title="2 GraphQL-Java"></a>2 GraphQL-Java</h1><p>先看一下官网Demo：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> graphql.ExecutionResult;</span><br><span class="line"><span class="keyword">import</span> graphql.GraphQL;</span><br><span class="line"><span class="keyword">import</span> graphql.schema.GraphQLSchema;</span><br><span class="line"><span class="keyword">import</span> graphql.schema.StaticDataFetcher;</span><br><span class="line"><span class="keyword">import</span> graphql.schema.idl.RuntimeWiring;</span><br><span class="line"><span class="keyword">import</span> graphql.schema.idl.SchemaGenerator;</span><br><span class="line"><span class="keyword">import</span> graphql.schema.idl.SchemaParser;</span><br><span class="line"><span class="keyword">import</span> graphql.schema.idl.TypeDefinitionRegistry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> graphql.schema.idl.RuntimeWiring.newRuntimeWiring;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloWorld</span> {</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">      <span class="comment">//schema定义，包含一个hello的查询方法</span></span><br><span class="line">      <span class="type">String</span> <span class="variable">schema</span> <span class="operator">=</span> <span class="string">"type Query{hello: String} schema{query: Query}"</span>;</span><br><span class="line">      <span class="type">SchemaParser</span> <span class="variable">schemaParser</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SchemaParser</span>();</span><br><span class="line">      <span class="comment">// 加载schema并解析为TypeDefinitionRegistry</span></span><br><span class="line">      <span class="type">TypeDefinitionRegistry</span> <span class="variable">typeDefinitionRegistry</span> <span class="operator">=</span> schemaParser.parse(schema);</span><br><span class="line">      <span class="comment">// 定义hello方法触发的操作</span></span><br><span class="line">      <span class="type">RuntimeWiring</span> <span class="variable">runtimeWiring</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RuntimeWiring</span>()</span><br><span class="line">              .type(<span class="string">"Query"</span>, builder -&gt; builder.dataFetcher(<span class="string">"hello"</span>, <span class="keyword">new</span> <span class="title class_">StaticDataFetcher</span>(<span class="string">"world"</span>)))</span><br><span class="line">              .build();</span><br><span class="line"></span><br><span class="line">      <span class="type">SchemaGenerator</span> <span class="variable">schemaGenerator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SchemaGenerator</span>();</span><br><span class="line">      <span class="type">GraphQLSchema</span> <span class="variable">graphQLSchema</span> <span class="operator">=</span> schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);</span><br><span class="line">      <span class="comment">// 构建一GraphQL实例</span></span><br><span class="line">      <span class="type">GraphQL</span> <span class="variable">build</span> <span class="operator">=</span> GraphQL.newGraphQL(graphQLSchema).build();</span><br><span class="line">      <span class="type">ExecutionResult</span> <span class="variable">executionResult</span> <span class="operator">=</span> build.execute(<span class="string">"{hello}"</span>);</span><br><span class="line"></span><br><span class="line">      System.out.println(executionResult.getData().toString());  <span class="comment">// result: {hello=world}</span></span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="2-1-TypeDefinitionRegistry"><a href="#2-1-TypeDefinitionRegistry" class="headerlink" title="2.1 TypeDefinitionRegistry"></a>2.1 TypeDefinitionRegistry</h3><p>类型定义。在Java代码中，通过加载Schema文件或描述，将其解析为<code>TypeDefinitionRegistry</code>。</p>
+<h3 id="2-2-RuntimeWiring"><a href="#2-2-RuntimeWiring" class="headerlink" title="2.2 RuntimeWiring"></a>2.2 RuntimeWiring</h3><p><strong>运行时织入</strong>。仅有Schema及其类型定义还不够，在Java中要实际运行GraphQL，还需要显式指定定义中的每个操作，该触发什么样的行为，<em>相当于Resolver函数</em></p>
+<p>例如，在本例中，<code>builder -&gt; builder.dataFetcher("hello", new StaticDataFetcher("world")</code>表示当查询Query类型下的hello字段时，返回值为”world”。</p>
+<h3 id="2-3-GraphQL"><a href="#2-3-GraphQL" class="headerlink" title="2.3 GraphQL"></a>2.3 GraphQL</h3><p>在结合前面<code>TypeDefinitionRegistry</code>和<code>RuntimeWiring</code>的基础上，生成的可运行的GraphQL实例</p>
+<h3 id="2-4-ExecutionResult"><a href="#2-4-ExecutionResult" class="headerlink" title="2.4 ExecutionResult"></a>2.4 ExecutionResult</h3><p>每次执行GraphQL操作时，返回的结果对象。</p>
+<p>其中包含error字段，用于保存执行过程中的报错信息；data字段，用于获取执行结果返回值。</p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.freecodecamp.org/chinese/news/a-detailed-guide-to-graphql/" title="GraphQL 入门看这篇就够了">GraphQL 入门看这篇就够了</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chenglc/p/13743760.html" title="https://www.cnblogs.com/chenglc/p/13743760.html">https://www.cnblogs.com/chenglc/p/13743760.html</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/04/13/GraphQL%E5%85%A5%E9%97%A8/">https://qing-wq.github.io/2024/04/13/GraphQL%E5%85%A5%E9%97%A8/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/GraphQL/"># GraphQL</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/04/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">LangChain入门笔记</a>
+            
+            
+            <a class="next" rel="next" href="/2024/04/08/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《深度学习进阶：自然语言处理》阅读笔记</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
