@@ -258,8 +258,8 @@
 </ol>
 <p>两个部分需要不同的更新方式，因此配置的更新方式分为以下两部分：</p>
 <h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a><code>@ConfigurationProperties</code></h3><ul>
-<li>在初始化阶段：读取数据库中的配置表 → 生成自定义<code>MapPropertySource</code> →** 将自定义****<code>MapPropertySource</code>**<strong>添加到Environment中并设置为最高优先级</strong></li>
-<li>监听到配置变更：检查DB中的数据库与当前缓存中的<code>MapPropertySource</code>是否一致 ，如果不一致就调用refresh方法刷新Environment中的<code>MapPropertySource</code>。refresh方法的逻辑其实就是<strong>重新使用Binder绑定内存中的<code>ConfigurationProperties</code></strong></li>
+<li>在初始化阶段：读取数据库中的配置表 → 生成自定义<code>MapPropertySource</code> → <strong>将自定义<code>MapPropertySource</code>添加到Environment中并设置为最高优先级</strong></li>
+<li>监听到配置变更：检查DB中的数据库与当前缓存中的<code>MapPropertySource</code>是否一致 ，如果不一致就调用<code>refresh()</code>方法刷新Environment中的<code>MapPropertySource</code>。refresh方法的逻辑其实就是<strong>重新使用Binder绑定内存中的<code>ConfigurationProperties</code></strong></li>
 </ul>
 <h3 id="Value"><a href="#Value" class="headerlink" title="@Value"></a><code>@Value</code></h3><p>这部分的配置更新参考了<a target="_blank" rel="noopener" href="https://github.com/apolloconfig/apollo/pull/972">Apollo PR#972</a>的实现：利用一个<strong>括号匹配</strong>算法，在<code>BeanPostProcessor</code>阶段扫描所有带<code>@Value</code>占位符的Bean，包括表达式、占位符等等，连带对应的Bean引用全部存起来</p>
 <p>当有相关的key变化时，通过Bean的引用反射更新对应的Bean字段，你也可以使用观察者模式监听对应的key的变化，就可以做到当配置变化后自动触发对应Bean字段的更新</p>
