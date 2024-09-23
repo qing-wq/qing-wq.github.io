@@ -251,11 +251,11 @@
 <span id="more"></span>
 
 <h2 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h2><ol>
-<li><strong>首先用户发送请求——&gt;DispatcherServlet</strong>，前端控制器收到请求后自己不进行处理，而是委托给其他的解析器进行 处理，作为统一访问点，进行全局的流程控制；</li>
-<li><strong>DispatcherServlet——&gt;HandlerMapping</strong>， HandlerMapping 将会把请求映射为 <code>HandlerExecutionChain</code> 对象（包含Handler 处理器和<code>HandlerInterceptor</code> 拦截器）对象</li>
-<li><strong>DispatcherServlet——&gt;HandlerAdapter</strong>，HandlerAdapter 将会根据适配的结果调用真正的处理器的功能处理方法，完成功能处理，并返回 ModelAndView；</li>
-<li><strong>ModelAndView 的逻辑视图名——&gt; ViewResolver</strong>，ViewResolver 将把逻辑视图名解析为具体的 View</li>
-<li><strong>View——&gt; 渲染</strong>，View 会根据传进来的 Model 模型数据进行渲染</li>
+<li><strong>首先用户发送请求 —&gt; DispatcherServlet</strong>，前端控制器收到请求后自己不进行处理，而是委托给其他的解析器进行 处理，作为统一访问点，进行全局的流程控制；</li>
+<li><strong>DispatcherServlet —&gt; HandlerMapping</strong>，HandlerMapping 将会把请求映射为 <code>HandlerExecutionChain</code> 对象（包含Handler 处理器和<code>HandlerInterceptor</code> 拦截器）对象</li>
+<li><strong>DispatcherServlet —&gt; HandlerAdapter</strong>，HandlerAdapter 将会根据适配的结果调用真正的处理器的功能处理方法，完成功能处理，并返回 ModelAndView；</li>
+<li><strong>ModelAndView 的逻辑视图名 —&gt; ViewResolver</strong>，ViewResolver 将把逻辑视图名解析为具体的 View</li>
+<li><strong>View —&gt; 渲染</strong>，View 会根据传进来的 Model 模型数据进行渲染</li>
 <li><strong>返回控制权给 DispatcherServlet</strong>，由 DispatcherServlet 返回响应给用户，到此一个流程结束。</li>
 </ol>
 <hr>

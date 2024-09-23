@@ -262,7 +262,7 @@
 <li><strong>lock（锁定）</strong>：作用于主内存的变量，把一个变量标识为线程独占状态；</li>
 <li><strong>unlock（解锁）</strong>：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定；</li>
 </ul>
-<p>即**<code>读-&gt;加载-&gt;使用-&gt;赋值（assign）-&gt;写-&gt;存储</code>**</p>
+<p>即<strong>读 -&gt; 加载 -&gt; 使用 -&gt; 赋值 -&gt; 写 -&gt; 存储</strong></p>
 <p><strong>JMM对这八种指令的使用，制定了如下规则：</strong></p>
 <ul>
 <li><p>不允许read和load、store和write操作之一单独出现，必须成对使用。即使用了read必须load，使用了store必须write</p>
