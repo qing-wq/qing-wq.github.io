@@ -239,11 +239,7 @@
         </header>
 
         <div class="post-content">
-            <p>基本架构</p>
-<p><img src="/../images/langchain_stack_dark_NdLaDhZn28.svg"></p>
-<span id="more"></span>
-
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+            <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
 <p>LangChain是一个用于开发由语言模型驱动的应用程序的框架。</p>
 <p>主要功能：</p>
 <ul>
@@ -254,7 +250,10 @@
 <li><p>允许语言模型与运行环境交互</p>
 </li>
 </ul>
-<p>LangChain中提供的模块</p>
+</blockquote>
+<p><strong>基本架构</strong></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/langchain_stack_dark_0TT7SLpV72.svg"></p>
+<p><strong>LangChain中提供的模块</strong></p>
 <ul>
 <li><p>Modules：支持的模型类型和集成。</p>
 </li>
@@ -271,15 +270,11 @@
 <li><p>Callbacks：回调允许您记录和流式传输任何链的中间步骤，从而轻松观察、调试和评估应用<br>程序的内部。</p>
 </li>
 </ul>
-</blockquote>
-<p>应用场景：</p>
+<p><strong>应用场景</strong></p>
 <ul>
 <li>文档问答</li>
-<li>个人助理</li>
 <li>查询数据表格（CSV、SQL、DataFrame等）</li>
-<li>与API交互</li>
-<li>信息提取</li>
-<li>文档总结</li>
+<li>API交互、信息提取、文档总结等</li>
 </ul>
 <h1 id="Model-I-O"><a href="#Model-I-O" class="headerlink" title="Model I/O"></a>Model I/O</h1><p>四个核心组件：</p>
 <ul>
@@ -364,7 +359,7 @@
 </ul>
 </li>
 </ul>
-<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/memory_diagram-0627c68230aa438f9b5419064d63cbbc_eZ.png"></p>
+<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/memory_diagram-0627c68230aa438f9b5419064d63cbbc_TH.png"></p>
 <p>四种主要储存模块：</p>
 <ul>
 <li><code>ConversationBufferMemory</code>对话缓存</li>
@@ -374,7 +369,7 @@
 </ul>
 <p>最常见的内存类型之一涉及返回聊天消息列表。这些可以作为单个字符串返回，全部连接在一起（当它们被传递到 LLMs 时有用）或 ChatMessages 列表（当传递到 ChatModels 时有用）。</p>
 <p>默认情况下，它们作为单个字符串返回。为了作为消息列表返回，您可以设置 <code>return_messages=True</code></p>
-<p><img src="/../images/image_96cXegtOz-.png"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_6DBZDWLskV.png"></p>
 <h1 id="Chains"><a href="#Chains" class="headerlink" title="Chains"></a>Chains</h1><p>链是指调用序列 - 即 LLM、Tools还是数据预处理步骤的先后顺序。主要支持的方法是使用 LCEL。</p>
 <h2 id="LCEL-Chains"><a href="#LCEL-Chains" class="headerlink" title="LCEL Chains"></a>LCEL Chains</h2><p>LangChain Expression Language（LCEL）可以轻松地从基本组件构建复杂的链，并支持开箱即用的功能，例如流式传输、并行性和日志记录，最基本和常见的用例是将Prompt和LLM链接在一起。</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chain = prompt | model | output_parser</span><br></pre></td></tr></tbody></table></figure>
@@ -383,15 +378,15 @@
 <p>意义：组合大模型调用中不相关的部分，让开发者省去胶水代码</p>
 <p>下面举一些简单的栗子：</p>
 <p>模型调用：</p>
-<p><img src="/../images/image_tamQ_03vHR.png"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_I16oGnpYi7.png"></p>
 <p>Stream流：</p>
-<p><img src="/../images/image_UPmDNoWd_p.png"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_8inhVIpa63.png"></p>
 <p>Batch批处理：</p>
-<p><img src="/../images/image_JliK3KA3oM.png"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_HKv1CygTUu.png"></p>
 <p>异步调用：</p>
-<p><img src="/../images/image_Gf01np9mh3.png"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_wKdMBtlRZQ.png"></p>
 <h1 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h1><p>全称Retrieval Augmented Generation (RAG)</p>
-<p><img src="/../images/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_P.jpg"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/data_connection-95ff2033a8faa5f3ba41376c0f6dd32a_6.jpg"></p>
 <p>核心组件：</p>
 <ul>
 <li><strong>Document loaders</strong>文档加载器</li>
@@ -416,7 +411,7 @@
 </li>
 <li><p>压缩 ContextualCompressionRetriever</p>
 <ul>
-<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/image_cehTwhXkXE.png"></li>
+<li>工作原理：先使用标准向量检索获得候选文档，然后基于查询语句的语义，使用语言模型压缩这些文档,只保留与问题相关的部分<br><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_vwodDD-H4n.png"></li>
 </ul>
 </li>
 </ul>
@@ -441,8 +436,8 @@
 </ul>
 </li>
 </ul>
-<p><img src="/../images/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
-<p><img src="/../images/image_kuqREZwJrr.png"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/summarization_use_case_2-f2a4d5d60980a79140085fb7f.png" alt="Stuff和MapReduce区别" title="Stuff和MapReduce区别"></p>
+<p><img src="/../images/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/image_5N5XBgZFMJ.png"></p>
 <h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.chains.combine_documents.stuff <span class="keyword">import</span> StuffDocumentsChain</span><br><span class="line"><span class="keyword">from</span> langchain.chains.llm <span class="keyword">import</span> LLMChain</span><br><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define prompt</span></span><br><span class="line">prompt_template = <span class="string">"""Write a concise summary of the following:</span></span><br><span class="line"><span class="string">"{text}"</span></span><br><span class="line"><span class="string">CONCISE SUMMARY:"""</span></span><br><span class="line">prompt = PromptTemplate.from_template(prompt_template)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define LLM chain</span></span><br><span class="line">llm = ChatOpenAI(temperature=<span class="number">0</span>, model_name=<span class="string">"gpt-3.5-turbo-16k"</span>)</span><br><span class="line">llm_chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define StuffDocumentsChain</span></span><br><span class="line">stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name=<span class="string">"text"</span>)</span><br><span class="line"></span><br><span class="line">docs = loader.load()</span><br><span class="line"><span class="built_in">print</span>(stuff_chain.run(docs))</span><br></pre></td></tr></tbody></table></figure>
 
         </div>
@@ -458,7 +453,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2024/04/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">https://qing-wq.github.io/2024/04/27/LangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/04/27/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/">https://qing-wq.github.io/2024/04/27/LangChain%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/</a></span>
                     </p>
                 
                 

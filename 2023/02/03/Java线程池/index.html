@@ -243,7 +243,7 @@
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newSingleThreadExecutor(); <span class="comment">//单个线程</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool2</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>); <span class="comment">//创建一个固定的线程池的大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">threadPool3</span> <span class="operator">=</span> Executors.newCachedThreadPool(); <span class="comment">//可伸缩的线程池</span></span><br></pre></td></tr></tbody></table></figure>
 
 <p>但是不建议使用<code>Executors</code>创建线程池，在阿里巴巴技术规范中写有：</p>
-<p><img src="/../images/image-20240903160832255.png" alt="image-20240903160832255"></p>
+<p><img src="/../images/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/image-20240903160832255.png" alt="image-20240903160832255"></p>
 <span id="more"></span>
 
 <blockquote>
@@ -277,12 +277,12 @@
 </li>
 </ol>
 <p>我们可以这样类比：</p>
-<p><img src="/../images/image-20240903161026674.png" alt="image-20240903161026674"><br><em><strong>注意：核心线程没有空闲时，超量任务首先放入队列中，队列满了才会开普通线程处理！</strong></em></p>
+<p><img src="/../images/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/image-20240903161026674.png" alt="image-20240903161026674"><br><em><strong>注意：核心线程没有空闲时，超量任务首先放入队列中，队列满了才会开普通线程处理！</strong></em></p>
 <p>如果<code>corePoolSize</code>为0，则要使用<code>SynchronousQueue</code>避免无限阻塞。因为核心线程为0时，任务会先放入队列中，队列放不下了再使用普通线程，如果队列是无限的就会导致一直阻塞</p>
 <h3 id="工作队列-BlockQueue"><a href="#工作队列-BlockQueue" class="headerlink" title="工作队列 BlockQueue"></a>工作队列 BlockQueue</h3><p>使用用<code>ThreadPoolExecutor</code>需要指定一个<code>BlockingQueue</code>任务等待队列。</p>
 <p>BlockingQueue（阻塞队列）定义了一组用于插入、获取和检查元素的方法。与普通的队列不同，BlockingQueue在队列为空时，获取元素的操作会被阻塞，直到队列中有可用元素为止。同样地，当队列已满时，插入元素的操作也会被阻塞，直到队列有空闲空间为止。</p>
 <p>BlockQueue有四组API：</p>
-<p><img src="/../images/image-20240903161114544.png" alt="image-20240903161114544"></p>
+<p><img src="/../images/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/image-20240903161114544.png" alt="image-20240903161114544"></p>
 <p>BlockingQueue提供了多个实现类，其中常用的有以下几种：</p>
 <ol>
 <li><code>ArrayBlockingQueue</code>：基于数组实现的有界阻塞队列。它在构造时需要指定队列的容量，并且在队列已满时会阻塞插入操作，直到有空闲空间。</li>

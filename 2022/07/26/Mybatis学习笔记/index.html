@@ -347,7 +347,7 @@
 <p>核心配置文件：</p>
 <figure class="highlight xml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"logImpl"</span> <span class="attr">value</span>=<span class="string">"Log4j"</span>/&gt;</span></span><br></pre></td></tr></tbody></table></figure>
 
-<p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_MkQjlNyeuN.png"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_MkQjlNyeuN.png"></p>
 <h2 id="8-使用注解开发"><a href="#8-使用注解开发" class="headerlink" title="8 使用注解开发"></a>8 使用注解开发</h2><p>注解使用条件：</p>
 <ul>
 <li>接口与 XML 配置文件必须同名</li>
@@ -384,7 +384,7 @@
 </li>
 </ul>
 <p>这里引入两张表：<code>teacher&amp;student</code></p>
-<p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_46ggW4rKS0.png"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_46ggW4rKS0.png"></p>
 <p>其中 <code>student</code> 的 id 与 <code>teacher</code> 的 id 互为外键</p>
 <h3 id="9-1-多对一"><a href="#9-1-多对一" class="headerlink" title="9.1 多对一"></a>9.1 多对一</h3><p>实例引入：多个学生对应一个老师</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Student</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> id;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> Teacher teacher;     <span class="comment">// 实体类中含有对象</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -397,7 +397,7 @@
 
 <p><code>resultMap</code> 用于处理 teacher 属性</p>
 <p>查询结果</p>
-<p><img src="/../images/image-20240905155202694.png" alt="image-20240905155202694"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_20240905155202694.png"></p>
 <p>注意：列起别名一定之后 <code>column="tname"</code> 要用别名，列名冲突也可以使用别名解决</p>
 <h3 id="9-2-一对多"><a href="#9-2-一对多" class="headerlink" title="9.2 一对多"></a>9.2 一对多</h3><p>实例引入：一个老师对多个学生</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Teacher</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> id;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    List&lt;Student&gt; students;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -412,7 +412,7 @@
 
 <p>注意 <code>collection</code> 中的 <code>javaType</code> 为<strong>ArrayList</strong></p>
 <p>查询结果</p>
-<p><img src="/../images/image-20240905155136614.png" alt="image-20240905155136614"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240905155136614.png"></p>
 <p>查询出来的 teacher 的 id 是异常的</p>
 <p>总结：</p>
 <ul>
@@ -506,7 +506,7 @@
 <p><strong>一次会话的作用域：开启 SqlSession 到关闭</strong></p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">Test</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">sqlSession</span> <span class="operator">=</span> MyBatisUtil.getSqlSession();</span><br><span class="line">        <span class="type">BlogMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> sqlSession.getMapper(BlogMapper.class);</span><br><span class="line">        <span class="type">Blog</span> <span class="variable">blog</span> <span class="operator">=</span> mapper.getBlog(<span class="string">"%MyBatis%"</span>);</span><br><span class="line">        System.out.println(blog);</span><br><span class="line"></span><br><span class="line">        <span class="type">Blog</span> <span class="variable">blog2</span> <span class="operator">=</span> mapper.getBlog(<span class="string">"%MyBatis%"</span>);</span><br><span class="line">        System.out.println(blog == blog2);</span><br><span class="line">        sqlSession.close();</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
 
-<p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_3PtJDMySrr.png"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_3PtJDMySrr.png"></p>
 <p>上面的代码做了两次查询，但实际只从数据库中查了一次</p>
 <p>缓存失效的情况：</p>
 <ul>
@@ -553,19 +553,19 @@
 <p>来看下面一个例子：</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">Test</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">sqlSession</span> <span class="operator">=</span> MyBatisUtil.getSqlSession();</span><br><span class="line">        <span class="type">BlogMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> sqlSession.getMapper(BlogMapper.class);</span><br><span class="line">        <span class="type">Blog</span> <span class="variable">blog</span> <span class="operator">=</span> mapper.getBlog(<span class="string">"%MyBatis%"</span>);</span><br><span class="line">        System.out.println(blog);</span><br><span class="line">        sqlSession.close();</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">sqlSession1</span> <span class="operator">=</span> MyBatisUtil.getSqlSession();</span><br><span class="line">        <span class="type">BlogMapper</span> <span class="variable">mapper1</span> <span class="operator">=</span> sqlSession1.getMapper(BlogMapper.class);</span><br><span class="line">        <span class="type">Blog</span> <span class="variable">blog1</span> <span class="operator">=</span> mapper1.getBlog(<span class="string">"%MyBatis%"</span>);</span><br><span class="line">        System.out.println(blog1);</span><br><span class="line">        System.out.println(blog == blog1);</span><br><span class="line">        sqlSession1.close();</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
 
-<p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_rkuGDtwrcZ.png"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_rkuGDtwrcZ.png"></p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">Test2</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">sqlSession</span> <span class="operator">=</span> MyBatisUtil.getSqlSession();</span><br><span class="line">        <span class="type">BlogMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> sqlSession.getMapper(BlogMapper.class);</span><br><span class="line">        <span class="type">Blog</span> <span class="variable">blog</span> <span class="operator">=</span> mapper.getBlog(<span class="string">"%MyBatis%"</span>);</span><br><span class="line">        System.out.println(blog);</span><br><span class="line"></span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">sqlSession1</span> <span class="operator">=</span> MyBatisUtil.getSqlSession();</span><br><span class="line">        <span class="type">BlogMapper</span> <span class="variable">mapper1</span> <span class="operator">=</span> sqlSession1.getMapper(BlogMapper.class);</span><br><span class="line">        <span class="type">Blog</span> <span class="variable">blog1</span> <span class="operator">=</span> mapper1.getBlog(<span class="string">"%MyBatis%"</span>);</span><br><span class="line">        System.out.println(blog1);</span><br><span class="line">        System.out.println(blog == blog1);</span><br><span class="line">        sqlSession.close();</span><br><span class="line">        sqlSession1.close();</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
 
-<p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_EiFHuKpTUZ.png"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_EiFHuKpTUZ.png"></p>
 <p>可以看到 Mybaitis 查询了两次，可见第一个 sqlSession 中的数据在会话关闭之前并没有被放进二级缓存中。并且，使用二级缓存查询出来的两个对象地址并不相等，而一级缓存是相等的。</p>
 <p>总结：</p>
 <ul>
 <li>只要开启了二级缓存，在同一个 Mapper 下就有效</li>
 <li>select 的数据会先放在一级缓存中，只有当一级缓存提交或者回滚时才会将数据放在二级缓存当中</li>
 </ul>
-<h2 id="12-常见-Bug"><a href="#12-常见-Bug" class="headerlink" title="12 常见 Bug"></a>12 常见 Bug</h2><p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/6523C60C4B66B4DA1C512EF1397AA555_2DWEdkXWkb.gif"></p>
+<h2 id="12-常见-Bug"><a href="#12-常见-Bug" class="headerlink" title="12 常见 Bug"></a>12 常见 Bug</h2><p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/6523C60C4B66B4DA1C512EF1397AA555_2DWEdkXWkb.gif"></p>
 <p>遇到的报错：</p>
-<p><img src="/../images/MyBatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_459aZ2uDF4.png"></p>
+<p><img src="/../images/Mybatis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_459aZ2uDF4.png"></p>
 <p>或 <code>java.lang.ExceptionInInitializerError</code> 初始化错误<strong>【最常见】</strong></p>
 <p>原因：<strong>由于 Maven 的约定大于配置，xml 文件被过滤</strong></p>
 <p>解决：在pom.xml中添加以下代码</p>
