@@ -473,6 +473,58 @@
       </tags>
   </entry>
   <entry>
+    <title>JMM</title>
+    <url>/2023/06/03/JMM/</url>
+    <content><![CDATA[<p>JMM 实际上是 Java 定义的并发编程相关的一组规范</p>
+<h3 id="JMM-是如何抽象线程和主内存之间的关系？"><a href="#JMM-是如何抽象线程和主内存之间的关系？" class="headerlink" title="JMM 是如何抽象线程和主内存之间的关系？"></a>JMM 是如何抽象线程和主内存之间的关系？</h3><p><img src="/../images/JMM/image.png" alt="img"></p>
+<p><strong>什么是主内存？什么是本地内存？</strong></p>
+<ul>
+<li><strong>主内存</strong>：所有线程创建的实例对象都存放在主内存中，不管该实例对象是成员变量，还是局部变量，类信息、常量、静态变量都是放在主内存中。为了获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中。</li>
+<li><strong>本地内存</strong>：每个线程都有一个私有的本地内存，本地内存存储了该线程以读 / 写共享变量的副本。每个线程只能操作自己本地内存中的变量，无法直接访问其他线程的本地内存。如果线程间需要通信，必须通过主内存来进行。本地内存是 JMM 抽象出来的一个概念，并不真实存在，它涵盖了缓存、写缓冲区、寄存器以及其他的硬件和编译器优化。</li>
+</ul>
+<p><strong>关于JMM的一些同步的约定：</strong></p>
+<p>1、线程解锁前，必须把共享变量<strong>立刻</strong>刷回主存；</p>
+<p>2、线程加锁前，必须<strong>读取主存</strong>中的最新值到工作内存中；</p>
+<span id="more"></span>
+
+<h3 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h3><p>内存交互操作有8种，虚拟机实现必须保证每一个操作都是<strong>原子的</strong>，不可在分的（对于double和long类型的变量来说，load、store、read和write操作在某些平台上允许例外）</p>
+<ul>
+<li><strong>Read（读取）</strong>：作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便随后的load动作使用；</li>
+<li><strong>load（载入）</strong>：作用于工作内存的变量，它把read操作从主存中变量放入工作内存中；</li>
+<li><strong>Use（使用）</strong>：作用于工作内存中的变量，它把工作内存中的变量传输给执行引擎，每当虚拟机遇到一个需要使用到变量的值，就会使用到这个指令；</li>
+<li><strong>assign（赋值）</strong>：作用于工作内存中的变量，它把一个从执行引擎中接受到的值放入工作内存的变量副本中；</li>
+<li><strong>store（存储）</strong>：作用于主内存中的变量，它把一个从工作内存中一个变量的值传送到主内存中，以便后续的write使用；</li>
+<li><strong>write（写入）</strong>：作用于主内存中的变量，它把store操作从工作内存中得到的变量的值放入主内存的变量中；</li>
+<li><strong>lock（锁定）</strong>：作用于主内存的变量，把一个变量标识为线程独占状态；</li>
+<li><strong>unlock（解锁）</strong>：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定；</li>
+</ul>
+<p>即<strong>读 -&gt; 加载 -&gt; 使用 -&gt; 赋值 -&gt; 写 -&gt; 存储</strong></p>
+<p><strong>JMM对这八种指令的使用，制定了如下规则：</strong></p>
+<ul>
+<li><p>不允许read和load、store和write操作之一单独出现，必须成对使用。即使用了read必须load，使用了store必须write</p>
+</li>
+<li><p>不允许线程丢弃他最近的assign操作，即工作变量的数据改变了之后，必须告知主存</p>
+</li>
+<li><p>不允许一个线程将没有assign的数据从工作内存同步回主内存  </p>
+</li>
+<li><p>一个新的变量必须在主内存中诞生，不允许工作内存直接使用一个未被初始化的变量。就是怼变量实施use、store操作之前，必须经过assign和load操作</p>
+</li>
+<li><p>一个变量同一时间只有一个线程能对其进行lock。多次lock后，必须执行相同次数的unlock才能解锁</p>
+</li>
+<li><p>如果对一个变量进行lock操作，会清空所有工作内存中此变量的值，在执行引擎使用这个变量前，必须重新load或assign操作初始化变量的值</p>
+</li>
+<li><p>如果一个变量没有被lock，就不能对其进行unlock操作。也不能unlock一个被其他线程锁住的变量对一个变量进行unlock操作之前，必须把此变量同步回主内存</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GraphQL入门</title>
     <url>/2024/04/13/GraphQL%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<blockquote>
@@ -487,6 +539,8 @@
 <li><strong>对象类型</strong>：用户在 schema 中定义的 <code>type</code></li>
 <li><strong>标量类型</strong>：GraphQL 中内置有一些标量类型 <code>String</code>、<code>Int</code>、<code>Float</code>、<code>Boolean</code>、<code>ID</code>，用户也可以定义自己的标量类型</li>
 </ol>
+<span id="more"></span>
+
 <p>例如：</p>
 <figure class="highlight graphql"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> MetaData <span class="punctuation">{</span></span><br><span class="line">    <span class="symbol">fileName</span><span class="punctuation">:</span> String<span class="punctuation">!</span></span><br><span class="line">    <span class="symbol">fileId</span><span class="punctuation">:</span> ID</span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
 
@@ -567,62 +621,10 @@
 </ul>
 ]]></content>
       <categories>
-        <category>学习笔记</category>
+        <category>日常小记</category>
       </categories>
       <tags>
         <tag>GraphQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JMM</title>
-    <url>/2023/06/03/JMM/</url>
-    <content><![CDATA[<p>JMM 实际上是 Java 定义的并发编程相关的一组规范</p>
-<h3 id="JMM-是如何抽象线程和主内存之间的关系？"><a href="#JMM-是如何抽象线程和主内存之间的关系？" class="headerlink" title="JMM 是如何抽象线程和主内存之间的关系？"></a>JMM 是如何抽象线程和主内存之间的关系？</h3><p><img src="/../images/JMM/image.png" alt="img"></p>
-<p><strong>什么是主内存？什么是本地内存？</strong></p>
-<ul>
-<li><strong>主内存</strong>：所有线程创建的实例对象都存放在主内存中，不管该实例对象是成员变量，还是局部变量，类信息、常量、静态变量都是放在主内存中。为了获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中。</li>
-<li><strong>本地内存</strong>：每个线程都有一个私有的本地内存，本地内存存储了该线程以读 / 写共享变量的副本。每个线程只能操作自己本地内存中的变量，无法直接访问其他线程的本地内存。如果线程间需要通信，必须通过主内存来进行。本地内存是 JMM 抽象出来的一个概念，并不真实存在，它涵盖了缓存、写缓冲区、寄存器以及其他的硬件和编译器优化。</li>
-</ul>
-<p><strong>关于JMM的一些同步的约定：</strong></p>
-<p>1、线程解锁前，必须把共享变量<strong>立刻</strong>刷回主存；</p>
-<p>2、线程加锁前，必须<strong>读取主存</strong>中的最新值到工作内存中；</p>
-<span id="more"></span>
-
-<h3 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h3><p>内存交互操作有8种，虚拟机实现必须保证每一个操作都是<strong>原子的</strong>，不可在分的（对于double和long类型的变量来说，load、store、read和write操作在某些平台上允许例外）</p>
-<ul>
-<li><strong>Read（读取）</strong>：作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便随后的load动作使用；</li>
-<li><strong>load（载入）</strong>：作用于工作内存的变量，它把read操作从主存中变量放入工作内存中；</li>
-<li><strong>Use（使用）</strong>：作用于工作内存中的变量，它把工作内存中的变量传输给执行引擎，每当虚拟机遇到一个需要使用到变量的值，就会使用到这个指令；</li>
-<li><strong>assign（赋值）</strong>：作用于工作内存中的变量，它把一个从执行引擎中接受到的值放入工作内存的变量副本中；</li>
-<li><strong>store（存储）</strong>：作用于主内存中的变量，它把一个从工作内存中一个变量的值传送到主内存中，以便后续的write使用；</li>
-<li><strong>write（写入）</strong>：作用于主内存中的变量，它把store操作从工作内存中得到的变量的值放入主内存的变量中；</li>
-<li><strong>lock（锁定）</strong>：作用于主内存的变量，把一个变量标识为线程独占状态；</li>
-<li><strong>unlock（解锁）</strong>：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定；</li>
-</ul>
-<p>即<strong>读 -&gt; 加载 -&gt; 使用 -&gt; 赋值 -&gt; 写 -&gt; 存储</strong></p>
-<p><strong>JMM对这八种指令的使用，制定了如下规则：</strong></p>
-<ul>
-<li><p>不允许read和load、store和write操作之一单独出现，必须成对使用。即使用了read必须load，使用了store必须write</p>
-</li>
-<li><p>不允许线程丢弃他最近的assign操作，即工作变量的数据改变了之后，必须告知主存</p>
-</li>
-<li><p>不允许一个线程将没有assign的数据从工作内存同步回主内存  </p>
-</li>
-<li><p>一个新的变量必须在主内存中诞生，不允许工作内存直接使用一个未被初始化的变量。就是怼变量实施use、store操作之前，必须经过assign和load操作</p>
-</li>
-<li><p>一个变量同一时间只有一个线程能对其进行lock。多次lock后，必须执行相同次数的unlock才能解锁</p>
-</li>
-<li><p>如果对一个变量进行lock操作，会清空所有工作内存中此变量的值，在执行引擎使用这个变量前，必须重新load或assign操作初始化变量的值</p>
-</li>
-<li><p>如果一个变量没有被lock，就不能对其进行unlock操作。也不能unlock一个被其他线程锁住的变量对一个变量进行unlock操作之前，必须把此变量同步回主内存</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>并发编程</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -773,6 +775,75 @@
       </tags>
   </entry>
   <entry>
+    <title>Java中的四大函数式接口</title>
+    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
+<ul>
+<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
+<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>日常小记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>🐛 LangChain4j-Spring Bug修复记录</title>
+    <url>/2024/08/25/LangChain4j-Spring-Bug/</url>
+    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
+<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
+<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
+<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
+<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
+</ul>
+<blockquote>
+<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
+</blockquote>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
+<ol>
+<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
+<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
+</ol>
+<p>关键代码如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>针对以上问题，我在PR中做的主要改动如下：</p>
+<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
+<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">Mybatis实现动态注册bean的两种方式</a></p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>日常小记</category>
+      </categories>
+      <tags>
+        <tag>开源</tag>
+        <tag>langchain</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java NIO</title>
     <url>/2024/01/10/Java%20NIO/</url>
     <content><![CDATA[<p>NIO的主要组成部分：</p>
@@ -837,27 +908,71 @@
       </tags>
   </entry>
   <entry>
-    <title>Java中的四大函数式接口</title>
-    <url>/2023/04/27/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/</url>
-    <content><![CDATA[<h2 id="Function"><a href="#Function" class="headerlink" title="Function<T, R>"></a>Function&lt;T, R&gt;</h2><p>函数式接口 <code>Function&lt;T, R&gt;</code> 的泛型参数解释如下：</p>
-<ul>
-<li><code>T</code>：表示函数的<em><strong>输入类型</strong></em>，即参数类型。</li>
-<li><code>R</code>：表示函数的<em><strong>输出类型</strong></em>，即返回值类型。</li>
-</ul>
+    <title>MySQL中的字符串类型</title>
+    <url>/2023/09/14/MySQL%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B/</url>
+    <content><![CDATA[<table>
+<thead>
+<tr>
+<th>变量名称</th>
+<th>含义</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>char</td>
+<td>固定大小的字符</td>
+<td>0-255<strong>个字符</strong></td>
+</tr>
+<tr>
+<td>varchar</td>
+<td>可变长度字符串,相当于<code>String</code></td>
+<td>0 - 65536<strong>个字符</strong></td>
+</tr>
+<tr>
+<td>Text</td>
+<td>文本串,保存大文本</td>
+<td>4G</td>
+</tr>
+<tr>
+<td>Blob</td>
+<td>二进制大对象，专门用来储存图片，声音，视频等流媒体数据。插入数据的时候，需要使用IO流。</td>
+<td>4G</td>
+</tr>
+</tbody></table>
 <span id="more"></span>
 
-<h2 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h2><p>断定型接口，有一个输入参数，返回值为布尔值</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestPredicate</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;</span><br><span class="line">        System.out.println(predicate.test(<span class="string">"str"</span>));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<h2 id="Suppier"><a href="#Suppier" class="headerlink" title="Suppier"></a>Suppier</h2><p>供给型接口，没有参数，只有返回值</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestSupplier</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Supplier&lt;String&gt; supplier = () -&gt; {</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"ok"</span>;</span><br><span class="line">        };</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Consummer"><a href="#Consummer" class="headerlink" title="Consummer"></a>Consummer</h2><p>消费型接口，只有输入，没有输出</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestConsumer</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        Consumer&lt;Integer&gt; consumer = (s) -&gt; {</span><br><span class="line">            System.out.println(s.toString());</span><br><span class="line">        };</span><br><span class="line">        consumer.accept(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+<h2 id="CHAR-和-VARCHAR-的定义"><a href="#CHAR-和-VARCHAR-的定义" class="headerlink" title="CHAR 和 VARCHAR 的定义"></a>CHAR 和 VARCHAR 的定义</h2><p><code>CHAR(N)</code> 用来保存固定长度的字符，N 的范围是 0 ~ 255，<strong>请牢记，N 表示的是字符，而不是字节</strong>。<code>VARCHAR(N)</code> 用来保存变长字符，N 的范围为 0 ~ 65536， <strong>N 表示字符</strong>。</p>
+<p>在超出 65536 个字符的情况下，可以考虑使用更大的字符类型 TEXT 或 BLOB，两者最大存储长度为 4G，其区别是 BLOB 没有字符集属性，纯属二进制存储。</p>
+<p>MySQL 数据库的 VARCHAR 字符类型，最大能够存储 65536 个字符，所以在 MySQL 数据库下，绝大部分场景使用类型 VARCHAR 就足够了。</p>
+<p>对于长文本，比如存储博客这样的场景，可以使用<code>Text</code></p>
+<p><strong>字符集</strong></p>
+<p>在表结构设计中，除了将列定义为 CHAR 和 VARCHAR 用以存储字符以外，还需要额外定义字符对应的字符集，因为每种字符在不同字符集编码下，对应着不同的二进制值。常见的字符集有 GBK、UTF8，通常默认把字符集设置为 UTF8。</p>
+<p><strong>推荐把 MySQL 的默认字符集设置为 UTF8MB4</strong>，可以存储emoji 表情</p>
+<h2 id="varchar-100-可以存多少中文字符"><a href="#varchar-100-可以存多少中文字符" class="headerlink" title="varchar(100)可以存多少中文字符"></a>varchar(100)可以存多少中文字符</h2><p>不同的字符集，<code>CHAR(N)</code>、<code>VARCHAR(N)</code>对应最长的字节也不相同。</p>
+<p>比如 <em><strong>GBK 字符集，1 个字符最大存储 2 个字节，UTF-8字符集支持每个字符最大三3字节，UTF8MB4 字符集 1 个字符最大存储 4 个字节。</strong></em></p>
+<blockquote>
+<p>注意MySQL中的UTF-8跟平时用的UTF-8有区别，真正的 UTF-8 是每个字符最多四个字节。</p>
+</blockquote>
+<p>那么在UTF-8字符集的情况下，一个汉字3个字节，<code>varchar(100)</code>可以存放100个中文字符</p>
+<h2 id="补充：Unicode-ASCII-UTF-8-GBK-编码的区别"><a href="#补充：Unicode-ASCII-UTF-8-GBK-编码的区别" class="headerlink" title="补充：Unicode ASCII UTF-8 GBK 编码的区别"></a>补充：Unicode ASCII UTF-8 GBK 编码的区别</h2><h3 id="ASCII编码"><a href="#ASCII编码" class="headerlink" title="ASCII编码"></a>ASCII编码</h3><p>ASCII 码使用指定的7 位或8 位二进制数组合来表示128 或256 种可能的字符。</p>
+<p><em><strong>长度：1个字节</strong></em></p>
+<h3 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h3><p>Unicode把所有语言都统一到一套编码里，这样就不会再有乱码问题了。</p>
+<p>Unicode最常用的是用<strong>两个字节表示一个字符</strong>。现代操作系统和大多数编程语言都直接支持Unicode。</p>
+<p>新的问题：如果统一成Unicode编码，乱码问题从此消失了。但是，如果你写的文本基本上全部是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，在存储和传输上就十分不划算。</p>
+<p><em><strong>长度：2个字节</strong></em></p>
+<h3 id="UTF8"><a href="#UTF8" class="headerlink" title="UTF8"></a>UTF8</h3><p>所以，本着节约的精神，出现了“可变长编码”的UTF-8编码</p>
+<p>UTF-8编码把一个Unicode字符根据不同的数字大小编码成1-6个字节，<em><strong>常用的英文字母被编码成1个字节，汉字通常是3个字节，只有很生僻的字符才会被编码成4-6个字节</strong></em>。如果你要传输的文本包含大量英文字符，用UTF-8编码就能节省空间。</p>
+<p><em><strong>长度：1-6个字节，汉字一般是3个字节</strong></em></p>
+<h3 id="GBK-编码"><a href="#GBK-编码" class="headerlink" title="GBK 编码"></a><strong>GBK 编码</strong></h3><p>GBK 编码专门用于表示汉字</p>
+<p><em><strong>长度：</strong></em><em><strong>2个字节</strong></em></p>
 ]]></content>
       <categories>
         <category>日常小记</category>
       </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
   </entry>
   <entry>
     <title>Java中的线程池</title>
@@ -977,52 +1092,6 @@
       </categories>
       <tags>
         <tag>线程池</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>🐛 LangChain4j-Spring Bug修复记录</title>
-    <url>/2024/08/20/LangChain4j-Spring-Bug/</url>
-    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
-<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
-<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
-<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
-<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
-</ul>
-<blockquote>
-<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
-</blockquote>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
-<ol>
-<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
-<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
-</ol>
-<p>关键代码如下：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-<p>针对以上问题，我在PR中做的主要改动如下：</p>
-<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
-<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">Mybatis实现动态注册bean的两种方式</a></p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>日常小记</category>
-      </categories>
-      <tags>
-        <tag>开源</tag>
-        <tag>langchain</tag>
       </tags>
   </entry>
   <entry>
@@ -1235,73 +1304,6 @@
       <tags>
         <tag>langchain</tag>
         <tag>LLM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MySQL中的字符串类型</title>
-    <url>/2023/09/14/MySQL%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B/</url>
-    <content><![CDATA[<table>
-<thead>
-<tr>
-<th>变量名称</th>
-<th>含义</th>
-<th>大小</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>char</td>
-<td>固定大小的字符</td>
-<td>0-255<strong>个字符</strong></td>
-</tr>
-<tr>
-<td>varchar</td>
-<td>可变长度字符串,相当于<code>String</code></td>
-<td>0 - 65536<strong>个字符</strong></td>
-</tr>
-<tr>
-<td>Text</td>
-<td>文本串,保存大文本</td>
-<td>4G</td>
-</tr>
-<tr>
-<td>Blob</td>
-<td>二进制大对象，专门用来储存图片，声音，视频等流媒体数据。插入数据的时候，需要使用IO流。</td>
-<td>4G</td>
-</tr>
-</tbody></table>
-<span id="more"></span>
-
-
-<h2 id="CHAR-和-VARCHAR-的定义"><a href="#CHAR-和-VARCHAR-的定义" class="headerlink" title="CHAR 和 VARCHAR 的定义"></a>CHAR 和 VARCHAR 的定义</h2><p><code>CHAR(N)</code> 用来保存固定长度的字符，N 的范围是 0 ~ 255，<strong>请牢记，N 表示的是字符，而不是字节</strong>。<code>VARCHAR(N)</code> 用来保存变长字符，N 的范围为 0 ~ 65536， <strong>N 表示字符</strong>。</p>
-<p>在超出 65536 个字符的情况下，可以考虑使用更大的字符类型 TEXT 或 BLOB，两者最大存储长度为 4G，其区别是 BLOB 没有字符集属性，纯属二进制存储。</p>
-<p>MySQL 数据库的 VARCHAR 字符类型，最大能够存储 65536 个字符，所以在 MySQL 数据库下，绝大部分场景使用类型 VARCHAR 就足够了。</p>
-<p>对于长文本，比如存储博客这样的场景，可以使用<code>Text</code></p>
-<p><strong>字符集</strong></p>
-<p>在表结构设计中，除了将列定义为 CHAR 和 VARCHAR 用以存储字符以外，还需要额外定义字符对应的字符集，因为每种字符在不同字符集编码下，对应着不同的二进制值。常见的字符集有 GBK、UTF8，通常默认把字符集设置为 UTF8。</p>
-<p><strong>推荐把 MySQL 的默认字符集设置为 UTF8MB4</strong>，可以存储emoji 表情</p>
-<h2 id="varchar-100-可以存多少中文字符"><a href="#varchar-100-可以存多少中文字符" class="headerlink" title="varchar(100)可以存多少中文字符"></a>varchar(100)可以存多少中文字符</h2><p>不同的字符集，<code>CHAR(N)</code>、<code>VARCHAR(N)</code>对应最长的字节也不相同。</p>
-<p>比如 <em><strong>GBK 字符集，1 个字符最大存储 2 个字节，UTF-8字符集支持每个字符最大三3字节，UTF8MB4 字符集 1 个字符最大存储 4 个字节。</strong></em></p>
-<blockquote>
-<p>注意MySQL中的UTF-8跟平时用的UTF-8有区别，真正的 UTF-8 是每个字符最多四个字节。</p>
-</blockquote>
-<p>那么在UTF-8字符集的情况下，一个汉字3个字节，<code>varchar(100)</code>可以存放100个中文字符</p>
-<h2 id="补充：Unicode-ASCII-UTF-8-GBK-编码的区别"><a href="#补充：Unicode-ASCII-UTF-8-GBK-编码的区别" class="headerlink" title="补充：Unicode ASCII UTF-8 GBK 编码的区别"></a>补充：Unicode ASCII UTF-8 GBK 编码的区别</h2><h3 id="ASCII编码"><a href="#ASCII编码" class="headerlink" title="ASCII编码"></a>ASCII编码</h3><p>ASCII 码使用指定的7 位或8 位二进制数组合来表示128 或256 种可能的字符。</p>
-<p><em><strong>长度：1个字节</strong></em></p>
-<h3 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h3><p>Unicode把所有语言都统一到一套编码里，这样就不会再有乱码问题了。</p>
-<p>Unicode最常用的是用<strong>两个字节表示一个字符</strong>。现代操作系统和大多数编程语言都直接支持Unicode。</p>
-<p>新的问题：如果统一成Unicode编码，乱码问题从此消失了。但是，如果你写的文本基本上全部是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，在存储和传输上就十分不划算。</p>
-<p><em><strong>长度：2个字节</strong></em></p>
-<h3 id="UTF8"><a href="#UTF8" class="headerlink" title="UTF8"></a>UTF8</h3><p>所以，本着节约的精神，出现了“可变长编码”的UTF-8编码</p>
-<p>UTF-8编码把一个Unicode字符根据不同的数字大小编码成1-6个字节，<em><strong>常用的英文字母被编码成1个字节，汉字通常是3个字节，只有很生僻的字符才会被编码成4-6个字节</strong></em>。如果你要传输的文本包含大量英文字符，用UTF-8编码就能节省空间。</p>
-<p><em><strong>长度：1-6个字节，汉字一般是3个字节</strong></em></p>
-<h3 id="GBK-编码"><a href="#GBK-编码" class="headerlink" title="GBK 编码"></a><strong>GBK 编码</strong></h3><p>GBK 编码专门用于表示汉字</p>
-<p><em><strong>长度：</strong></em><em><strong>2个字节</strong></em></p>
-]]></content>
-      <categories>
-        <category>日常小记</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
@@ -1900,7 +1902,7 @@
   </entry>
   <entry>
     <title>Spingboot3.0 升级记录</title>
-    <url>/2024/06/21/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
+    <url>/2024/06/04/Spingboot3.0%20%E5%8D%87%E7%BA%A7%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<blockquote>
 <p><strong>背景</strong>：在原来一个基于 Spring Boot 2.6.11 的项目中，引入了一个第三方库后，发现无法正常加载其自动装配的 Bean。经过排查，发现第三方库基于 Spring Boot 3.2.4 版本开发，存在依赖注入方式上的差异。为了兼容性，决定将原项目升级至 Spring Boot 3.2.4。鉴于 Spring Boot 3.0 的重大变化，本文详细记录了迁移过程中遇到的关键改动及解决方案。</p>
 </blockquote>
@@ -2005,6 +2007,26 @@
       </categories>
       <tags>
         <tag>Spring源码阅读</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring Lazy-init 踩坑记录</title>
+    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
+<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
+<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
+<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
+]]></content>
+      <categories>
+        <category>日常小记</category>
+      </categories>
+      <tags>
+        <tag>Bug</tag>
       </tags>
   </entry>
   <entry>
@@ -2131,58 +2153,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Spring Lazy-init 踩坑记录</title>
-    <url>/2023/11/01/Spring%20Lazy-init%20%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>起因：在写一个Springboot项目时，队友将项目加载方式改为<code>lazy-init</code>，理由是能加快重启的速度，但是导致了Bug</p>
-</blockquote>
-<span id="more"></span>
-
-<p><img src="/../images/289b54f1b37819da340708c7cfb9e261_rfYNVwE36_.png"></p>
-<p><img src="/../images/1551908c7fb3dddbbc2d3b1e90a48cf1_gLwVbcWEG6.png"></p>
-<p>Spring在Bean初始化阶段会对所有继承了<code>ApplicationContextAware</code>接口的类注入<code>ApplicationContext</code></p>
-<p>但是如果设置了<code>lazy-init</code>，bean加载顺序变了，<code>setApplicationContext</code>就不执行了</p>
-]]></content>
-      <categories>
-        <category>日常小记</category>
-      </categories>
-      <tags>
-        <tag>Bug</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot实现GitHub第三方登录</title>
-    <url>/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
-    <content><![CDATA[<h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
-<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
-<p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
-<span id="more"></span>
-
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
-<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
-<p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
-<p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
-<p>下面是Demo：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<hr>
-<p>相关文档：</p>
-<ul>
-<li><a href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
-<li><a href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>技术方案</category>
-      </categories>
-      <tags>
-        <tag>oauth</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Spring 事务体系</title>
     <url>/2024/05/08/Spring-%E4%BA%8B%E5%8A%A1%E4%BD%93%E7%B3%BB/</url>
     <content><![CDATA[<p>最近了解到，Spring中的事务是由AOP实现的（当然这里说的是声明式事务），至于里面具体的逻辑是怎么样的，今天花了一天的时间看代码，总算弄是明白了大概流程😎，至于里面很多技术细节还没去深挖，先这样吧╮(╯_╰)╭</p>
@@ -2275,9 +2245,9 @@
 
 <h2 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h2><ol>
 <li><strong>首先用户发送请求 —&gt; DispatcherServlet</strong>，前端控制器收到请求后自己不进行处理，而是委托给其他的解析器进行 处理，作为统一访问点，进行全局的流程控制；</li>
-<li><strong>DispatcherServlet —&gt; HandlerMapping</strong>，HandlerMapping 将会把请求映射为 <code>HandlerExecutionChain</code> 对象（包含Handler 处理器和<code>HandlerInterceptor</code> 拦截器）对象</li>
+<li><strong>DispatcherServlet —&gt; HandlerMapping</strong>， HandlerMapping 将会把请求映射为 <code>HandlerExecutionChain</code> 对象（包含Handler 处理器和<code>HandlerInterceptor</code> 拦截器）对象</li>
 <li><strong>DispatcherServlet —&gt; HandlerAdapter</strong>，HandlerAdapter 将会根据适配的结果调用真正的处理器的功能处理方法，完成功能处理，并返回 ModelAndView；</li>
-<li><strong>ModelAndView 的逻辑视图名 —&gt; ViewResolver</strong>，ViewResolver 将把逻辑视图名解析为具体的 View</li>
+<li><strong>ModelAndView —&gt; ViewResolver</strong>，ViewResolver 将把ModelAndView中的逻辑视图名解析为具体的 View</li>
 <li><strong>View —&gt; 渲染</strong>，View 会根据传进来的 Model 模型数据进行渲染</li>
 <li><strong>返回控制权给 DispatcherServlet</strong>，由 DispatcherServlet 返回响应给用户，到此一个流程结束。</li>
 </ol>
@@ -2675,6 +2645,75 @@
       </tags>
   </entry>
   <entry>
+    <title>Thread有几种创建方式？</title>
+    <url>/2024/02/13/Thread%E6%9C%89%E5%87%A0%E7%A7%8D%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F%EF%BC%9F/</url>
+    <content><![CDATA[<p>如果是之前，我可能会像下面这么回答：</p>
+<ul>
+<li>继承<code>Thread</code></li>
+<li>实现<code>Runnable</code>接口</li>
+<li>实现<code>Callable</code>接口</li>
+<li><code>CompletableFuture</code>等</li>
+</ul>
+<p>但是今天认知再次被刷新了，实际上，创建线程的方式只有一种，以上几种甚至更多本质上其实是同一种方式</p>
+<span id="more"></span>
+
+<p>我们先看前两种，也是最最常用的：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CreateThread</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">MyThread</span>()).start();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">MyThread2</span>().start();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyThread</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> {</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">        System.out.println(<span class="string">"MyThread"</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyThread2</span> <span class="keyword">extends</span> <span class="title class_">Thread</span> {</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">        System.out.println(<span class="string">"MyThread2"</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>使用Runnable创建的Task需要创建一个Thread去执行，而继承Thread的类可以直接执行</p>
+<p>但是这两种方法本质是一样的，看一下<code>Thread</code>的源代码</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Thread</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> {</span><br><span class="line">  <span class="keyword">private</span> Runnable target;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">      <span class="keyword">if</span> (target != <span class="literal">null</span>) {</span><br><span class="line">          target.run();</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> {</span><br><span class="line">    ...</span><br><span class="line">    run();</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Thread类中的target实际上就是我们创建时传入的继承Runnable的类</p>
+<p>可以看到如果是通过Runnable的方式，指定<code>run()</code>方法时就是执行Runnable执行的<code>run()</code>，而继承了Thread类的子类重写了<code>run()</code>方法，线程会直接执行</p>
+<p>我们看一下两种方式的执行链路：</p>
+<ul>
+<li>implements Runnable：<code>new Thread → thread.start() → thread.run() → target.run() → execute Task</code></li>
+<li>extends Thread：<code>new Thread → thread.start() → thread.run() → execute Task</code></li>
+</ul>
+<p>实际上，创建多线程都需要<code>new Thread()</code>，只是表面形式不同罢了</p>
+<p>至于其他的，<strong>无论是 Callable 还是 FutureTask，它们首先和 Runnable 一样，都是一个任务，是需要被执行的，而不是说它们本身就是线程。</strong>不管用什么方法，最终都是靠线程来执行的。</p>
+]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot实现GitHub第三方登录</title>
+    <url>/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
+<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
+<p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
+<span id="more"></span>
+
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
+<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
+<p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
+<p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
+<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
+<p>下面是Demo：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<p>相关文档：</p>
+<ul>
+<li><a href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
+<li><a href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术方案</category>
+      </categories>
+      <tags>
+        <tag>oauth</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>《深度学习进阶：自然语言处理》阅读笔记</title>
     <url>/2024/04/08/%E3%80%8A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%BF%9B%E9%98%B6%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h1 id="1-神经网络"><a href="#1-神经网络" class="headerlink" title="1 神经网络"></a>1 神经网络</h1><h2 id="1-1-向量"><a href="#1-1-向量" class="headerlink" title="1.1 向量"></a>1.1 向量</h2><p>向量内积和矩阵乘积：</p>
@@ -2869,6 +2908,39 @@
       </categories>
       <tags>
         <tag>NLP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>线程池在业务中的实践以及对应参数如何设计</title>
+    <url>/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<blockquote>
+<p>参考：</p>
+<p><a href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践 - 美团技术团队</a></p>
+</blockquote>
+<h1 id="线程池核心参数"><a href="#线程池核心参数" class="headerlink" title="线程池核心参数"></a>线程池核心参数</h1><ol>
+<li>核心线程数<code>corePoolSize</code><br>如果项目有固定的线程开销可以使用核心线程</li>
+<li>最大线程<code>maximumPoolSize</code><br>如果项目中多线程的场景不是很多，将线程池中的线程全部设置为普通线程，用完后就释放，减少资源占用</li>
+<li>工作队列<code>workQueue</code><br>指定有界或无界队列，队列长度，一般我们选择有界队列，无界队列容易导致OOM</li>
+</ol>
+<span id="more"></span>
+
+<h3 id="场景一：快速响应用户请求"><a href="#场景一：快速响应用户请求" class="headerlink" title="场景一：快速响应用户请求"></a>场景一：快速响应用户请求</h3><p>场景：需要快速响应的场景，如<strong>首屏加载</strong>、商品详情页加载这种越快越好的场景</p>
+<p><strong>应该不设置队列去缓冲并发任务，而是调高<code>corePoolSize</code>和<code>maxPoolSize</code>去尽可能创造多的线程快速执行任务。</strong></p>
+<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_dAKT_1wRJI.png"></p>
+<h3 id="场景2：快速处理批量任务"><a href="#场景2：快速处理批量任务" class="headerlink" title="场景2：快速处理批量任务"></a>场景2：快速处理批量任务</h3><p><strong>描述</strong>：离线的大量计算任务，需要快速执行。比如说，统计某个报表，需要计算出全国各个门店中有哪些商品有某种属性，用于后续营销策略的分析，那么我们需要查询全国所有门店中的所有商品，并且记录具有某属性的商品，然后快速生成报表。</p>
+<p><strong>分析</strong>：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，<strong>这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。</strong>所以<strong>应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数</strong>。<strong>在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</strong></p>
+<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_uK86I9zjp7.png"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>考虑到在实际应用中我们获取并发性的场景主要是两种：</p>
+<ol>
+<li>并行执行子任务，提高响应速度。这种情况下，应该使用同步队列，没有什么任务应该被缓存下来，而是应该立即执行</li>
+<li>并行执行大批次任务，提升吞吐量。这种情况下，应该使用有界队列，使用队列去缓冲大批量的任务，队列容量必须声明，防止任务无限制堆积。所以线程池只需要提供这三个关键参数的配置，并且提供两种队列的选择，就可以满足绝大多数的业务需求，Less is More</li>
+</ol>
+]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>线程池</tag>
       </tags>
   </entry>
   <entry>
@@ -3083,39 +3155,6 @@
       </categories>
       <tags>
         <tag>微服务</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>线程池在业务中的实践以及对应参数如何设计</title>
-    <url>/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<blockquote>
-<p>参考：</p>
-<p><a href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践 - 美团技术团队</a></p>
-</blockquote>
-<h1 id="线程池核心参数"><a href="#线程池核心参数" class="headerlink" title="线程池核心参数"></a>线程池核心参数</h1><ol>
-<li>核心线程数<code>corePoolSize</code><br>如果项目有固定的线程开销可以使用核心线程</li>
-<li>最大线程<code>maximumPoolSize</code><br>如果项目中多线程的场景不是很多，将线程池中的线程全部设置为普通线程，用完后就释放，减少资源占用</li>
-<li>工作队列<code>workQueue</code><br>指定有界或无界队列，队列长度，一般我们选择有界队列，无界队列容易导致OOM</li>
-</ol>
-<span id="more"></span>
-
-<h3 id="场景一：快速响应用户请求"><a href="#场景一：快速响应用户请求" class="headerlink" title="场景一：快速响应用户请求"></a>场景一：快速响应用户请求</h3><p>场景：需要快速响应的场景，如<strong>首屏加载</strong>、商品详情页加载这种越快越好的场景</p>
-<p><strong>应该不设置队列去缓冲并发任务，而是调高<code>corePoolSize</code>和<code>maxPoolSize</code>去尽可能创造多的线程快速执行任务。</strong></p>
-<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_dAKT_1wRJI.png"></p>
-<h3 id="场景2：快速处理批量任务"><a href="#场景2：快速处理批量任务" class="headerlink" title="场景2：快速处理批量任务"></a>场景2：快速处理批量任务</h3><p><strong>描述</strong>：离线的大量计算任务，需要快速执行。比如说，统计某个报表，需要计算出全国各个门店中有哪些商品有某种属性，用于后续营销策略的分析，那么我们需要查询全国所有门店中的所有商品，并且记录具有某属性的商品，然后快速生成报表。</p>
-<p><strong>分析</strong>：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，<strong>这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。</strong>所以<strong>应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数</strong>。<strong>在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</strong></p>
-<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_uK86I9zjp7.png"></p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>考虑到在实际应用中我们获取并发性的场景主要是两种：</p>
-<ol>
-<li>并行执行子任务，提高响应速度。这种情况下，应该使用同步队列，没有什么任务应该被缓存下来，而是应该立即执行</li>
-<li>并行执行大批次任务，提升吞吐量。这种情况下，应该使用有界队列，使用队列去缓冲大批量的任务，队列容量必须声明，防止任务无限制堆积。所以线程池只需要提供这三个关键参数的配置，并且提供两种队列的选择，就可以满足绝大多数的业务需求，Less is More</li>
-</ol>
-]]></content>
-      <categories>
-        <category>并发编程</category>
-      </categories>
-      <tags>
-        <tag>线程池</tag>
       </tags>
   </entry>
 </search>
