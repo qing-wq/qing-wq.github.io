@@ -859,6 +859,52 @@
       </categories>
   </entry>
   <entry>
+    <title>🐛 LangChain4j-Spring Bug修复记录</title>
+    <url>/2024/08/20/LangChain4j-Spring-Bug/</url>
+    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
+<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
+<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
+<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
+<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
+</ul>
+<blockquote>
+<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
+</blockquote>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
+<ol>
+<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
+<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
+</ol>
+<p>关键代码如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>针对以上问题，我在PR中做的主要改动如下：</p>
+<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
+<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="./Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F.md">Mybatis实现动态注册bean的两种方式</a></p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>日常小记</category>
+      </categories>
+      <tags>
+        <tag>开源</tag>
+        <tag>langchain</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java中的线程池</title>
     <url>/2023/02/03/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
     <content><![CDATA[<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><p>使用<code>Executors</code>创建线程池：</p>
@@ -976,52 +1022,6 @@
       </categories>
       <tags>
         <tag>线程池</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>🐛 LangChain4j-Spring Bug修复记录</title>
-    <url>/2024/08/20/LangChain4j-Spring-Bug/</url>
-    <content><![CDATA[<p>起因：在使用langchain4j的过程中发现，项目默认只会扫描启动类下的带有<code>@AiService</code>的接口， 并且扫描的方式是通过<code>Reflections</code>扫描启动类所在的classPath而不是通过Spring自带的方法</p>
-<p>如果使用<code>@ComponentScan</code>扫描特定的文件路径，那么特定路径下的<code>@AiService</code>接口将不会被扫描并被代理到，最后就导致了Bean无法注入的Bug _(:з」∠)_</p>
-<h2 id="相关issue"><a href="#相关issue" class="headerlink" title="相关issue"></a>相关issue</h2><ul>
-<li><a href="https://github.com/langchain4j/langchain4j/issues/1606">https://github.com/langchain4j/langchain4j/issues/1606</a></li>
-<li><a href="https://github.com/langchain4j/langchain4j-spring/pull/35">https://github.com/langchain4j/langchain4j-spring/pull/35</a></li>
-</ul>
-<blockquote>
-<p><em>Tips</em>：这也是我第一次参加开源，虽然只是做了一个微不足道的贡献，但是还是感觉收获很多吧…一直在担心自己的水平不够所以反复理解反复查资料，但是作者很热心帮我修改了代码并且很快就被处理接受了😃</p>
-</blockquote>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>在Springboot中使用<code>context/beanFactory</code>获取带有<code>@AiService</code>的Bean，发现Springboot会自动忽略接口，原因在于<strong>Spring是不会扫描接口的，因为接口没有办法实例化</strong>，因此作者的做法为：</p>
-<ol>
-<li><code>Reflections</code>扫描当前启动类所在的classPath获取带有<code>@AiService</code>的接口</li>
-<li>在<code>BeanFactoryPostProcessor</code>阶段（Bean加载完但还未创建任何Bean实例前），使用<code>AiServiceFactory</code>替换接口的BeanDefinition完成代理替换</li>
-</ol>
-<p>关键代码如下：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Set&lt;Class&lt;?&gt;&gt; findAiServices(ConfigurableListableBeanFactory beanFactory) {</span><br><span class="line">    String[] applicationBean = beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);</span><br><span class="line">    <span class="type">BeanDefinition</span> <span class="variable">applicationBeanDefinition</span> <span class="operator">=</span> beanFactory.getBeanDefinition(applicationBean[<span class="number">0</span>]);</span><br><span class="line">    <span class="type">String</span> <span class="variable">basePackage</span> <span class="operator">=</span> applicationBeanDefinition.getResolvableType().resolve().getPackage().getName();</span><br><span class="line">    <span class="type">Reflections</span> <span class="variable">reflections</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reflections</span>((<span class="keyword">new</span> <span class="title class_">ConfigurationBuilder</span>()).forPackage(basePackage));</span><br><span class="line">    Set&lt;Class&lt;?&gt;&gt; classes = reflections.getTypesAnnotatedWith(AiService.class);</span><br><span class="line">    classes.removeIf(clazz -&gt; !clazz.getName().startsWith(basePackage));</span><br><span class="line">    <span class="keyword">return</span> classes;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-<p>针对以上问题，我在PR中做的主要改动如下：</p>
-<h2 id="改动1：获取所有的ComponentScan的basePackage并扫描"><a href="#改动1：获取所有的ComponentScan的basePackage并扫描" class="headerlink" title="改动1：获取所有的ComponentScan的basePackage并扫描"></a>改动1：获取所有的ComponentScan的basePackage并扫描</h2><p>既然需要扫描多个模块，扫描的方式也是通过<code>@ComponentScan</code>指定的，那么就获取所有的<code>@ComponentScan</code>指定的扫描路径进行扫描吧：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">getBasePackages</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> {</span><br><span class="line">  Set&lt;String&gt; basePackages = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  List&lt;String&gt; autoConfigPackages = AutoConfigurationPackages.get(beanFactory);</span><br><span class="line">  basePackages.addAll(autoConfigPackages);</span><br><span class="line">  </span><br><span class="line">  String[] beanNames = beanFactory.getBeanNamesForAnnotation(ComponentScan.class);</span><br><span class="line">  <span class="keyword">for</span> (String beanName : beanNames) {</span><br><span class="line">      Class&lt;?&gt; beanClass = beanFactory.getType(beanName);</span><br><span class="line">      <span class="keyword">if</span> (beanClass != <span class="literal">null</span>) {</span><br><span class="line">          <span class="type">ComponentScan</span> <span class="variable">componentScan</span> <span class="operator">=</span> beanClass.getAnnotation(ComponentScan.class);</span><br><span class="line">          <span class="keyword">if</span> (componentScan != <span class="literal">null</span>) {</span><br><span class="line">              Collections.addAll(basePackages, componentScan.value());</span><br><span class="line">              Collections.addAll(basePackages, componentScan.basePackages());</span><br><span class="line">              <span class="keyword">for</span> (Class&lt;?&gt; basePackageClass : componentScan.basePackageClasses()) {</span><br><span class="line">                  basePackages.add(ClassUtils.getPackageName(basePackageClass));</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"><a href="#改动2：自定义ClassPathBeanDefinitionScanner扫描接口" class="headerlink" title="改动2：自定义ClassPathBeanDefinitionScanner扫描接口"></a>改动2：自定义ClassPathBeanDefinitionScanner扫描接口</h2><p>如果是要与Spring集成的话肯定是使用Spring的方法更好，但是Spring自带的类扫描器会直接过滤接口，因此在这里自定义了一个专用于扫描接口的类扫描器</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassPathAiServiceScanner</span> <span class="keyword">extends</span> <span class="title class_">ClassPathBeanDefinitionScanner</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassPathAiServiceScanner</span><span class="params">(BeanDefinitionRegistry registry, <span class="type">boolean</span> useDefaultFilters)</span> {</span><br><span class="line">        <span class="built_in">super</span>(registry, useDefaultFilters);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isCandidateComponent</span><span class="params">(AnnotatedBeanDefinition beanDefinition)</span> {</span><br><span class="line">        <span class="keyword">return</span> beanDefinition.getMetadata().isInterface() &amp;&amp; beanDefinition.getMetadata().isIndependent();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<p>那么问题来了，如何让Spring使用我们自定义的类扫描器呢？Spring自带的扫描器都是在<code>@ComponentScan</code>解析流程中创建出来的，我们又不能更改这个流程</p>
-<p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="./Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F.md">Mybatis实现动态注册bean的两种方式</a></p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>日常小记</category>
-      </categories>
-      <tags>
-        <tag>开源</tag>
-        <tag>langchain</tag>
       </tags>
   </entry>
   <entry>
@@ -1301,41 +1301,6 @@
       </categories>
       <tags>
         <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mybatis Interceptor</title>
-    <url>/2024/01/08/Mybatis-Interceptor/</url>
-    <content><![CDATA[<p>我们先来看一下MyBatis的执行过程，这个也是网上的热图了：</p>
-<p><img src="/../images/image-20240908231217545.png" alt="image-20240908231217545"></p>
-<p>Mybatis的拦截器提供了非常强大的扩展能力。在sql最终执行之前，提供了四个拦截点，支持不同场景的功能扩展：</p>
-<ul>
-<li><code>Executor</code>：代表执行器，由它调度StatementHandler、ParameterHandler、ResultSetHandler等来执行对应的SQL，其中StatementHandler是最重要的。</li>
-<li><code>ParameterHandler</code>：处理SQL参数。</li>
-<li><code>ResultSetHandler</code>：进行结果集（ResultSet）的封装返回处理，它非常的复杂，好在不常用。</li>
-<li><code>StatementHandler</code>：作用是使用数据库的Statement（PreparedStatement）执行操作，它是四大对象的核心，起到承上启下的作用，许多重要的插件都是通过拦截它来实现的。</li>
-</ul>
-<span id="more"></span>
-
-<p>每个拦截点提供了多个方法，拦截器是基于方法的</p>
-<ul>
-<li><code>Executor</code> (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</li>
-<li><code>ParameterHandler</code> (getParameterObject, setParameters)</li>
-<li><code>ResultSetHandler</code> (handleResultSets, handleOutputParameters)</li>
-<li><code>StatementHandler</code> (prepare, parameterize, batch, update, query)</li>
-</ul>
-<h2 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h2><p>自定义插件实现，重点两步</p>
-<ul>
-<li>实现接口<code>org.apache.ibatis.plugin.Interceptor</code></li>
-<li><code>@Intercepts</code>标志该类是一个拦截器；<code>@Signature</code>定义切点，可以指定多个</li>
-</ul>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Intercepts({</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {java.sql.Statement.class})</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = "sensitive", name = "enabled")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SensitiveInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SensitiveService sensitiveService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable {</span><br><span class="line">        List&lt;Object&gt; results = (List&lt;Object&gt;) invocation.proceed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (results.isEmpty()) {</span><br><span class="line">            <span class="keyword">return</span> results;</span><br><span class="line">        }</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// ResultSet</span></span><br><span class="line">        <span class="type">ResultSetHandler</span> <span class="variable">resultSetHandler</span> <span class="operator">=</span> (ResultSetHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">MetaObject</span> <span class="variable">metaObject</span> <span class="operator">=</span> SystemMetaObject.forObject(resultSetHandler);</span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) metaObject.getValue(<span class="string">"mappedStatement"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> {</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-]]></content>
-      <categories>
-        <category>日常小记</category>
-      </categories>
-      <tags>
-        <tag>MyBatis</tag>
       </tags>
   </entry>
   <entry>
@@ -1681,6 +1646,185 @@
       </tags>
   </entry>
   <entry>
+    <title>Mybatis Interceptor</title>
+    <url>/2024/01/08/Mybatis-Interceptor/</url>
+    <content><![CDATA[<p>我们先来看一下MyBatis的执行过程，这个也是网上的热图了：</p>
+<p><img src="/../images/image-20240908231217545.png" alt="image-20240908231217545"></p>
+<p>Mybatis的拦截器提供了非常强大的扩展能力。在sql最终执行之前，提供了四个拦截点，支持不同场景的功能扩展：</p>
+<ul>
+<li><code>Executor</code>：代表执行器，由它调度StatementHandler、ParameterHandler、ResultSetHandler等来执行对应的SQL，其中StatementHandler是最重要的。</li>
+<li><code>ParameterHandler</code>：处理SQL参数。</li>
+<li><code>ResultSetHandler</code>：进行结果集（ResultSet）的封装返回处理，它非常的复杂，好在不常用。</li>
+<li><code>StatementHandler</code>：作用是使用数据库的Statement（PreparedStatement）执行操作，它是四大对象的核心，起到承上启下的作用，许多重要的插件都是通过拦截它来实现的。</li>
+</ul>
+<span id="more"></span>
+
+<p>每个拦截点提供了多个方法，拦截器是基于方法的</p>
+<ul>
+<li><code>Executor</code> (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</li>
+<li><code>ParameterHandler</code> (getParameterObject, setParameters)</li>
+<li><code>ResultSetHandler</code> (handleResultSets, handleOutputParameters)</li>
+<li><code>StatementHandler</code> (prepare, parameterize, batch, update, query)</li>
+</ul>
+<h2 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h2><p>自定义插件实现，重点两步</p>
+<ul>
+<li>实现接口<code>org.apache.ibatis.plugin.Interceptor</code></li>
+<li><code>@Intercepts</code>标志该类是一个拦截器；<code>@Signature</code>定义切点，可以指定多个</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@Intercepts({</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {java.sql.Statement.class})</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = "sensitive", name = "enabled")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SensitiveInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SensitiveService sensitiveService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable {</span><br><span class="line">        List&lt;Object&gt; results = (List&lt;Object&gt;) invocation.proceed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (results.isEmpty()) {</span><br><span class="line">            <span class="keyword">return</span> results;</span><br><span class="line">        }</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// ResultSet</span></span><br><span class="line">        <span class="type">ResultSetHandler</span> <span class="variable">resultSetHandler</span> <span class="operator">=</span> (ResultSetHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">MetaObject</span> <span class="variable">metaObject</span> <span class="operator">=</span> SystemMetaObject.forObject(resultSetHandler);</span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) metaObject.getValue(<span class="string">"mappedStatement"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> {</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+]]></content>
+      <categories>
+        <category>日常小记</category>
+      </categories>
+      <tags>
+        <tag>MyBatis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MyBatis实现动态注册bean的两种方式</title>
+    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
+    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
+<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<ul>
+<li><code>MapperScannerConfigurer</code>核心配置类<ul>
+<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
+</ul>
+</li>
+<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
+<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
+<ul>
+<li><code>@MapperScan</code><ul>
+<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
+<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
+</ul>
+</li>
+<li><code>@Mapper</code><ul>
+<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
+<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
+<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>日常小记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>RabbitMQ学习笔记</title>
+    <url>/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="1-AMQP协议中的关键概念"><a href="#1-AMQP协议中的关键概念" class="headerlink" title="1 AMQP协议中的关键概念"></a>1 AMQP协议中的关键概念</h1><ul>
+<li><code>Connection</code>socket连接，它封装了socket协议相关部分逻辑。你可以认为一个Connection就是一个Tcp连接。</li>
+<li><code>Channel</code>生产者与Broker通信的通道，可以把通道理解成共享一个 TCP 连接的多个轻量化连接（通常每个thread创建单独的channel进行通讯）。</li>
+</ul>
+<blockquote>
+<p><code>Connection</code>就是一个TCP连接对象，而<code>Channel</code>相当于连接池</p>
+</blockquote>
+<ul>
+<li><code>Exchange</code>交换器，接收消息，按照路由规则将消息路由到一个或者多个队列</li>
+<li><code>Queue</code>消息队列，用来保存消息，供消费者消费</li>
+<li><code>Produce/Consumer</code>消息生产者和消费者</li>
+<li><code>Binding</code>绑定，交换器和消息队列之间的虚拟连接，绑定中可以包含一个或者多个 RoutingKey。</li>
+<li><code>RoutingKey</code>路由键，生产者将消息发送给交换器的时候，会指定一个 RoutingKey，用来指定路由规则，交换器根据路由键把消息发送到指定队列</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="2-消息队列模式"><a href="#2-消息队列模式" class="headerlink" title="2 消息队列模式"></a>2 消息队列模式</h1><h2 id="2-1-点对点模式"><a href="#2-1-点对点模式" class="headerlink" title="2.1 点对点模式"></a>2.1 点对点模式</h2><p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/e6053e18-99d6-4914-b06a-4dc65d258a30_1koS-yViN2.png"></p>
+<p>点对点模式特点：<strong>一个具体的消息只能由一个消费者消费</strong>，多个生产者可以向同一个消息队列发送消息，但是一个消息在被一个消息者处理的时候，这个消息在队列上会被锁住或者被移除并且其他消费者无法处理该消息。</p>
+<h2 id="2-2-发布-订阅模式"><a href="#2-2-发布-订阅模式" class="headerlink" title="2.2 发布/订阅模式"></a>2.2 发布/订阅模式</h2><p><strong>单个消息可以被多个订阅者并发的获取和处理</strong>。一般来说，订阅有两种类型：</p>
+<ul>
+<li>临时订阅：这种订阅只有在消费者启动并且运行的时候才存在。一旦消费者退出，相应的订阅以及尚未处理的消息就会丢失。</li>
+<li>持久订阅：这种订阅会一直存在，除非主动去删除。消费者退出后，消息系统会继续维护该订阅，并且后续消息可以被继续处理。</li>
+</ul>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_TSARw_VzVJ.png"></p>
+<h1 id="3-RabbitMQ原理"><a href="#3-RabbitMQ原理" class="headerlink" title="3 RabbitMQ原理"></a>3 RabbitMQ原理</h1><p>RabbbitMQ使用Erlang语言开发，基于AMQP协议实现。AMQP协议由三部分组成，分别是消费者，生产者和服务端。执行流程如下：</p>
+<ol>
+<li><p>生产者连接到Server，建立一个连接，开启一个通道。</p>
+</li>
+<li><p>生产者声明交换器和队列，设置相关属性，并通过路由键将交换器和队列进行绑定。</p>
+</li>
+<li><p>消费者也需要进行建立连接，开启信道等操作，便于接收消息。</p>
+</li>
+<li><p>生产者发送消息，发送到服务端中的虚拟主机。</p>
+</li>
+<li><p>虚拟主机中的交换器根据路由键选择路由规则，发送到不同的消息队列中。</p>
+</li>
+<li><p>订阅了消息队列的消费者就可以获取到消息，进行消费。</p>
+</li>
+</ol>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/82ff9d01-1ac7-4463-9733-a7372c642d35_wBUrxx8cW8.png"></p>
+<blockquote>
+<p>📌RabbitMQ 消息传递模型的核心思想是生产者从不直接向队列发送任何消息。实际上，生产者通常根本不知道消息是否会被传递到任何队列。</p>
+<p>相反，生产者只能将消息发送到交换器。交换是一件非常简单的事情。一方面，它接收来自生产者的消息，另一方面，它将消息推送到队列。</p>
+<p>交换机绑定多个队列，一个队列绑定一个键</p>
+</blockquote>
+<h2 id="3-1-交换机"><a href="#3-1-交换机" class="headerlink" title="3.1 交换机"></a>3.1 交换机</h2><p>Rabbitmq队列和交换机是绑定的，每个队列都有一个***<code>routingKey</code><em><strong>，发布者每次发布的消息也有一个</strong></em><code>routingKey</code>***，交换机会根据不同的匹配规则将消息匹配到与自己绑定的队列中</p>
+<p>RabbitMQ常用交换机有四种：</p>
+<h3 id="3-1-1-Direct"><a href="#3-1-1-Direct" class="headerlink" title="3.1.1 Direct"></a>3.1.1 Direct</h3><p>Direct exchange背后的路由算法很简单 - 消息进入其绑定键与消息的路由键完全匹配的队列。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_gOLw0gI3JR.png"></p>
+<blockquote>
+<p>多重绑定</p>
+<p>使用相同的绑定键绑定多个队列是完全合法的。在我们的示例中，我们可以使用绑定键black在X和Q1之间添加绑定。在这种情况下，直接交换的行为将类似于扇出，并将消息广播到所有匹配的队列。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_ILV-y7PI8A.png"></p>
+</blockquote>
+<h3 id="3-1-2-Topic-exchange"><a href="#3-1-2-Topic-exchange" class="headerlink" title="3.1.2 Topic exchange"></a>3.1.2 Topic exchange</h3><p>**<code>topic</code>**：将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。符号“#”匹配一个或多个词，符号“*”只能匹配一个词</p>
+<p>发送到Topic exchange的 <code>routing_key</code>它必须是一个由点分隔的单词列表。这些单词可以是任何内容，但通常它们指定与消息相关的一些功能。一些有效的路由键示例： <code>stock.usd.nyse</code> 、 <code>nyse.vmw</code> 、<code>quick.orange.rabbit</code> 。路由密钥中可以有任意多个单词，最多 255 个字节。</p>
+<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_WeBDd2GgZO.png"></p>
+<ul>
+<li><code>*</code>可以恰好替代一个单词。</li>
+<li><code>#</code>可以替代零个或多个单词。</li>
+</ul>
+<p>当队列与<code>#</code>绑定键绑定时 - 它将接收所有消息，无论路由键如何 - 就像在扇区交换器中一样。</p>
+<h3 id="3-1-3-Fanout"><a href="#3-1-3-Fanout" class="headerlink" title="3.1.3 Fanout"></a>3.1.3 Fanout</h3><p>Fanout 不处理路由键，而是广播。你只需要简单的将队列绑定到交换机上。一个发送到该类型交换机的消息都会被广播到与该交换机绑定的所有队列上</p>
+<h3 id="Headers"><a href="#Headers" class="headerlink" title="Headers"></a><strong>Headers</strong></h3><p>不处理路由键，而是根据发送的消息内容中的headers属性进行匹配。</p>
+<h2 id="3-2-队列"><a href="#3-2-队列" class="headerlink" title="3.2 队列"></a>3.2 队列</h2><h3 id="3-2-1-死信队列"><a href="#3-2-1-死信队列" class="headerlink" title="3.2.1 死信队列"></a>3.2.1 死信队列</h3><p>来自队列的消息可能是“<strong>死信的</strong>”；也就是说，当发生以下任何事件时，重新发布到交换机：</p>
+<ul>
+<li>消费者使用<code>basic.reject</code>或 <code>basic.nack</code>否定确认消息，并将requeue参数设置为false。</li>
+<li>由于每条消息 TTL（最大存活时间） 的原因，该消息过期；</li>
+<li>由于队列超出长度限制，消息被丢弃</li>
+</ul>
+<blockquote>
+<p>应用场景</p>
+</blockquote>
+<p>一般用在较为重要的业务队列中，为了确保未被正确消费的消息不被丢弃，当发生异常时，通过死信队列，可以让未正确处理的消息暂存到另一个队列中。待后续排查清楚问题后，编写相应的处理代码来处理死信消息，这样比手工恢复数据要好太多了 。</p>
+<h3 id="3-2-2-延时队列"><a href="#3-2-2-延时队列" class="headerlink" title="3.2.2 延时队列"></a>3.2.2 延时队列</h3><p>​ 延迟队列存储的对象肯定是对应的延时消息，所谓”延时消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。</p>
+<p><a href="https://www.wolai.com/57hkFrHvCbQvHVKQW5Z4jk" title="官方文档">官方文档</a></p>
+<h2 id="3-3-ACK机制"><a href="#3-3-ACK机制" class="headerlink" title="3.3 ACK机制"></a>3.3 ACK机制</h2><p>ACK机制是消费者从RabbitMQ收到消息并处理完成后，反馈给RabbitMQ，RabbitMQ收到反馈后才将次消息从队列中删除。如果消费者处理消息时出现异常，RabbitMQ会认为消息未被正常消费，将消息重新放入队列中。可以在消费消息中try-catch或在Consumer的配置文件中配置重试机制来解决这个问题。</p>
+<h2 id="3-4-重试机制"><a href="#3-4-重试机制" class="headerlink" title="3.4 重试机制"></a>3.4 重试机制</h2><p>在消息<strong>消费失败</strong>的时候，Spring-AMQP 会通过<strong>消费重试</strong>机制，重新投递该消息给 Consumer ，让 Consumer 有机会重新消费消息，实现消费成功。</p>
+<p>当然，Spring-AMQP 并不会无限重新投递消息给 Consumer 重新消费，而是在默认情况下，达到 N 次重试次数时，Consumer 还是消费失败时，该消息就会进入到<strong>死信队列</strong>。后续，我们可以通过对死信队列中的消息进行重发，来使得消费者实例再次进行消费。</p>
+<p>为了效率和节省资源，我们一般会选择<code>CONNECTION</code>模式</p>
+<h1 id="4-衡量标准"><a href="#4-衡量标准" class="headerlink" title="4 衡量标准"></a>4 衡量标准</h1><p>市面上的</p>
+<ul>
+<li><strong>消息顺序</strong>：发送到队列的消息，消费时是否可以保证消费的顺序，比如 A 先下单，B 后下单，应该是 A 先去扣库存，B 再去扣，顺序不能反。</li>
+<li><strong>消息路由</strong>：根据路由规则，只订阅匹配路由规则的消息，比如有 A/B 两者规则的消息，消费者可以只订阅 A 消息，B 消息不会消费。</li>
+<li>消息可靠性：是否会存在丢消息的情况，比如有 A/B 两个消息，最后只有 B 消息能消费，A 消息丢失。</li>
+<li><strong>消息时序</strong>：主要包括 “消息存活时间” 和“延迟 / 预定的消息”，“消息存活时间”表示生产者可以对消息设置 TTL，如果超过该 TTL，消息会自动消失；“延迟 / 预定的消息”指的是可以延迟或者预订消费消息，比如延时 5 分钟，那么消息会 5 分钟后才能让消费者消费，时间未到的话，是不能消费的。</li>
+<li><strong>消息留存</strong>：消息消费成功后，是否还会继续保留在消息队列。</li>
+<li><strong>容错性</strong>：当一条消息消费失败后，是否有一些机制，保证这条消息是一种能成功，比如异步第三方退款消息，需要保证这条消息消费掉，才能确定给用户退款成功，所以必须保证这条消息消费成功的准确性。</li>
+<li><strong>伸缩</strong>：当消息队列性能有问题，比如消费太慢，是否可以快速支持库容；当消费队列过多，浪费系统资源，是否可以支持缩容。</li>
+<li><strong>吞吐量</strong>：支持的最高并发数。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+      <tags>
+        <tag>中间件</tag>
+        <tag>消息队列</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SPI机制详解</title>
     <url>/2024/01/01/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/</url>
     <content><![CDATA[<blockquote>
@@ -1787,109 +1931,6 @@
       </categories>
       <tags>
         <tag>项目</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RabbitMQ学习笔记</title>
-    <url>/2023/09/08/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h1 id="1-AMQP协议中的关键概念"><a href="#1-AMQP协议中的关键概念" class="headerlink" title="1 AMQP协议中的关键概念"></a>1 AMQP协议中的关键概念</h1><ul>
-<li><code>Connection</code>socket连接，它封装了socket协议相关部分逻辑。你可以认为一个Connection就是一个Tcp连接。</li>
-<li><code>Channel</code>生产者与Broker通信的通道，可以把通道理解成共享一个 TCP 连接的多个轻量化连接（通常每个thread创建单独的channel进行通讯）。</li>
-</ul>
-<blockquote>
-<p><code>Connection</code>就是一个TCP连接对象，而<code>Channel</code>相当于连接池</p>
-</blockquote>
-<ul>
-<li><code>Exchange</code>交换器，接收消息，按照路由规则将消息路由到一个或者多个队列</li>
-<li><code>Queue</code>消息队列，用来保存消息，供消费者消费</li>
-<li><code>Produce/Consumer</code>消息生产者和消费者</li>
-<li><code>Binding</code>绑定，交换器和消息队列之间的虚拟连接，绑定中可以包含一个或者多个 RoutingKey。</li>
-<li><code>RoutingKey</code>路由键，生产者将消息发送给交换器的时候，会指定一个 RoutingKey，用来指定路由规则，交换器根据路由键把消息发送到指定队列</li>
-</ul>
-<span id="more"></span>
-
-<h1 id="2-消息队列模式"><a href="#2-消息队列模式" class="headerlink" title="2 消息队列模式"></a>2 消息队列模式</h1><h2 id="2-1-点对点模式"><a href="#2-1-点对点模式" class="headerlink" title="2.1 点对点模式"></a>2.1 点对点模式</h2><p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/e6053e18-99d6-4914-b06a-4dc65d258a30_1koS-yViN2.png"></p>
-<p>点对点模式特点：<strong>一个具体的消息只能由一个消费者消费</strong>，多个生产者可以向同一个消息队列发送消息，但是一个消息在被一个消息者处理的时候，这个消息在队列上会被锁住或者被移除并且其他消费者无法处理该消息。</p>
-<h2 id="2-2-发布-订阅模式"><a href="#2-2-发布-订阅模式" class="headerlink" title="2.2 发布/订阅模式"></a>2.2 发布/订阅模式</h2><p><strong>单个消息可以被多个订阅者并发的获取和处理</strong>。一般来说，订阅有两种类型：</p>
-<ul>
-<li>临时订阅：这种订阅只有在消费者启动并且运行的时候才存在。一旦消费者退出，相应的订阅以及尚未处理的消息就会丢失。</li>
-<li>持久订阅：这种订阅会一直存在，除非主动去删除。消费者退出后，消息系统会继续维护该订阅，并且后续消息可以被继续处理。</li>
-</ul>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_TSARw_VzVJ.png"></p>
-<h1 id="3-RabbitMQ原理"><a href="#3-RabbitMQ原理" class="headerlink" title="3 RabbitMQ原理"></a>3 RabbitMQ原理</h1><p>RabbbitMQ使用Erlang语言开发，基于AMQP协议实现。AMQP协议由三部分组成，分别是消费者，生产者和服务端。执行流程如下：</p>
-<ol>
-<li><p>生产者连接到Server，建立一个连接，开启一个通道。</p>
-</li>
-<li><p>生产者声明交换器和队列，设置相关属性，并通过路由键将交换器和队列进行绑定。</p>
-</li>
-<li><p>消费者也需要进行建立连接，开启信道等操作，便于接收消息。</p>
-</li>
-<li><p>生产者发送消息，发送到服务端中的虚拟主机。</p>
-</li>
-<li><p>虚拟主机中的交换器根据路由键选择路由规则，发送到不同的消息队列中。</p>
-</li>
-<li><p>订阅了消息队列的消费者就可以获取到消息，进行消费。</p>
-</li>
-</ol>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/82ff9d01-1ac7-4463-9733-a7372c642d35_wBUrxx8cW8.png"></p>
-<blockquote>
-<p>📌RabbitMQ 消息传递模型的核心思想是生产者从不直接向队列发送任何消息。实际上，生产者通常根本不知道消息是否会被传递到任何队列。</p>
-<p>相反，生产者只能将消息发送到交换器。交换是一件非常简单的事情。一方面，它接收来自生产者的消息，另一方面，它将消息推送到队列。</p>
-<p>交换机绑定多个队列，一个队列绑定一个键</p>
-</blockquote>
-<h2 id="3-1-交换机"><a href="#3-1-交换机" class="headerlink" title="3.1 交换机"></a>3.1 交换机</h2><p>Rabbitmq队列和交换机是绑定的，每个队列都有一个***<code>routingKey</code><em><strong>，发布者每次发布的消息也有一个</strong></em><code>routingKey</code>***，交换机会根据不同的匹配规则将消息匹配到与自己绑定的队列中</p>
-<p>RabbitMQ常用交换机有四种：</p>
-<h3 id="3-1-1-Direct"><a href="#3-1-1-Direct" class="headerlink" title="3.1.1 Direct"></a>3.1.1 Direct</h3><p>Direct exchange背后的路由算法很简单 - 消息进入其绑定键与消息的路由键完全匹配的队列。</p>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_gOLw0gI3JR.png"></p>
-<blockquote>
-<p>多重绑定</p>
-<p>使用相同的绑定键绑定多个队列是完全合法的。在我们的示例中，我们可以使用绑定键black在X和Q1之间添加绑定。在这种情况下，直接交换的行为将类似于扇出，并将消息广播到所有匹配的队列。</p>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_ILV-y7PI8A.png"></p>
-</blockquote>
-<h3 id="3-1-2-Topic-exchange"><a href="#3-1-2-Topic-exchange" class="headerlink" title="3.1.2 Topic exchange"></a>3.1.2 Topic exchange</h3><p>**<code>topic</code>**：将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。符号“#”匹配一个或多个词，符号“*”只能匹配一个词</p>
-<p>发送到Topic exchange的 <code>routing_key</code>它必须是一个由点分隔的单词列表。这些单词可以是任何内容，但通常它们指定与消息相关的一些功能。一些有效的路由键示例： <code>stock.usd.nyse</code> 、 <code>nyse.vmw</code> 、<code>quick.orange.rabbit</code> 。路由密钥中可以有任意多个单词，最多 255 个字节。</p>
-<p><img src="/../images/RabbitMQ%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image_WeBDd2GgZO.png"></p>
-<ul>
-<li><code>*</code>可以恰好替代一个单词。</li>
-<li><code>#</code>可以替代零个或多个单词。</li>
-</ul>
-<p>当队列与<code>#</code>绑定键绑定时 - 它将接收所有消息，无论路由键如何 - 就像在扇区交换器中一样。</p>
-<h3 id="3-1-3-Fanout"><a href="#3-1-3-Fanout" class="headerlink" title="3.1.3 Fanout"></a>3.1.3 Fanout</h3><p>Fanout 不处理路由键，而是广播。你只需要简单的将队列绑定到交换机上。一个发送到该类型交换机的消息都会被广播到与该交换机绑定的所有队列上</p>
-<h3 id="Headers"><a href="#Headers" class="headerlink" title="Headers"></a><strong>Headers</strong></h3><p>不处理路由键，而是根据发送的消息内容中的headers属性进行匹配。</p>
-<h2 id="3-2-队列"><a href="#3-2-队列" class="headerlink" title="3.2 队列"></a>3.2 队列</h2><h3 id="3-2-1-死信队列"><a href="#3-2-1-死信队列" class="headerlink" title="3.2.1 死信队列"></a>3.2.1 死信队列</h3><p>来自队列的消息可能是“<strong>死信的</strong>”；也就是说，当发生以下任何事件时，重新发布到交换机：</p>
-<ul>
-<li>消费者使用<code>basic.reject</code>或 <code>basic.nack</code>否定确认消息，并将requeue参数设置为false。</li>
-<li>由于每条消息 TTL（最大存活时间） 的原因，该消息过期；</li>
-<li>由于队列超出长度限制，消息被丢弃</li>
-</ul>
-<blockquote>
-<p>应用场景</p>
-</blockquote>
-<p>一般用在较为重要的业务队列中，为了确保未被正确消费的消息不被丢弃，当发生异常时，通过死信队列，可以让未正确处理的消息暂存到另一个队列中。待后续排查清楚问题后，编写相应的处理代码来处理死信消息，这样比手工恢复数据要好太多了 。</p>
-<h3 id="3-2-2-延时队列"><a href="#3-2-2-延时队列" class="headerlink" title="3.2.2 延时队列"></a>3.2.2 延时队列</h3><p>​ 延迟队列存储的对象肯定是对应的延时消息，所谓”延时消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。</p>
-<p><a href="https://www.wolai.com/57hkFrHvCbQvHVKQW5Z4jk" title="官方文档">官方文档</a></p>
-<h2 id="3-3-ACK机制"><a href="#3-3-ACK机制" class="headerlink" title="3.3 ACK机制"></a>3.3 ACK机制</h2><p>ACK机制是消费者从RabbitMQ收到消息并处理完成后，反馈给RabbitMQ，RabbitMQ收到反馈后才将次消息从队列中删除。如果消费者处理消息时出现异常，RabbitMQ会认为消息未被正常消费，将消息重新放入队列中。可以在消费消息中try-catch或在Consumer的配置文件中配置重试机制来解决这个问题。</p>
-<h2 id="3-4-重试机制"><a href="#3-4-重试机制" class="headerlink" title="3.4 重试机制"></a>3.4 重试机制</h2><p>在消息<strong>消费失败</strong>的时候，Spring-AMQP 会通过<strong>消费重试</strong>机制，重新投递该消息给 Consumer ，让 Consumer 有机会重新消费消息，实现消费成功。</p>
-<p>当然，Spring-AMQP 并不会无限重新投递消息给 Consumer 重新消费，而是在默认情况下，达到 N 次重试次数时，Consumer 还是消费失败时，该消息就会进入到<strong>死信队列</strong>。后续，我们可以通过对死信队列中的消息进行重发，来使得消费者实例再次进行消费。</p>
-<p>为了效率和节省资源，我们一般会选择<code>CONNECTION</code>模式</p>
-<h1 id="4-衡量标准"><a href="#4-衡量标准" class="headerlink" title="4 衡量标准"></a>4 衡量标准</h1><p>市面上的</p>
-<ul>
-<li><strong>消息顺序</strong>：发送到队列的消息，消费时是否可以保证消费的顺序，比如 A 先下单，B 后下单，应该是 A 先去扣库存，B 再去扣，顺序不能反。</li>
-<li><strong>消息路由</strong>：根据路由规则，只订阅匹配路由规则的消息，比如有 A/B 两者规则的消息，消费者可以只订阅 A 消息，B 消息不会消费。</li>
-<li>消息可靠性：是否会存在丢消息的情况，比如有 A/B 两个消息，最后只有 B 消息能消费，A 消息丢失。</li>
-<li><strong>消息时序</strong>：主要包括 “消息存活时间” 和“延迟 / 预定的消息”，“消息存活时间”表示生产者可以对消息设置 TTL，如果超过该 TTL，消息会自动消失；“延迟 / 预定的消息”指的是可以延迟或者预订消费消息，比如延时 5 分钟，那么消息会 5 分钟后才能让消费者消费，时间未到的话，是不能消费的。</li>
-<li><strong>消息留存</strong>：消息消费成功后，是否还会继续保留在消息队列。</li>
-<li><strong>容错性</strong>：当一条消息消费失败后，是否有一些机制，保证这条消息是一种能成功，比如异步第三方退款消息，需要保证这条消息消费掉，才能确定给用户退款成功，所以必须保证这条消息消费成功的准确性。</li>
-<li><strong>伸缩</strong>：当消息队列性能有问题，比如消费太慢，是否可以快速支持库容；当消费队列过多，浪费系统资源，是否可以支持缩容。</li>
-<li><strong>吞吐量</strong>：支持的最高并发数。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-      </categories>
-      <tags>
-        <tag>中间件</tag>
-        <tag>消息队列</tag>
       </tags>
   </entry>
   <entry>
@@ -2057,47 +2098,6 @@
       </tags>
   </entry>
   <entry>
-    <title>MyBatis实现动态注册bean的两种方式</title>
-    <url>/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</url>
-    <content><![CDATA[<p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
-<ul>
-<li><code>MapperScannerConfigurer</code>核心配置类<ul>
-<li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
-</ul>
-</li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
-<ul>
-<li><code>@MapperScan</code><ul>
-<li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
-<li><code>MapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>，配置了<code>MapperScannerConfigurer</code>的基本属性，如basePackage、annotationClass等等</li>
-</ul>
-</li>
-<li><code>@Mapper</code><ul>
-<li><code>@Mapper</code>的扫描逻辑在<code>AutoConfiguredMapperScannerRegistrar</code>（通过自动装配注入），在不使用<code>@MapperScanner</code>指定扫描路径的情况下只会扫描启动类所在的classPath</li>
-<li>同上，<code>AutoConfiguredMapperScannerRegistrar</code>中构造了<code>MapperScannerConfigurer</code>并进行属性注入</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-<li><a href="https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1#11-mapper%E6%89%AB%E6%8F%8F">https://cofcool.github.io/tech/2018/06/20/mybatis-sourcecode-1</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>日常小记</category>
-      </categories>
-  </entry>
-  <entry>
     <title>🤨 Spring Security架构体系</title>
     <url>/2023/09/12/Spring-Security%E6%9E%B6%E6%9E%84/</url>
     <content><![CDATA[<p><em>本文暂未完善</em></p>
@@ -2259,23 +2259,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Spring中几个关键的后置处理器以及执行顺序</title>
-    <url>/2024/01/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
-<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
-<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
-<span id="more"></span>
-
-<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
-<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
-<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
-<p>…待补充</p>
-]]></content>
-      <categories>
-        <category>Spring源码系列</category>
-      </categories>
-  </entry>
-  <entry>
     <title>SpringMVC 实现原理</title>
     <url>/2024/05/12/SpringMVC-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<p>先看一下SpringMVC的处理流程：</p>
@@ -2340,6 +2323,23 @@
       <tags>
         <tag>SpringMVC</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Spring中几个关键的后置处理器以及执行顺序</title>
+    <url>/2024/01/26/Spring%E4%B8%AD%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%9A%84%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/</url>
+    <content><![CDATA[<h2 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h2><p>作用时机：<strong>在所有 BeanDefinition被加载后执行，但在<code>BeanFactoryPostProcessor</code>之前</strong>。 </p>
+<p>常见应用: 动态注册新的 bean 定义、修改或移除已有的 BeanDefinition。</p>
+<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><p>BeanFactory标准初始化之后，所有的BeanDefinition已经被加载，但标准Bean的实例还没被创建（不包括<code>BeanFactoryPostProcessor</code>类型）。该方法通常用于修改BeanDefinition，Bean的属性值等，甚至可以在此快速初始化Bean。</p>
+<span id="more"></span>
+
+<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><p>作用时机：Bean初始化前后</p>
+<p><code>BeanPostProcessors#ProcessBeforeInitialization()</code>在Bean初始化前调用</p>
+<p><code>BeanPostProcessors#ProcessaAfterInitialization()</code>在Bean初始化后调用</p>
+<p>…待补充</p>
+]]></content>
+      <categories>
+        <category>Spring源码系列</category>
+      </categories>
   </entry>
   <entry>
     <title>📌 Spring实现动态更新配置</title>
@@ -2671,39 +2671,6 @@
       <tags>
         <tag>线程池</tag>
         <tag>JUC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>线程池在业务中的实践以及对应参数如何设计</title>
-    <url>/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<blockquote>
-<p>参考：</p>
-<p><a href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践 - 美团技术团队</a></p>
-</blockquote>
-<h1 id="线程池核心参数"><a href="#线程池核心参数" class="headerlink" title="线程池核心参数"></a>线程池核心参数</h1><ol>
-<li>核心线程数<code>corePoolSize</code><br>如果项目有固定的线程开销可以使用核心线程</li>
-<li>最大线程<code>maximumPoolSize</code><br>如果项目中多线程的场景不是很多，将线程池中的线程全部设置为普通线程，用完后就释放，减少资源占用</li>
-<li>工作队列<code>workQueue</code><br>指定有界或无界队列，队列长度，一般我们选择有界队列，无界队列容易导致OOM</li>
-</ol>
-<span id="more"></span>
-
-<h3 id="场景一：快速响应用户请求"><a href="#场景一：快速响应用户请求" class="headerlink" title="场景一：快速响应用户请求"></a>场景一：快速响应用户请求</h3><p>场景：需要快速响应的场景，如<strong>首屏加载</strong>、商品详情页加载这种越快越好的场景</p>
-<p><strong>应该不设置队列去缓冲并发任务，而是调高<code>corePoolSize</code>和<code>maxPoolSize</code>去尽可能创造多的线程快速执行任务。</strong></p>
-<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_dAKT_1wRJI.png"></p>
-<h3 id="场景2：快速处理批量任务"><a href="#场景2：快速处理批量任务" class="headerlink" title="场景2：快速处理批量任务"></a>场景2：快速处理批量任务</h3><p><strong>描述</strong>：离线的大量计算任务，需要快速执行。比如说，统计某个报表，需要计算出全国各个门店中有哪些商品有某种属性，用于后续营销策略的分析，那么我们需要查询全国所有门店中的所有商品，并且记录具有某属性的商品，然后快速生成报表。</p>
-<p><strong>分析</strong>：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，<strong>这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。</strong>所以<strong>应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数</strong>。<strong>在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</strong></p>
-<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_uK86I9zjp7.png"></p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>考虑到在实际应用中我们获取并发性的场景主要是两种：</p>
-<ol>
-<li>并行执行子任务，提高响应速度。这种情况下，应该使用同步队列，没有什么任务应该被缓存下来，而是应该立即执行</li>
-<li>并行执行大批次任务，提升吞吐量。这种情况下，应该使用有界队列，使用队列去缓冲大批量的任务，队列容量必须声明，防止任务无限制堆积。所以线程池只需要提供这三个关键参数的配置，并且提供两种队列的选择，就可以满足绝大多数的业务需求，Less is More</li>
-</ol>
-]]></content>
-      <categories>
-        <category>并发编程</category>
-      </categories>
-      <tags>
-        <tag>线程池</tag>
       </tags>
   </entry>
   <entry>
@@ -3115,6 +3082,39 @@
       </categories>
       <tags>
         <tag>微服务</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>线程池在业务中的实践以及对应参数如何设计</title>
+    <url>/2024/02/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<blockquote>
+<p>参考：</p>
+<p><a href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践 - 美团技术团队</a></p>
+</blockquote>
+<h1 id="线程池核心参数"><a href="#线程池核心参数" class="headerlink" title="线程池核心参数"></a>线程池核心参数</h1><ol>
+<li>核心线程数<code>corePoolSize</code><br>如果项目有固定的线程开销可以使用核心线程</li>
+<li>最大线程<code>maximumPoolSize</code><br>如果项目中多线程的场景不是很多，将线程池中的线程全部设置为普通线程，用完后就释放，减少资源占用</li>
+<li>工作队列<code>workQueue</code><br>指定有界或无界队列，队列长度，一般我们选择有界队列，无界队列容易导致OOM</li>
+</ol>
+<span id="more"></span>
+
+<h3 id="场景一：快速响应用户请求"><a href="#场景一：快速响应用户请求" class="headerlink" title="场景一：快速响应用户请求"></a>场景一：快速响应用户请求</h3><p>场景：需要快速响应的场景，如<strong>首屏加载</strong>、商品详情页加载这种越快越好的场景</p>
+<p><strong>应该不设置队列去缓冲并发任务，而是调高<code>corePoolSize</code>和<code>maxPoolSize</code>去尽可能创造多的线程快速执行任务。</strong></p>
+<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_dAKT_1wRJI.png"></p>
+<h3 id="场景2：快速处理批量任务"><a href="#场景2：快速处理批量任务" class="headerlink" title="场景2：快速处理批量任务"></a>场景2：快速处理批量任务</h3><p><strong>描述</strong>：离线的大量计算任务，需要快速执行。比如说，统计某个报表，需要计算出全国各个门店中有哪些商品有某种属性，用于后续营销策略的分析，那么我们需要查询全国所有门店中的所有商品，并且记录具有某属性的商品，然后快速生成报表。</p>
+<p><strong>分析</strong>：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，<strong>这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。</strong>所以<strong>应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数</strong>。<strong>在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</strong></p>
+<p><img src="/../images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%9C%A8%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E5%8F%82%E6%95%B0%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/image_uK86I9zjp7.png"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>考虑到在实际应用中我们获取并发性的场景主要是两种：</p>
+<ol>
+<li>并行执行子任务，提高响应速度。这种情况下，应该使用同步队列，没有什么任务应该被缓存下来，而是应该立即执行</li>
+<li>并行执行大批次任务，提升吞吐量。这种情况下，应该使用有界队列，使用队列去缓冲大批量的任务，队列容量必须声明，防止任务无限制堆积。所以线程池只需要提供这三个关键参数的配置，并且提供两种队列的选择，就可以满足绝大多数的业务需求，Less is More</li>
+</ol>
+]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>线程池</tag>
       </tags>
   </entry>
 </search>
