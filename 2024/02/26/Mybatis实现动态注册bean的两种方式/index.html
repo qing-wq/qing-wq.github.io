@@ -209,7 +209,7 @@
 
                     
                         <span class="post-time">
-                        📅Date: <a href="#">三月 26, 2024</a>
+                        📅Date: <a href="#">二月 26, 2024</a>
                         </span>
                     
                     <br/>
@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">336</a> 
+                            <a href="">300</a> 
                         </span>
                     
                     
@@ -246,10 +246,7 @@
 <li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
 </ul>
 </li>
-<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装<ul>
-<li>封装方式：使用<code>MapperFactoryBean</code>替换接口的<code>BeanDefinition</code>，会把<code>sqlSessionFactory</code>，<code>sqlSessionTemplate</code>等参数传递给<code>MapperFactoryBean</code>，从而创建<code>SqlSession</code>(<code>SqlSessionTemplate</code>)，通过<code>getObject()</code>返回代理类</li>
-</ul>
-</li>
+<li><code>ClassPathMapperScanner</code>类扫描器，继承自<code>ClassPathBeanDefinitionScanner</code>，负责在classPath中扫描所有的继承了Mapper的DAO接口，对扫描到的Mapper接口进行封装</li>
 </ul>
 <span id="more"></span>
 
@@ -286,7 +283,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">https://qing-wq.github.io/2024/03/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/02/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">https://qing-wq.github.io/2024/02/26/Mybatis%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%B3%A8%E5%86%8Cbean%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/</a></span>
                     </p>
                 
                 
@@ -304,6 +301,10 @@
                 <span>Tag(s):</span>
                 <span class="tag">
                     
+                    
+                        <a href="/tags/MyBatis/"># MyBatis</a>
+                    
+                        
                 </span>
             </div>
             <div>
@@ -314,10 +315,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/03/31/Spring%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">✍🏻 Spring源码阅读记录</a>
+                <a class="prev" rel="prev" href="/2024/03/01/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/">SPI机制详解</a>
             
             
-            <a class="next" rel="next" href="/2024/03/01/SPI%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/">SPI机制详解</a>
+            <a class="next" rel="next" href="/2024/02/13/Thread%E6%9C%89%E5%87%A0%E7%A7%8D%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F%EF%BC%9F/">Thread有几种创建方式？</a>
             
         </section>
 
