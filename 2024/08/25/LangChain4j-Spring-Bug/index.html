@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">876</a> 
+                            <a href="">872</a> 
                         </span>
                     
                     
@@ -266,7 +266,7 @@
 <p>但是我们可以在Spring的扫描流程结束后，再扫描一遍不就好了吗？于是这里在<code>postProcessBeanDefinitionRegistry</code>阶段重新进行了一次扫描：</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="/2024/06/26/MyBatis%E4%BB%A3%E7%90%86DAO%E6%8E%A5%E5%8F%A3%E5%85%A8%E8%BF%87%E7%A8%8B/">Mybatis实现动态注册bean的两种方式</a></p>
+<p>这里的解决方案其实也参考了MyBatis的实现：MyBatis通过<code>@Mapper</code>即可将类注入到Spring中，原理正是在于使用了自定义类扫描器<code>ClassPathMapperScanner</code>扫描所有带有<code>@Mapper</code>和<code>@MapperScan</code>指定的路径，详细过程可以参考 <a href="/2024/06/26/MyBatis%E4%BB%A3%E7%90%86DAO%E6%8E%A5%E5%8F%A3%E5%85%A8%E8%BF%87%E7%A8%8B/">MyBatis代理DAO接口全过程</a></p>
 <hr>
 <p>参考：</p>
 <ul>
@@ -306,9 +306,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/langchain/"># langchain</a>
-                    
                         <a href="/tags/%E5%BC%80%E6%BA%90/"># 开源</a>
+                    
+                        <a href="/tags/langchain/"># langchain</a>
                     
                         
                 </span>
