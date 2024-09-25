@@ -240,7 +240,7 @@
 
         <div class="post-content">
             <p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis如何实现动态注册Bean的两种方式的实现原理，以便在其他类似的场景作为参考。</p>
-<h2 id="MyBatis代理DAO接口类过程"><a href="#MyBatis代理DAO接口类过程" class="headerlink" title="MyBatis代理DAO接口类过程"></a>MyBatis代理DAO接口类过程</h2><p>先看一下MyBatis代理Bean的过程：</p>
+<h2 id="MyBatis中的关键配置类"><a href="#MyBatis中的关键配置类" class="headerlink" title="MyBatis中的关键配置类"></a>MyBatis中的关键配置类</h2><p>先看一下MyBatis代理Bean的过程：</p>
 <ul>
 <li><code>MapperScannerConfigurer</code>核心配置类<ul>
 <li><code>MapperScannerConfigurer#postProcessBeanDefinitionRegistry</code>负责在Bean注册后扫描调用<code>ClassPathMapperScanner</code>全部的Mapper</li>
@@ -250,7 +250,7 @@
 </ul>
 <span id="more"></span>
 
-<h2 id="动态注册Bean"><a href="#动态注册Bean" class="headerlink" title="动态注册Bean"></a>动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
+<h2 id="MyBatis动态注册Bean"><a href="#MyBatis动态注册Bean" class="headerlink" title="MyBatis动态注册Bean"></a>MyBatis动态注册Bean</h2><p>那么<code>MapperScannerConfigurer</code>扫描的路径、参数、是否懒加载等配置是在什么时候注入的呢？不同的MyBatis使用姿势实现的方式不同：</p>
 <ul>
 <li><code>@MapperScan</code><ul>
 <li>通过<code>ImportBeanDefinitionRegistrar</code>注入<code>MapperScannerRegistrar</code>，其中<code>ImportBeanDefinitionRegistrar</code>也是Spring官方动态注册bean的常用套路</li>
