@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">660</a> 
+                            <a href="">653</a> 
                         </span>
                     
                     
@@ -239,7 +239,7 @@
         </header>
 
         <div class="post-content">
-            <h1 id="MyBatis代理DAO接口全过程"><a href="#MyBatis代理DAO接口全过程" class="headerlink" title="MyBatis代理DAO接口全过程"></a>MyBatis代理DAO接口全过程</h1><p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis代理Mapper接口的实现原理</p>
+            <p>我们都知道MyBatis可以通过<code>@MapperScanner</code>和<code>@Mapper</code>两种方法将Mapper注入到Spring容器中，本文介绍MyBatis代理Mapper接口的实现原理</p>
 <h2 id="Mapper接口实例化过程"><a href="#Mapper接口实例化过程" class="headerlink" title="Mapper接口实例化过程"></a>Mapper接口实例化过程</h2><p>在项目开发中，我们通常使用<code>@Component</code>、<code>@Service</code>等注解将类注入到Spring中，但是这种方式是不适用于DAO接口的，因为接口没有办法实例化，因此Spring自然也不会扫描接口。那么MyBatis是如何代理DAO接口并将其注入到Spring容器中的呢？</p>
 <p>实现原理：</p>
 <ul>
