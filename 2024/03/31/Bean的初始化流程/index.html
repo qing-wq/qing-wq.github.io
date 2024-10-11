@@ -225,7 +225,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">383</a> 
+                            <a href="">381</a> 
                         </span>
                     
                     
@@ -255,12 +255,12 @@
 <li><p><code>@PostConstruct</code></p>
 <p>这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。<code>@PostConstruct</code>的执行时机很让人迷惑🤨</p>
 </li>
-<li><p>**<code>initializingBean</code>**的<code>afterPropertiesSet()</code>：</p>
+<li><p><code>initializingBean</code>的<code>afterPropertiesSet()</code>：</p>
 <p>如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
 </li>
 <li><p>Bean的<code>init-method</code></p>
 </li>
-<li><p>**<code>BeanPostProcessors</code>**的<code>ProcessaAfterInitialization()</code></p>
+<li><p><code>BeanPostProcessors</code>的<code>ProcessaAfterInitialization()</code></p>
 <p>同<code>ProcessBeforeInitialization()</code>，后置处理器</p>
 </li>
 <li><p>把最终生成的代理对象放入<strong>单例池</strong>（源码中叫做<code>singletonObjects</code>）中</p>
