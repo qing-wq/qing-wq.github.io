@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>LSTM复现 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">LSTM复现</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">十月 28, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/AI/">AI</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">1.5k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">6min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>长短期记忆网络（Long Short-Term Memory, LSTM）是一种特殊的循环神经网络（Recurrent Neural Network, RNN），能够有效地学习和记忆长期依赖关系。由于其在处理序列数据方面的卓越表现，LSTM在自然语言处理、语音识别、时间序列预测等领域得到了广泛应用。本文将通过介绍LSTM的基本原理，并结合源码实现，帮助读者深入理解并复现LSTM模型。</p>
+<p><img src="/../images/LSTM%E5%A4%8D%E7%8E%B0/image_miFIeYOq26.png" alt="LSTM架构示意图 LSTM架构示意图 " title="LSTM架构示意图 LSTM架构示意图 "></p>
+<h2 id="LSTM介绍"><a href="#LSTM介绍" class="headerlink" title="LSTM介绍"></a>LSTM介绍</h2><h3 id="1-循环神经网络（RNN）概述"><a href="#1-循环神经网络（RNN）概述" class="headerlink" title="1. 循环神经网络（RNN）概述"></a>1. 循环神经网络（RNN）概述</h3><p>循环神经网络（RNN）是一种用于处理序列数据的神经网络结构。与传统的前馈神经网络不同，RNN具有内部的循环连接，能够在隐藏层中保留前一时刻的信息，从而捕捉序列中的时序特征。然而，标准的RNN在处理较长序列时，容易出现梯度消失或梯度爆炸的问题，导致模型难以学习长期依赖关系。</p>
+<h3 id="2-LSTM的诞生"><a href="#2-LSTM的诞生" class="headerlink" title="2. LSTM的诞生"></a>2. LSTM的诞生</h3><p><strong>RNN存在的问题</strong>：RNN虽然在理论上可以保留所有历史时刻的信息，但在实际使用时，信息的传递往往会因为时间间隔太长而逐渐衰减，传递一段时刻以后其信息的作用效果就大大降低了。因此，普通RNN对于信息的长期依赖问题没有很好的处理办法。而LSTM克服了这个问题，可以学习长期依赖信息</p>
+<p>LSTM由Hochreiter和Schmidhuber在1997年提出，旨在解决标准RNN在长序列中的训练困难。LSTM通过引入门控机制，有效地控制信息的流动，能够在较长时间步内保持有用的信息，同时过滤掉无关或干扰的信息。</p>
+<p>LSTM的关键是细胞状态 Ct，用来保存当前LSTM的状态信息并传递到下一时刻的LSTM中，也就是RNN中那根“自循环”的箭头。当前的LSTM接收来自上一个时刻的细胞状态 Ct−1，并与当前LSTM接收的信号输入 xt共同作用产生当前LSTM的细胞状态 Ct</p>
+<h3 id="3-LSTM的结构与工作原理"><a href="#3-LSTM的结构与工作原理" class="headerlink" title="3. LSTM的结构与工作原理"></a>3. LSTM的结构与工作原理</h3><p>LSTM单元主要由以下几个部分组成：</p>
+<ul>
+<li><strong>遗忘门（Forget Gate）</strong>：决定保留多少过去的信息。</li>
+<li><strong>输入门（Input Gate）</strong>：决定引入多少新的信息。</li>
+<li><strong>输出门（Output Gate）</strong>：决定将多少当前的信息输出。</li>
+</ul>
+<p>每个门都由一个Sigmoid神经网络层组成，输出值在0到1之间，用以控制信息的流动。具体结构如下图所示：</p>
+<p><img src="https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png" alt="LSTM单元结构" title="LSTM单元结构"></p>
+<p><em>图2：LSTM单元结构</em></p>
+<h4 id="具体计算过程"><a href="#具体计算过程" class="headerlink" title="具体计算过程"></a>具体计算过程</h4><p>假设在时间步$t$，输入为$x_t$，前一时刻的隐藏状态为$h_{t-1}$，细胞状态为$c_{t-1}$，则LSTM的计算过程如下：</p>
+<ol>
+<li><p><strong>遗忘门</strong>：</p>
+ <span>
+ $$
+ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) 
+ $$
+ </span>
+</li>
+<li><p><strong>输入门</strong>：</p>
+</li>
+</ol>
+<span>
+   $$
+   i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) 
+   $$
+</span>
+
+<span>
+   $$
+   \tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C) 
+   $$
+</span>
+
+<ol start="3">
+<li><p><strong>更新细胞状态</strong>：</p>
+<p>$$<br>C_t = f_t * C_{t-1} + i_t * \tilde{C}_t<br>$$</p>
+</li>
+<li><p><strong>输出门</strong>：</p>
+<p>$$<br>o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)<br>$$</p>
+<p>$$<br>h_t = o_t * \tanh(C_t)<br>$$</p>
+</li>
+</ol>
+<p>其中，$\sigma$表示Sigmoid函数，$*$表示逐元素相乘。</p>
+<h2 id="LSTM源码实现"><a href="#LSTM源码实现" class="headerlink" title="LSTM源码实现"></a>LSTM源码实现</h2><p>本文将以PyTorch框架为例，手把手实现一个简单的LSTM网络，并应用于字符级的文本预测任务。</p>
+<h3 id="1-环境准备"><a href="#1-环境准备" class="headerlink" title="1. 环境准备"></a>1. 环境准备</h3><p>首先，确保已经安装了PyTorch。可以使用以下命令进行安装：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install torch</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="2-数据准备"><a href="#2-数据准备" class="headerlink" title="2. 数据准备"></a>2. 数据准备</h3><p>以莎士比亚的文本为例，我们将其作为训练数据，用于预测下一个字符。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取文本数据</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">'shakespeare.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    text = f.read()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建字符到索引的映射</span></span><br><span class="line">chars = <span class="built_in">sorted</span>(<span class="built_in">list</span>(<span class="built_in">set</span>(text)))</span><br><span class="line">char_to_idx = {ch: i <span class="keyword">for</span> i, ch <span class="keyword">in</span> <span class="built_in">enumerate</span>(chars)}</span><br><span class="line">idx_to_char = {i: ch <span class="keyword">for</span> i, ch <span class="keyword">in</span> <span class="built_in">enumerate</span>(chars)}</span><br><span class="line"></span><br><span class="line">vocab_size = <span class="built_in">len</span>(chars)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f'字符集大小: <span class="subst">{vocab_size}</span>'</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="3-模型定义"><a href="#3-模型定义" class="headerlink" title="3. 模型定义"></a>3. 模型定义</h3><p>定义一个LSTM类，继承自<code>nn.Module</code>。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">LSTMModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_size, hidden_size, output_size, num_layers=<span class="number">1</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(LSTMModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.hidden_size = hidden_size</span><br><span class="line">        <span class="variable language_">self</span>.num_layers = num_layers</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 定义LSTM层</span></span><br><span class="line">        <span class="variable language_">self</span>.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 定义全连接层</span></span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(hidden_size, output_size)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x, hidden</span>):</span><br><span class="line">        <span class="comment"># LSTM前向传播</span></span><br><span class="line">        out, hidden = <span class="variable language_">self</span>.lstm(x, hidden)</span><br><span class="line">        <span class="comment"># 取最后一个时间步的输出</span></span><br><span class="line">        out = out[:, -<span class="number">1</span>, :]</span><br><span class="line">        out = <span class="variable language_">self</span>.fc(out)</span><br><span class="line">        <span class="keyword">return</span> out, hidden</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">init_hidden</span>(<span class="params">self, batch_size</span>):</span><br><span class="line">        <span class="comment"># 初始化隐藏状态和细胞状态</span></span><br><span class="line">        weight = <span class="built_in">next</span>(<span class="variable language_">self</span>.parameters()).data</span><br><span class="line">        hidden = (weight.new(<span class="variable language_">self</span>.num_layers, batch_size, <span class="variable language_">self</span>.hidden_size).zero_(),</span><br><span class="line">                  weight.new(<span class="variable language_">self</span>.num_layers, batch_size, <span class="variable language_">self</span>.hidden_size).zero_())</span><br><span class="line">        <span class="keyword">return</span> hidden</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="4-模型训练"><a href="#4-模型训练" class="headerlink" title="4. 模型训练"></a>4. 模型训练</h3><p>定义训练函数，并进行模型训练。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 超参数</span></span><br><span class="line">input_size = vocab_size</span><br><span class="line">hidden_size = <span class="number">128</span></span><br><span class="line">output_size = vocab_size</span><br><span class="line">num_layers = <span class="number">2</span></span><br><span class="line">num_epochs = <span class="number">20</span></span><br><span class="line">batch_size = <span class="number">64</span></span><br><span class="line">seq_length = <span class="number">100</span></span><br><span class="line">learning_rate = <span class="number">0.002</span></span><br><span class="line"></span><br><span class="line">model = LSTMModel(input_size, hidden_size, output_size, num_layers)</span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line">optimizer = optim.Adam(model.parameters(), lr=learning_rate)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备数据集</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_sequences</span>(<span class="params">text, seq_length</span>):</span><br><span class="line">    sequences = []</span><br><span class="line">    targets = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(text) - seq_length):</span><br><span class="line">        seq = text[i:i+seq_length]</span><br><span class="line">        target = text[i+seq_length]</span><br><span class="line">        sequences.append([char_to_idx[ch] <span class="keyword">for</span> ch <span class="keyword">in</span> seq])</span><br><span class="line">        targets.append(char_to_idx[target])</span><br><span class="line">    <span class="keyword">return</span> sequences, targets</span><br><span class="line"></span><br><span class="line">sequences, targets = create_sequences(text, seq_length)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f'总序列数: <span class="subst">{<span class="built_in">len</span>(sequences)}</span>'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 转换为张量</span></span><br><span class="line">inputs = torch.tensor(sequences, dtype=torch.long)</span><br><span class="line">targets = torch.tensor(targets, dtype=torch.long)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 训练循环</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    hidden = model.init_hidden(batch_size)</span><br><span class="line">    epoch_loss = <span class="number">0</span></span><br><span class="line">    num_batches = <span class="built_in">len</span>(inputs) // batch_size</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(inputs) - batch_size, batch_size):</span><br><span class="line">        x = inputs[i:i+batch_size]</span><br><span class="line">        y = targets[i:i+batch_size]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 独热编码</span></span><br><span class="line">        x_one_hot = torch.zeros(batch_size, seq_length, input_size)</span><br><span class="line">        x_one_hot.scatter_(<span class="number">2</span>, x.unsqueeze(<span class="number">2</span>), <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        hidden = <span class="built_in">tuple</span>([h.data <span class="keyword">for</span> h <span class="keyword">in</span> hidden])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 前向传播</span></span><br><span class="line">        outputs, hidden = model(x_one_hot, hidden)</span><br><span class="line">        loss = loss_fn(outputs, y)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 反向传播和优化</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        epoch_loss += loss.item()</span><br><span class="line"></span><br><span class="line">    avg_loss = epoch_loss / num_batches</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f'Epoch [<span class="subst">{epoch+<span class="number">1</span>}</span>/<span class="subst">{num_epochs}</span>], Loss: <span class="subst">{avg_loss:<span class="number">.4</span>f}</span>'</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="5-模型预测"><a href="#5-模型预测" class="headerlink" title="5. 模型预测"></a>5. 模型预测</h3><p>训练完成后，可以使用模型生成文本。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">generate_text</span>(<span class="params">model, start_str, length, hidden_size</span>):</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    chars = [ch <span class="keyword">for</span> ch <span class="keyword">in</span> start_str]</span><br><span class="line">    input_seq = torch.tensor([[char_to_idx[ch] <span class="keyword">for</span> ch <span class="keyword">in</span> start_str]], dtype=torch.long)</span><br><span class="line">    input_one_hot = torch.zeros(<span class="number">1</span>, <span class="built_in">len</span>(start_str), vocab_size)</span><br><span class="line">    input_one_hot.scatter_(<span class="number">2</span>, input_seq.unsqueeze(<span class="number">2</span>), <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    hidden = model.init_hidden(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(start_str) - <span class="number">1</span>):</span><br><span class="line">            _, hidden = model(input_one_hot[:, i:i+<span class="number">1</span>, :], hidden)</span><br><span class="line"></span><br><span class="line">        last_char = input_one_hot[:, -<span class="number">1</span>, :]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(length):</span><br><span class="line">            out, hidden = model(last_char.unsqueeze(<span class="number">1</span>), hidden)</span><br><span class="line">            _, predicted = torch.<span class="built_in">max</span>(out, <span class="number">1</span>)</span><br><span class="line">            predicted_char = idx_to_char[predicted.item()]</span><br><span class="line">            chars.append(predicted_char)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 准备下一个输入</span></span><br><span class="line">            last_char = torch.zeros(<span class="number">1</span>, <span class="number">1</span>, vocab_size)</span><br><span class="line">            last_char[<span class="number">0</span>, <span class="number">0</span>, predicted] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">''</span>.join(chars)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成文本示例</span></span><br><span class="line">start_str = <span class="string">"To be, or not to be, that is the question:\n"</span></span><br><span class="line">generated = generate_text(model, start_str, <span class="number">200</span>, hidden_size)</span><br><span class="line"><span class="built_in">print</span>(generated)</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" title="Understanding LSTM Networks">Understanding LSTM Networks</a></li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/index.html" title="PyTorch官方文档">PyTorch官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://chauby.github.io/2020/01/30/LSTM/" title="深入浅出LSTM及其Python代码实现">深入浅出LSTM及其Python代码实现</a></li>
+</ol>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/10/28/LSTM%E5%A4%8D%E7%8E%B0/">https://qing-wq.github.io/2024/10/28/LSTM%E5%A4%8D%E7%8E%B0/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2024/10/11/Spring-%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6/">Spring的事件机制详解</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
