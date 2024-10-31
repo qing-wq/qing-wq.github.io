@@ -15,7 +15,7 @@
 
 
 
-<title>📌 Spring实现动态更新配置 | Qing&#39;s Blog</title>
+<title>😃手搓一个动态配置管理器 | Qing&#39;s Blog</title>
 
 
 
@@ -204,7 +204,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">📌 Spring实现动态更新配置</h1>
+            <h1 class="post-title">😃手搓一个动态配置管理器</h1>
             
                 <div class="post-meta">
                     
@@ -229,13 +229,13 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">1.6k</a> 
+                            <a href="">1.8k</a> 
                         </span>
                     
                     
                         <span class="post-count">
                             ⏱️Time:
-                            <a href="">6min</a> 
+                            <a href="">7min</a> 
                         </span>
                                             
                 </div>
@@ -243,18 +243,20 @@
         </header>
 
         <div class="post-content">
-            <p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，<code>openai_key</code>可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
+            <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>最近又在我的论坛项目中造轮子，场景是由于一些业务原因，比如接入了ChatGPT，<code>openai_key</code>可能会频繁的更新，或者添加新的敏感词等等都会造成项目中配置的变化，每次变动都需要修改配置文件并重新部署应用，这样是非常不方便的，动态的更新这些内存中的配置是需要解决的问题。</p>
 <p>常见的做法是接入一个配置中心，如Apollo、ZK等等，但是目前项目中是没有用到这些中间件的，接入这些配置中心可能会给项目带来一些风险，况且我这是个单体项目，用这些复杂的配置中心有点大材小用了，再说直接拿来就用没什么意思</p>
-<p>鉴于此，我参考了网上和Apollo配置中心的一些技术方案，实现了一个非常实用的配置拓展，支持从自定义数据源中获取配置，并注入到Environment中，且优先级最高，同时也支持配置的动态刷新</p>
+<p>鉴于此，我参考了网上和Apollo配置中心的一些技术方案，实现了一个非常实用的配置拓展，支持从自定义数据源中获取配置，并注入到Environment中，且优先级最高，同时也支持配置的动态刷新😎</p>
 <span id="more"></span>
 
 <blockquote>
 <p>为了更好的理解本文的逻辑，你可能需要以下前置知识点：<a href="/2024/06/21/Spring%20Environment%E4%BD%93%E7%B3%BB/">Spring Environment体系</a></p>
 </blockquote>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><u><em><strong>直接说思路：</strong></em></u>借助Mysql，维护一个配置表<code>global_config</code>（原因是方便构造自定义数据源和持久化用户配置），在Spring启动时读取数据库中的数据构造我们自定义的属性源，并注入到<code>Environment</code>中，再<strong>利用<code>Binder</code>更新</strong>内存中的<code>ConfigurationProperties</code>对象，这样就可以实现覆盖<code>properties</code>文件中的配置</p>
-<blockquote>
-<p>其实这里存在一个问题，就是如果能在<code>PropertySourcesPropertyResolver</code>的配置解析阶段就将自定义的属性源注入，那么初始化后的<code>ConfigurationProperties</code>对象和 <code>@Value</code>标记的字段本身就是我们自定义数据源中的配置，但我尝试后发现无论如何都无法在解析前将自定义数据源注入到Environment中，于是只能在项目完全启动后刷新所有配置<br><img src="/../images/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/image_Secure2_Image.png"></p>
-</blockquote>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><u><em><strong>直接说思路：</strong></em></u></p>
+<ol>
+<li>借助Mysql，维护一个配置表<code>global_config</code>，方便我们构造自定义属性源和持久化用户配置</li>
+<li>在Spring启动时，读取数据库中的配置构造一个自定义属性源，注入到<code>Environment</code>中，并设置优先级为最高</li>
+<li>再<strong>利用<code>Binder</code>更新</strong>内存中的<code>ConfigurationProperties</code>对象，这样就可以实现覆盖<code>properties</code>文件中的配置</li>
+</ol>
 <h2 id="具体细节"><a href="#具体细节" class="headerlink" title="具体细节"></a>具体细节</h2><p>我的项目中配置的使用姿势主要分两种：</p>
 <ol>
 <li>通过<code>@ConfigurationProperties</code>注入的<code>Property</code>对象</li>
@@ -283,6 +285,13 @@
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onApplicationEvent</span><span class="params">(ConfigRefreshEvent event)</span> {</span><br><span class="line">    dynamicConfigContainer.reloadConfig();</span><br><span class="line">    <span class="comment">// SpringValueRegistry.updateValue(event.getKey());</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <p>至于<code>@Value</code>的部分，代码比较多就不贴了，具体可以参考在<a target="_blank" rel="noopener" href="https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo">https://github.com/qing-wq/SAI-Forum-backend/tree/rabbitmq/sai-core/src/main/java/ink/whi/core/autoconf/apollo</a></p>
+<h2 id="一些思考"><a href="#一些思考" class="headerlink" title="一些思考"></a>一些思考</h2><p>通过上面的操作，很方便的实现了配置动态更新的问题，但是经过实际使用后发现该方案还是存在一些隐患：不统一的配置可能会带来的难以管理的问题</p>
+<p>相比于传统的配置管理方案，要么使用统一的注册中心，要么都写在配置文件中，上述方案同时使用两份配置（MySQL和配置文件），会存在优先级问题，可能会造成难以定位的线上Bug。但是对于一个用户量不大的一个小项目来说，该方案能快速实现迭代更新，我认为还是一个不错的选择</p>
+<hr>
+<blockquote>
+<p>写在最后：其实在上文「解决方案」中存在一个问题，就是如果能在<code>PropertySourcesPropertyResolver</code>的配置解析阶段就将自定义的属性源注入，那么初始化后的<code>ConfigurationProperties</code>对象标记的字段本身就是我们自定义数据源中的配置，也就不需要第三步——即启动时用Binder再次更新一遍<code>ConfigurationProperties</code>对象</p>
+<p>但我尝试后发现无论如何都无法在解析前将自定义数据源注入到Environment中，因此目前的做法只能在项目完全启动后刷新所有配置（留个坑），如果有大佬知道解决方案欢迎指出🥳<br><img src="/../images/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/image_Secure2_Image.png"></p>
+</blockquote>
 
         </div>
 
@@ -297,7 +306,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/">https://qing-wq.github.io/2024/07/31/Spring%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE/</a></span>
+                        <span><a href="https://qing-wq.github.io/2024/07/31/%E6%89%8B%E6%90%93%E4%B8%80%E4%B8%AA%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E5%99%A8/">https://qing-wq.github.io/2024/07/31/%E6%89%8B%E6%90%93%E4%B8%80%E4%B8%AA%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E5%99%A8/</a></span>
                     </p>
                 
                 
@@ -315,10 +324,6 @@
                 <span>Tag(s):</span>
                 <span class="tag">
                     
-                    
-                        <a href="/tags/Spring/"># Spring</a>
-                    
-                        
                 </span>
             </div>
             <div>
