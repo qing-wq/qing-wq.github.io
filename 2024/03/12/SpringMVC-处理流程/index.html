@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>SpringMVC 处理流程 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">SpringMVC 处理流程</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">三月 12, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/Spring%E6%BA%90%E7%A0%81%E7%B3%BB%E5%88%97/">Spring源码系列</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">969</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">3min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>先看一下SpringMVC的处理流程：</p>
+<p><img src="/../images/SpringMVC-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/image_HJ0Hg7mzst.png"></p>
+<p>各个组件的作用：</p>
+<ul>
+<li><code>DispatcherServlet</code>：分发请求</li>
+<li><code>HandlerMapping</code>：根据URL匹配能够处理当前<code>request</code>的<code>Handler</code>（也就是我们的 <code>Controller</code> ）和拦截器</li>
+<li><code>HandlerAdapter</code>：负责实际执行<code>Handler</code>的处理方法，并返回<code>ModelAndView</code></li>
+<li><code>ViewResolver</code>：将<code>ModelAndView</code>解析为实际的视图</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h2><ol>
+<li><strong>首先用户发送请求 —&gt; DispatcherServlet</strong>，前端控制器收到请求后自己不进行处理，而是委托给其他的解析器进行 处理，作为统一访问点，进行全局的流程控制；</li>
+<li><strong>DispatcherServlet —&gt; HandlerMapping</strong>， HandlerMapping 将会把请求映射为 <code>HandlerExecutionChain</code> 对象（包含Handler 处理器和<code>HandlerInterceptor</code> 拦截器）对象</li>
+<li><strong>DispatcherServlet —&gt; HandlerAdapter</strong>，HandlerAdapter 将会根据适配的结果调用真正的处理器的功能处理方法，完成功能处理，并返回 ModelAndView；</li>
+<li><strong>ModelAndView —&gt; ViewResolver</strong>，ViewResolver 将把ModelAndView中的逻辑视图名解析为具体的 View</li>
+<li><strong>View —&gt; 渲染</strong>，View 会根据传进来的 Model 模型数据进行渲染</li>
+<li><strong>返回控制权给 DispatcherServlet</strong>，由 DispatcherServlet 返回响应给用户，到此一个流程结束。</li>
+</ol>
+<hr>
+<p>上面的流程有两个关键点：<code>HandlerMapping</code>和<code>HandlerAdapter</code>，<code>HandlerAdapter</code>据说是使用了适配器模式，但具体适配了什么，我一直不知道🤨，直到后面看到了一篇博客才明白。至于它俩的作用，还得从Controller的定义方式说起</p>
+<p>SpringMVC中定义Controller的方式有三种：</p>
+<ul>
+<li><code>@RequestMapping</code>最最最常用的方式，除了这个都不知道其他的了🤣</li>
+<li>继承 org.springframework.web.servlet.mvc.Controller接口，大概是这样：</li>
+</ul>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component("/home")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HomeController</span> <span class="keyword">implements</span> <span class="title class_">Controller</span> {</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ModelAndView <span class="title function_">handleRequest</span><span class="params">(HttpServletRequest request, </span></span><br><span class="line"><span class="params">            HttpServletResponse response)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li>继承 org.springframework.web.HttpRequestHandler接口</li>
+</ul>
+<p>不管后面两个怎么实现，总之，他们仨的处理方式是不一样的，需要用到不同的<code>HandlerMapping</code>和<code>HandlerAdapter</code>处理，比如：</p>
+<ul>
+<li><code>@RequestMapping</code>→<code>RequestMappingHandlerMapping</code>和<code>RequestMappingHandlerAdapter</code></li>
+<li><code>Controller</code>接口 → <code>BeanNameUrlHandlerMapping</code>和<code>HttpRequestHandlerAdapter</code></li>
+<li><code>HttpRequestHandler</code>接口 → <code>BeanNameUrlHandlerMapping</code>和<code>HttpRequestHandlerAdapter</code></li>
+</ul>
+<h2 id="HandlerMapping"><a href="#HandlerMapping" class="headerlink" title="HandlerMapping"></a>HandlerMapping</h2><p><code>HandlerMapping</code>处理后所有的URL和对应的Handler都会被放在一个Map里做映射，这里其实是用了一个<em><strong>策略模式</strong></em>，<u><em><strong>根据Controller定义方式的不同使用不同策略的<code>HandlerMapping</code>去处理</strong></em></u></p>
+<p>  <code>HandlerMapping</code> 是一个策略接口，<code>RequestMappingHandlerMapping</code>和<code>BeanNameUrlHandlerMapping</code>是对应的具体策略</p>
+<p>  <code>HandlerExecutionChain</code>是一个封装策略的上下文角色</p>
+<p>来看一下如何根据<code>request</code>来获取<code>HandlerMapping</code>：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> HandlerExecutionChain <span class="title function_">getHandler</span><span class="params">(HttpServletRequest request)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.handlerMappings != <span class="literal">null</span>) {</span><br><span class="line">      <span class="keyword">for</span> (HandlerMapping mapping : <span class="built_in">this</span>.handlerMappings) {</span><br><span class="line">        <span class="type">HandlerExecutionChain</span> <span class="variable">handler</span> <span class="operator">=</span> mapping.getHandler(request);</span><br><span class="line">        <span class="keyword">if</span> (handler != <span class="literal">null</span>) {</span><br><span class="line">          <span class="keyword">return</span> handler;</span><br><span class="line">        }</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="HandlerAdapter"><a href="#HandlerAdapter" class="headerlink" title="HandlerAdapter"></a>HandlerAdapter</h2><p>说完<code>HandlerMapping</code>之后，下面就要来介绍<code>HandlerAdapter</code>了。</p>
+<p>既然<code>Handler</code>有多种实现形式，但是Servlet需要的处理方法的结构却是固定的，都是以<code>request</code>和<code>response</code>作为方法入参，因此<code>HandlerAdapter</code>的实现类都实现了统一的<code>handle()</code>方法来处理Servlet</p>
+<p>不过由于上面提到的<code>Handler</code>的形式不同，<u><em><strong><code>@RequestMapping</code>对应的<code>Handler</code>是一个方法，而其他两个对应的<code>Handler</code>是一个类，</strong></em></u>而HandlerAdapter使用了<em><strong>适配器模式</strong></em>能够模糊掉具体的实现，从而就能提供统一访问接口（妙😎）</p>
+<p>我们来看一下<code>getHandlerAdapter()</code>方法，注意<code>Handler</code>是Object类型：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> HandlerAdapter <span class="title function_">getHandlerAdapter</span><span class="params">(Object handler)</span> </span><br><span class="line">        <span class="keyword">throws</span> ServletException {</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.handlerAdapters != <span class="literal">null</span>) {</span><br><span class="line">    <span class="keyword">for</span> (HandlerAdapter adapter : <span class="built_in">this</span>.handlerAdapters) {</span><br><span class="line">      <span class="keyword">if</span> (adapter.supports(handler)) {</span><br><span class="line">        <span class="keyword">return</span> adapter;</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="DispatcherServlet的分发流程"><a href="#DispatcherServlet的分发流程" class="headerlink" title="DispatcherServlet的分发流程"></a>DispatcherServlet的分发流程</h2><p>最后看一下<code>DispatcherServlet#doDispatch()</code>的分发流程，注意<code>DispatcherServlet</code>是如何使用<code>HandlerMapping</code>和<code>HandlerAdapter</code>：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//1、根据URL（当然不一定非得是URL）匹配到一个处理器</span></span><br><span class="line">    mappedHandler = getHandler(processedRequest);</span><br><span class="line">    <span class="keyword">if</span> (mappedHandler == <span class="literal">null</span>) {</span><br><span class="line">      <span class="comment">// 若匹配不到Handler处理器，就404了</span></span><br><span class="line">      noHandlerFound(processedRequest, response);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、从HandlerExecutionChain里拿出Handler，然后找到属于它的适配器</span></span><br><span class="line">    <span class="type">HandlerAdapter</span> <span class="variable">ha</span> <span class="operator">=</span> getHandlerAdapter(mappedHandler.getHandler());</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//3、执行Handler上的所有拦截器的Pre方法</span></span><br><span class="line">    <span class="keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) {</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">//4、真正执行handle方法，得到一个ModelAndView</span></span><br><span class="line">    mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">    <span class="comment">//5、视图渲染</span></span><br><span class="line">    applyDefaultViewName(processedRequest, mv);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//6、执行拦截器的post方法（视图渲染完成后执行）</span></span><br><span class="line">    mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//7、执行拦截器的afterCompletion方法（不管抛出与否）</span></span><br><span class="line">  }</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zxd1435513775/article/details/103000992">https://blog.csdn.net/zxd1435513775/article/details/103000992</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/03/12/SpringMVC-%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">https://qing-wq.github.io/2024/03/12/SpringMVC-%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Spring%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"># Spring源码阅读</a>
+                    
+                        <a href="/tags/SpringMVC/"># SpringMVC</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/03/31/Spring%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">✍🏻 Spring源码阅读记录</a>
+            
+            
+            <a class="next" rel="next" href="/2024/02/10/Spring-IoC%E4%B9%8B%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/">Spring IoC之体系结构</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

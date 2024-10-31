@@ -285,13 +285,10 @@
 <p>我们可以在Spring的BeanDefinition扫描流程结束后，再扫描一遍不就好了吗？这时候后置处理器就可以派上用场了：</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiServiceScannerProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanDefinitionRegistryPostProcessor</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException {</span><br><span class="line">        <span class="type">ClassPathAiServiceScanner</span> <span class="variable">classPathAiServiceScanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathAiServiceScanner</span>(registry, <span class="literal">false</span>);</span><br><span class="line">        classPathAiServiceScanner.addIncludeFilter(<span class="keyword">new</span> <span class="title class_">AnnotationTypeFilter</span>(AiService.class));</span><br><span class="line">        Set&lt;String&gt; basePackages = getBasePackages((ConfigurableListableBeanFactory) registry);</span><br><span class="line">        classPathAiServiceScanner.scan(StringUtils.toStringArray(basePackages));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<p>至此这个问题就大致解决了，但是一些细节肯定没有处理好，这个项目目前也是刚起步的阶段，来日方长，期待有大佬给出更好的解决方案🥳</p>
+<p>至此这个问题就大致解决了，但是一些细节肯定没有处理好，这个项目目前也是刚起步的阶段，期待有大佬给出更好的解决方案🥳</p>
 <hr>
-<p>参考：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1962431">https://cloud.tencent.com/developer/article/1962431</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31086797/article/details/124488829">https://blog.csdn.net/qq_31086797/article/details/124488829</a></li>
-</ul>
+<p>附一个贴图，纪念一下：</p>
+<p><img src="/../images/%E5%BC%80%E6%BA%90%E7%BB%8F%E5%8E%86-LangChain4j-Spring-Bug%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95/pr.png"></p>
 
         </div>
 
@@ -340,10 +337,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2024/10/11/Spring-%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6/">Spring的事件机制详解</a>
+                <a class="prev" rel="prev" href="/2024/09/13/ThreadPoolExecutor%E8%AF%A6%E8%A7%A3/">ThreadPoolExecutor详解</a>
             
             
-            <a class="next" rel="next" href="/2024/08/13/ThreadPoolExecutor%E8%AF%A6%E8%A7%A3/">ThreadPoolExecutor源码阅读</a>
+            <a class="next" rel="next" href="/2024/08/11/Spring-%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6/">Spring Event机制详解</a>
             
         </section>
 

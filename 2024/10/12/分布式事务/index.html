@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="qing-wq">
+
+
+
+    <meta name="description" content="Qing's Blog">
+
+
+
+<title>凤凰架构-笔记Part1-分布式事务 | Qing&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Qing&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Qing&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/categories">Categories</a>
+                
+                    <a class="menu-item" href="/tags">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">凤凰架构-笔记Part1-分布式事务</h1>
+            
+                <div class="post-meta">
+                    
+                        👨‍🎓Author: <a itemprop="author" rel="author" href="/">qing-wq</a>
+                    
+
+                    
+                        <span class="post-time">
+                        📅Date: <a href="#">十月 12, 2024</a>
+                        </span>
+                    
+                    <br/>
+                    
+                        <span class="post-category">
+                            📚Category:
+                            
+                                <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E7%90%86%E8%AE%BA%E4%BD%93%E7%B3%BB/">分布式理论体系</a>
+                            
+                        </span>
+                    
+                    
+                    
+                        <span class="post-count">
+                            📑Words:
+                            <a href="">2.9k</a> 
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            ⏱️Time:
+                            <a href="">10min</a> 
+                        </span>
+                                            
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://icyfenix.cn/">https://icyfenix.cn/</a></p>
+</blockquote>
+<h1 id="本地事务"><a href="#本地事务" class="headerlink" title="本地事务"></a>本地事务</h1><p>我们都知道事务有四大原则：原子性、一致性、隔离性、持久性。具体是如何实现的呢？</p>
+<h2 id="实现原子性和持久性"><a href="#实现原子性和持久性" class="headerlink" title="实现原子性和持久性"></a>实现原子性和持久性</h2><p><strong>事务的原子性和持久性实现方式</strong></p>
+<ul>
+<li>通过日志：常见，主流方案</li>
+<li>Shadow Paging（影子分页），SQLite就采用该种方式</li>
+</ul>
+<p><strong>日志两种实现方式：</strong></p>
+<ul>
+<li>Commit Logging（提交日志）<ul>
+<li>在日志没有提交之前不允许持久化数据，原因是如果事务回滚，那么持久化的数据是错误的</li>
+<li>存在的问题：会占用非常多的磁盘缓冲区，严重拖垮效率</li>
+</ul>
+</li>
+<li>Write-Ahead Logging（提前写入）<ul>
+<li><p>允许事务未提交就持久化数据，利用undo log实现持久化数据回滚的能力</p>
+</li>
+<li><p>崩溃恢复步骤：</p>
+<p>从最后一次checkpoint（checkpoint之前的所有数据都已经安全落盘）开始扫描日志，将扫描到的事务分为两个队列：</p>
+<ul>
+<li>Redo list：对于已经提交的事务，按照日志进行重做；</li>
+<li>Undo list：对于未提交的事务，将已经执行的操作回滚；</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="实现隔离性"><a href="#实现隔离性" class="headerlink" title="实现隔离性"></a>实现隔离性</h2><p>通过加锁</p>
+<h3 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h3><p>根据ARIES 理论中定义：</p>
+<ul>
+<li><strong>可串行化</strong>：对事务所有读、写的数据全都加上读锁、写锁和范围锁</li>
+<li><strong>可重复读</strong>：对事务所涉及的数据加读锁和写锁，且一直持有至事务结束，但不再加范围锁。<ul>
+<li>出现幻读问题<blockquote>
+<p>✍🏻MySQL InnoDB 的可重复读级别在只读事务中可以完全避免幻读问题</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><strong>读已提交</strong>：对事务涉及的数据加的写锁会一直持续到事务结束，但加的读锁在查询操作完成后就马上会释放<ul>
+<li>不可重复读问题</li>
+</ul>
+</li>
+<li><strong>读未提交</strong>：对事务涉及的数据只加写锁，会一直持续到事务结束，但完全不加读锁。<ul>
+<li>脏读问题</li>
+</ul>
+</li>
+</ul>
+<p><em><strong>以锁为手段来实现隔离性才是数据库表现出不同隔离级别的根本原因。</strong></em></p>
+<h1 id="全局事务XA"><a href="#全局事务XA" class="headerlink" title="全局事务XA"></a>全局事务XA</h1><p>XA（ eXtended Architecture）是最早提出的分布式事务处理架构，其核心内容是定义了全局的事务管理器（Transaction Manager）和局部的资源管理器（Resource Manager，用于驱动本地事务）之间的通信接口</p>
+<p>XA 接口是双向的，能在一个事务管理器和多个资源管理器之间形成通信桥梁，通过协调多个数据源的一致动作，实现全局事务的统一提交或者统一回滚。</p>
+<p>JAT（<strong>JSR 907 Java Transaction API）</strong>定义了基于 XA 模式在 Java 语言中的实现了全局事务处理的标准。JTA 最主要的两个接口是：</p>
+<ul>
+<li>事务管理器的接口： <code>javax.transaction.TransactionManager</code> </li>
+<li>满足 XA 规范的资源定义接口：<code>javax.transaction.xa.XAResource</code>，任何资源（JDBC、JMS 等等）如果想要支持 JTA，只要实现 XAResource 接口中的方法即可。</li>
+</ul>
+<p>全局事务建立在<strong>单个服务多个数据源</strong>的场景下，如用户买书，而书店的用户、商家、仓库分别处于不同的数据源中：</p>
+<p><img src="/../images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/image_MsOVu4dKys.png"></p>
+<h3 id="两段式提交"><a href="#两段式提交" class="headerlink" title="两段式提交"></a>两段式提交</h3><p>XA 将事务提交拆分成为两阶段过程（<em><strong>两段式提交，2 Phase Commit，2PC</strong></em>）：</p>
+<ul>
+<li><strong>准备阶段</strong>：又叫作投票阶段，在这一阶段，协调者询问事务的所有参与者是否准备好提交，参与者如果已经准备好提交则回复 Prepared，否则回复 Non-Prepared。<ul>
+<li><em>这个阶段离真正的提交只差了一个Commit日志记录</em></li>
+</ul>
+</li>
+<li><strong>提交阶段</strong>：又叫作执行阶段<ul>
+<li>协调者如果在上一阶段收到所有事务参与者回复的 Prepared 消息，则先自己在本地持久化事务状态为 Commit，完成后向所有参与者发送 Commit 指令，所有参与者立即执行提交操作；<ul>
+<li><em>持久化一条 Commit 记录</em></li>
+</ul>
+</li>
+<li>否则，任意一个参与者回复了 Non-Prepared 消息或者超时未回复，协调者将自己的事务状态持久化为 Abort 之后，向所有参与者发送 Abort 指令，参与者立即执行回滚操作。<ul>
+<li><em>根据回滚日志清理已提交的数据</em></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/image_t2l87tkvf3.png"></p>
+<p><strong>两段式提交存在的问题</strong></p>
+<ul>
+<li><p>单点问题：协调者宕机</p>
+</li>
+<li><p>性能问题：多次服务调用</p>
+<p><strong>木桶效应</strong>：准备阶段必须等待所有数据源都返回成功后，协调者才能统一发出 Commit 命令，所有涉及的锁和资源都需要等待到最慢的事务完成后才能统一释放</p>
+</li>
+<li><p>一致性风险：没有宕机恢复能力。</p>
+<p>如果协调者在提交了本地的事务后突然断开，就会导致部分数据（协调者的）已提交，但部分数据（参与者的）既未提交，也没有办法回滚，产生了数据不一致的问题。</p>
+</li>
+</ul>
+<p><em><strong>FLP 不可能原理</strong></em><em>：如果不能保证宕机恢复能力，那就不存在任何一种分布式协议可以正确地达成一致性结果。（我的理解）</em></p>
+<h3 id="三段式提交"><a href="#三段式提交" class="headerlink" title="三段式提交"></a>三段式提交</h3><p>三段式提交把准备阶段再细分为两个阶段，分别称为 CanCommit、PreCommit，把提交阶段改称为 DoCommit 阶段。这样做的目的是为了减少两段式中<strong>准备阶段</strong>这一重量操作带来的开销</p>
+<ul>
+<li><strong>CanCommit</strong>：询问阶段，协调者让每个参与者根据自身状态，评估该事务是否有可能顺利完成。</li>
+<li><strong>PreCommit</strong>：准备阶段，准备提交事务</li>
+<li><strong>DoCommit</strong>：提交阶段，协调者发送Commit指令</li>
+</ul>
+<p><img src="/../images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/image_BDrIsTxVGB.png"></p>
+<p><strong>三段式提交的影响</strong></p>
+<ul>
+<li>改善单点问题：如果协调者故障，那么参与者默认会提交事务</li>
+<li>减少回滚：先让参与者判断自身是否有能力提交事务，避免故障导致其他参与者做Prepared无用功</li>
+<li>一致性问题没有解决，反而加重</li>
+</ul>
+<h1 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h1><p>这里特指<strong>多个服务同时访问多个数据源</strong>的事务处理机制</p>
+<h2 id="CAP和Base"><a href="#CAP和Base" class="headerlink" title="CAP和Base"></a><strong>CAP和</strong>Base</h2><p>一个分布式的系统中，涉及共享数据问题时，以下三个特性最多只能同时满足其中两个</p>
+<ul>
+<li>一致性</li>
+<li>可用性</li>
+<li>分区容忍性</li>
+</ul>
+<hr>
+<ul>
+<li>CA架构：意味着假设节点之间的通信永远是可靠的，必定不可能实现<ul>
+<li>例子：传统的关系数据库集群，他们不依赖网络实现共享，而是通过日志，如MySQL的bin log</li>
+</ul>
+</li>
+<li>CP架构：一般用于对数据质量很高的场合中<ul>
+<li>eg：HBase、前面讨论的全局事务</li>
+</ul>
+</li>
+<li>AP架构：主流选择，放弃强一致性，选择最终一致性</li>
+</ul>
+<p>最终一致性的起源：<strong>BASE理论</strong></p>
+<p>BASE 分别是基本可用性、柔性事务和最终一致性的缩写</p>
+<h2 id="可靠事件队列"><a href="#可靠事件队列" class="headerlink" title="可靠事件队列"></a>可靠事件队列</h2><p>可靠消息队列是通过<em><strong>持续重试来保证可靠性</strong></em>的一种方案，也被称为<strong>「最大努力交付」</strong>，如TCP的ACK重传机制</p>
+<p>可靠事件队列只要第一步业务完成了，后续就没有失败回滚的概念，只许成功，不许失败。</p>
+<p>可靠消息队列虽然能保证最终的结果是相对可靠的，但完全没有隔离性可言，如可能导致「超售」问题</p>
+<p><img src="/../images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/image_y2pcU-VxsW.png"></p>
+<h2 id="TCC-事务"><a href="#TCC-事务" class="headerlink" title="TCC 事务"></a>TCC 事务</h2><p>TCC （Try-Confirm-Cancel）是另一种常见的分布式事务机制，具有较强的<strong>隔离性</strong></p>
+<p>TCC的三个阶段：</p>
+<ul>
+<li><strong>Try</strong>：尝试执行阶段，完成所有业务可执行性的检查<strong>（保障一致性）</strong>，并且预留好全部需用到的业务资源<strong>（保障隔离性）</strong>。</li>
+<li><strong>Confirm</strong>：确认执行阶段，不进行任何业务检查，直接使用 Try 阶段准备的资源来完成业务处理。Confirm 阶段可能会重复执行，需要具备<strong>幂等性</strong>。</li>
+<li><strong>Cancel</strong>：取消执行阶段，释放 Try 阶段预留的业务资源。Cancel 阶段也需要满足<strong>幂等性</strong></li>
+</ul>
+<p><img src="/../images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/image_d3MwlmWL0j.png"></p>
+<p>优势：TCC 在业务执行时只操作预留资源，几乎不会涉及锁和资源的争用，具有很高的性能潜力。</p>
+<p>缺点：与业务耦合较高</p>
+<h2 id="SAGA-事务"><a href="#SAGA-事务" class="headerlink" title="SAGA 事务"></a>SAGA 事务</h2><p>解决TCC第一步无法施行的场景</p>
+<blockquote>
+<p> 由于中国网络支付日益盛行，现在用户和商家在书店系统中可以选择不再开设充值账号，如果用户、商家的账号余额由银行管理的话，通常无法完成冻结款项、解冻、扣减这样的操作，因为银行一般不会配合你的操作。所以 TCC 中的第一步 Try 阶段往往无法施行。</p>
+</blockquote>
+<p>SAGA 由两部分操作组成：</p>
+<ul>
+<li><p>大事务拆分若干个小事务，将整个分布式事务 T 分解为 n 个子事务，命名为 T1，T2，…，Ti，…，Tn。每个子事务都应该是或者能被视为是原子行为。如果分布式事务能够正常提交，其对数据的影响（最终一致性）应与连续按顺序成功提交 Ti等价。</p>
+</li>
+<li><p>为每一个子事务设计对应的补偿动作，命名为 C1，C2，…，Ci，…，Cn。Ti与 Ci必须满足以下条件：</p>
+<ul>
+<li><p>Ti与 Ci都具备幂等性。</p>
+</li>
+<li><p>Ti与 Ci满足交换律，即先执行 Ti还是先执行 Ci，其效果都是一样的。</p>
+</li>
+<li><p>Ci必须能成功提交，即不考虑 Ci本身提交失败被回滚的情形，如出现就必须持续重试直至成功，或者要人工介入。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>如果 T1到 Tn均成功提交，那事务顺利完成，否则，要采取以下两种恢复策略之一：</p>
+<ul>
+<li><strong>正向恢复</strong>：如果 Ti事务提交失败，则一直对 Ti进行重试，直至成功为止（最大努力交付）。这种恢复方式不需要补偿，适用于事务最终都要成功的场景，譬如在别人的银行账号中扣了款，就一定要给别人发货。正向恢复的执行模式为：T1，T2，…，Ti（失败），Ti（重试）…，Ti+1，…，Tn。</li>
+<li><strong>反向恢复</strong>：如果 Ti事务提交失败，则一直执行 Ci对 Ti进行补偿，直至成功为止（最大努力交付）。这里要求 Ci必须（在持续重试后）执行成功。反向恢复的执行模式为：T1，T2，…，Ti（失败），Ci（补偿），…，C2，C1。</li>
+</ul>
+<p><em><strong>SAGA 必须保证所有子事务都得以提交或者补偿</strong></em></p>
+<hr>
+<p> GTS的AT事务模式：基于数据补偿来代替回滚的思路</p>
+<p>解决了XA 2PC带来的木桶效应</p>
+<p>基于这种补偿方式，分布式事务中所涉及的每一个数据源都可以单独提交，然后立刻释放锁和资源。这种异步提交的模式，相比起 2PC 极大地提升了系统的吞吐量水平。而代价就是大幅度地牺牲了隔离性，甚至直接影响到了原子性。因为在缺乏隔离性的前提下，以补偿代替回滚并不一定是总能成功的。譬如，当本地事务提交之后、分布式事务完成之前，该数据被补偿之前又被其他操作修改过，即出现了脏写（Dirty Writ e），这时候一旦出现分布式事务需要回滚，就不可能再通过自动的逆向 SQL 来实现补偿，只能由人工介入处理了。🤨</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>qing-wq</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://qing-wq.github.io/2024/10/12/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">https://qing-wq.github.io/2024/10/12/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/10/28/LSTM%E5%A4%8D%E7%8E%B0/">LSTM复现</a>
+            
+            
+            <a class="next" rel="next" href="/2024/09/13/ThreadPoolExecutor%E8%AF%A6%E8%A7%A3/">ThreadPoolExecutor详解</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© qing-wq | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
