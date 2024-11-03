@@ -229,7 +229,7 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">381</a> 
+                            <a href="">282</a> 
                         </span>
                     
                     
@@ -246,39 +246,39 @@
             <p>Bean生命周期的大致过程：实例化→属性注入→初始化→销毁</p>
 <p><img src="/../images/Bean%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B/bean.svg"></p>
 <p>本文主要探讨一下初始化这个过程：</p>
-<h2 id="初始化生命钩子"><a href="#初始化生命钩子" class="headerlink" title="初始化生命钩子"></a>初始化生命钩子</h2><ol>
-<li><p>回调<code>Aware</code>接口</p>
-<p>包括<code>BeanNameAware</code>、<code>BeanFactoryAware</code>等</p>
+<h2 id="初始化生命钩子"><a href="#初始化生命钩子" class="headerlink" title="初始化生命钩子"></a>初始化生命钩子</h2><p>该阶段主要做bean的初始化操作，包括：<strong>回调Aware接口</strong>、<strong>回调初始化方法</strong>、<strong>生成代理对象</strong>等：</p>
+<ol>
+<li><p><strong>回调<code>Aware</code>接口</strong></p>
+<p> 包括<code>BeanNameAware</code>、<code>BeanFactoryAware</code>等</p>
 </li>
-<li><p>实现了<code>ApplicationContextAware</code>、<code>EnvironmentAware</code>等接口的Bean</p>
-<p>如果这个Bean已经实现了ApplicationContextAware接口，会调用<code>setApplicationContext()</code>方法，传入Spring上下文；<code>EnvironmentAware</code>同理</p>
+<li><p><strong><code>BeanPostProcessors</code>前置处理器</strong></p>
+<ul>
+<li><code>ApplicationContextAwareProcessor</code>：回调一些Aware接口，如：<ul>
+<li><code>ApplicationContextAware</code>：注入<code>context</code>对象</li>
+<li><code>EnvironmentAware</code>：注入<code>Environment</code>对象</li>
+</ul>
 </li>
-<li><p><code>BeanPostProcessors</code>的<code>ProcessBeforeInitialization()</code></p>
-<p>如果自定义Bean了实现了<code>ProcessBeforeInitialization</code>方法，那么所有Bean的初始化都会经过这个方法，非常适合扫描Bean</p>
+<li><code>InitDestroyAnnotationBeanPostProcessor</code>：调用<code>@PostConstruct</code>标注的方法</li>
+</ul>
 </li>
-<li><p><code>@PostConstruct</code></p>
-<p>这里插入一个不属于Spring的生命周期，但是实际项目中会经常用到的方法。<code>@PostConstruct</code>的执行时机很让人迷惑🤨</p>
+<li><p><strong>回调初始化方法</strong></p>
+<ul>
+<li><code>initializingBean</code>的<code>afterPropertiesSet()</code></li>
+<li>Bean的<code>init-method</code></li>
+</ul>
 </li>
-<li><p><code>initializingBean</code>的<code>afterPropertiesSet()</code>：</p>
-<p>如果Bean类已实现InitializingBean接口，则执行他的<code>afterProPertiesSet()</code>方法。</p>
-</li>
-<li><p>Bean的<code>init-method</code></p>
-</li>
-<li><p><code>BeanPostProcessors</code>的<code>ProcessaAfterInitialization()</code></p>
-<p>同<code>ProcessBeforeInitialization()</code>，后置处理器</p>
+<li><p><strong><code>BeanPostProcessors</code>后置处理器</strong></p>
+<p> 常用于返回代理对象。</p>
+<p> 其中<code>AbstractAutoProxyCreator</code>和 <code>AbstractAdvisingBeanPostProcessor</code>都有可能产生代理对象，如：</p>
+<ul>
+<li><code>AsyncAnnotationBeanPostProcessor</code>：对<code>@Async</code>进行代理</li>
+<li><code>InfrastructureAdvisorAutoProxyCreator</code>：对<code>@Transactional</code>进行代理</li>
+</ul>
 </li>
 <li><p>把最终生成的代理对象放入<strong>单例池</strong>（源码中叫做<code>singletonObjects</code>）中</p>
 </li>
 </ol>
-<h1 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h1><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Object <span class="title function_">initializeBean</span><span class="params">(String beanName, Object bean, <span class="meta">@Nullable</span> RootBeanDefinition mbd)</span> {</span><br><span class="line">  <span class="comment">// 1: 回调Aware接口中的方法</span></span><br><span class="line">  <span class="comment">// 完成Aware方法的回调(BeanNameAware,BeanClassLoaderAware,BeanFactoryAware)</span></span><br><span class="line">  invokeAwareMethods(beanName, bean);</span><br><span class="line"></span><br><span class="line">   <span class="type">Object</span> <span class="variable">wrappedBean</span> <span class="operator">=</span> bean;</span><br><span class="line">   <span class="keyword">if</span> (mbd == <span class="literal">null</span> || !mbd.isSynthetic()) {</span><br><span class="line">      <span class="comment">// 2: 调用before...方法</span></span><br><span class="line">      <span class="comment">// ApplicationContextAwareProcessor: 其他Aware方法的回调</span></span><br><span class="line">      <span class="comment">// InitDestroyAnnotationBeanPostProcessor: @PostConstruct方法的回调</span></span><br><span class="line">      wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="keyword">try</span> {</span><br><span class="line">      <span class="comment">// 3: 完成xml版本和@bean(initMethod)的init方法回调</span></span><br><span class="line">      invokeInitMethods(beanName, wrappedBean, mbd);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 4: 调用after方法</span></span><br><span class="line">   <span class="comment">// 重点: AOP生成代理对象</span></span><br><span class="line">   <span class="keyword">if</span> (mbd == <span class="literal">null</span> || !mbd.isSynthetic()) {</span><br><span class="line">      wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> wrappedBean;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<p>附一个大佬画的流程图，原文在参考链接里，超级推荐阅读👍🏻：</p>
-<p><img src="/../images/Bean%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B/image-20240927034551730.png" alt="img"></p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7155884227714613285#heading-2">聊透Spring Bean的初始化流程</a>（强烈推荐！！）</li>
-</ul>
+<h1 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h1><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Object <span class="title function_">initializeBean</span><span class="params">(String beanName, Object bean, <span class="meta">@Nullable</span> RootBeanDefinition mbd)</span> {</span><br><span class="line">  <span class="comment">// 1: 回调Aware接口中的方法</span></span><br><span class="line">  invokeAwareMethods(beanName, bean);</span><br><span class="line"></span><br><span class="line">   <span class="type">Object</span> <span class="variable">wrappedBean</span> <span class="operator">=</span> bean;</span><br><span class="line">   <span class="keyword">if</span> (mbd == <span class="literal">null</span> || !mbd.isSynthetic()) {</span><br><span class="line">      <span class="comment">// 2: 调用前置处理器</span></span><br><span class="line">      wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="keyword">try</span> {</span><br><span class="line">      <span class="comment">// 3: 完成init方法回调</span></span><br><span class="line">      invokeInitMethods(beanName, wrappedBean, mbd);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 4: 调用后置处理器</span></span><br><span class="line">   <span class="keyword">if</span> (mbd == <span class="literal">null</span> || !mbd.isSynthetic()) {</span><br><span class="line">      wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> wrappedBean;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
         </div>
 
