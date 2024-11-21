@@ -15,7 +15,7 @@
 
 
 
-<title>SpringBoot实现GitHub第三方登录 | Qing&#39;s Blog</title>
+<title>OAuth2.0授权码模式对接与开发记录 | Qing&#39;s Blog</title>
 
 
 
@@ -204,7 +204,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">SpringBoot实现GitHub第三方登录</h1>
+            <h1 class="post-title">OAuth2.0授权码模式对接与开发记录</h1>
             
                 <div class="post-meta">
                     
@@ -221,7 +221,7 @@
                         <span class="post-category">
                             📚Category:
                             
-                                <a href="/categories/%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88/">技术方案</a>
+                                <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a>
                             
                         </span>
                     
@@ -229,13 +229,13 @@
                     
                         <span class="post-count">
                             📑Words:
-                            <a href="">549</a> 
+                            <a href="">703</a> 
                         </span>
                     
                     
                         <span class="post-count">
                             ⏱️Time:
-                            <a href="">2min</a> 
+                            <a href="">3min</a> 
                         </span>
                                             
                 </div>
@@ -243,27 +243,35 @@
         </header>
 
         <div class="post-content">
-            <h2 id="Github登录原理"><a href="#Github登录原理" class="headerlink" title="Github登录原理"></a>Github登录原理</h2><p>Github登录的原理是借助OAuth 2.0协议来实现，具体的流程是：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个Access Token</p>
-<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端拿着这个token就可以请求GitHub并获得用户信息</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_u3kxu-6By6.png"></p>
+            <h2 id="这是什么"><a href="#这是什么" class="headerlink" title="这是什么"></a>这是什么</h2><p>OAuth 2.0定义了四种授权方式：</p>
+<ul>
+<li>授权码模式（Authorization Code）</li>
+<li>简化模式（Implicit Grant）</li>
+<li>密码模式（Resource Owner Password Credentials Grant）</li>
+<li>客户端模式（Client Credentials）</li>
+</ul>
+<p>其中授权码模式在应用与应用之间广为使用，比如微信第三方授权登录；其特点是不会涉及到客户端应用的账号密码信息，只需要通过简单的约定好的握手原则就可以拿到第三方用户的资源权限；</p>
+<p>OAuth（开放授权）是一个开放标准，是一种约定俗成的规则；</p>
+<h2 id="需要什么"><a href="#需要什么" class="headerlink" title="需要什么"></a>需要什么</h2><ul>
+<li>客户端（我，即应用程序服务器）</li>
+<li>资源所有者（用户）</li>
+<li>授权服务器（负责颁发令牌）</li>
+<li>资源服务器（接收访问令牌，提供用户资源）</li>
+</ul>
+<h2 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h2><p>举一个Github登录的例子：首先用户被重定向到GitHub的授权页面，证明自己的身份并同意授权后获取一个授权码，然后客户端拿着授权码请求授权服务器获得一个「Access Token」；</p>
+<p>之后客户端就可以通过Access Token来与资源服务器进行交互，这个token是长期有效的，也可以服务端自行留存。服务端通过Access Token可以向GitHub获取用户信息；</p>
+<p><img src="/../images/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%8E%A5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/image_u3kxu-6By6.png"></p>
 <p>我们常见的单点登录平台，如Casdoor、logto等等，他们会在保存授权后获得的Access Token，并作为授权服务器提供服务。利用这些平台我们能更方便的管理账号系统，不用再去对不同的第三方平台做不同的授权实</p>
 <span id="more"></span>
 
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
-<h1 id="SpringBoot实现GitHub登录"><a href="#SpringBoot实现GitHub登录" class="headerlink" title="SpringBoot实现GitHub登录"></a>SpringBoot实现GitHub登录</h1><p>首先，你需要在GitHub上创建一个<a target="_blank" rel="noopener" href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_FUKgEjhTXM.png"></p>
+<p><img src="/../images/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%8E%A5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/2760332-20220412195835959-694117279_q0bggeLtdi.gif"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>首先，你需要在GitHub上创建一个<a target="_blank" rel="noopener" href="https://github.com/settings/applications/new" title="Application">Application</a>，将我们的应用注册到GitHub</p>
+<p><img src="/../images/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%8E%A5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/image_FUKgEjhTXM.png"></p>
 <p>注意这个回调地址，它是用户授权后GitHub重定向用户的地址</p>
 <p>注册完成后，将<code>client_id</code>和<code>client_secret</code>配置到SpringBoot应用中：</p>
-<p><img src="/../images/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/image_qoOfOfER8X.png"></p>
+<p><img src="/../images/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%8E%A5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/image_qoOfOfER8X.png"></p>
 <p>下面是Demo：</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = "oauth")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuthController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${github.client.id}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientId;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Value("${github.client.secret}")</span></span><br><span class="line">    <span class="keyword">private</span> String clientSecret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跳转到授权页面</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "github")</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(HttpServletResponse response)</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">String</span> <span class="variable">authorizeUri</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/authorize"</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">redirectUri</span> <span class="operator">=</span> <span class="string">"http://localhost:8080/oauth/redirect"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> authorizeUri </span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;redirect_uri="</span> + redirectUri;</span><br><span class="line">        response.sendRedirect(url);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Github回调接口</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> requestToken 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(path = "redirect")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">handleRedirect</span><span class="params">(<span class="meta">@RequestParam("code")</span> String requestToken, HttpServletResponse response)</span> {</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tokenUrl</span> <span class="operator">=</span> <span class="string">"https://github.com/login/oauth/access_token"</span></span><br><span class="line">                + <span class="string">"?client_id="</span> + githubClientProperties.getClientId()</span><br><span class="line">                + <span class="string">"&amp;client_secret="</span> + githubClientProperties.getClientSecret()</span><br><span class="line">                + <span class="string">"&amp;code="</span> + requestToken;</span><br><span class="line"></span><br><span class="line">        <span class="type">AccessTokenResponse</span> <span class="variable">tokenResponse</span> <span class="operator">=</span> restTemplate.postForObject(tokenUrl, <span class="literal">null</span>, AccessTokenResponse.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> tokenResponse.getAccessToken();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">apiUrl</span> <span class="operator">=</span> <span class="string">"https://api.github.com/user"</span>;</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + accessToken);</span><br><span class="line">        HttpEntity&lt;String&gt; entity = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(<span class="string">"parameters"</span>, headers);</span><br><span class="line">        ResponseEntity&lt;String&gt; resp = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">userData</span> <span class="operator">=</span> resp.getBody();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将token返回给客户端</span></span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">githubToken</span> <span class="operator">=</span> newCookie(<span class="string">"github_token"</span>, accessToken, <span class="string">"/"</span>, COOKIE_AGE);</span><br><span class="line">        response.addCookie(githubToken);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ResVo.ok(userData);</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Cookie <span class="title function_">newCookie</span><span class="params">(String key, String session, String path, <span class="type">int</span> maxAge)</span> {</span><br><span class="line">        <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(key, session);</span><br><span class="line">        cookie.setPath(path);</span><br><span class="line">        cookie.setMaxAge(maxAge);</span><br><span class="line">        <span class="keyword">return</span> cookie;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<hr>
-<p>相关文档：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow" title="https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow</a></li>
-<li><a target="_blank" rel="noopener" href="https://casdoor.org/docs/overview" title="https://casdoor.org/docs/overview">https://casdoor.org/docs/overview</a></li>
-</ul>
 
         </div>
 
@@ -278,7 +286,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://qing-wq.github.io/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/">https://qing-wq.github.io/2023/05/14/SpringBoot%E5%AE%9E%E7%8E%B0GitHub%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95/</a></span>
+                        <span><a href="https://qing-wq.github.io/2023/05/14/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%8E%A5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/">https://qing-wq.github.io/2023/05/14/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%8E%A5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/</a></span>
                     </p>
                 
                 
